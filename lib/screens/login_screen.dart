@@ -18,7 +18,7 @@ class LoginScreen extends StatelessWidget {
                 style: TextStyle(color: Colors.white, fontSize: 18)),
 
             // Login Form
-            Padding(padding: EdgeInsets.symmetric(horizontal: 600, vertical: 20), child: LoginForm())
+            Padding(padding: EdgeInsets.symmetric(horizontal: 200, vertical: 20), child: LoginForm())
           ],
         ),
       ),

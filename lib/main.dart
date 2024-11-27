@@ -1,7 +1,4 @@
-import 'package:choi_pos/screens/admin/overview_screen.dart';
-import 'package:choi_pos/screens/app_screen.dart';
-import 'package:choi_pos/screens/forgot_screen.dart';
-import 'package:choi_pos/screens/login_screen.dart';
+import 'package:choi_pos/router/app_router.dart';
 import 'package:choi_pos/theme/dark_theme.dart';
 import 'package:flutter/material.dart';
 
@@ -14,16 +11,10 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return MaterialApp.router(
       debugShowCheckedModeBanner: false,
       theme: darkTheme,
-      initialRoute: '/login',
-      routes: {
-        '/login': (context) => const LoginScreen(),
-        '/forgotPassword': (context) => const ForgotScreen(),
-        '/app': (context) => const AppScreen(),
-        '/admin': (context) => const OverviewScreen()
-      },
+      routerConfig: appRouter,
     );
   }
 }

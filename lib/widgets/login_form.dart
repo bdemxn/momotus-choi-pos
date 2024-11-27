@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class LoginForm extends StatefulWidget {
   const LoginForm({super.key});
@@ -27,8 +28,26 @@ class _LoginFormState extends State<LoginForm> {
             _inputField("Contraseña", passwordController, isPassword: true),
 
             // Buttons:
-            const Row(
-              children: [],
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 0, vertical: 10),
+                  child: ElevatedButton(
+                    onPressed: () => context.go('/admin'),
+                    child: const Text('Admin Center'),
+                  ),
+                ),
+                Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                  child: ElevatedButton(
+                    onPressed: () => context.go('/app'),
+                    child: const Text('POS App'),
+                  ),
+                )
+              ],
             )
           ],
         ),
@@ -51,7 +70,7 @@ class _LoginFormState extends State<LoginForm> {
           enabledBorder: border,
           focusedBorder: border,
           fillColor: Colors.black26),
-          obscureText: isPassword,
+      obscureText: isPassword,
     );
   }
 }
