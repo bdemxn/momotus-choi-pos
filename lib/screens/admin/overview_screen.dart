@@ -1,3 +1,4 @@
+import 'package:choi_pos/widgets/sidebar_admin.dart';
 import 'package:flutter/material.dart';
 
 class OverviewScreen extends StatelessWidget {
@@ -5,6 +6,21 @@ class OverviewScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container();
+    return const Scaffold(
+      body: Row(
+        children: [
+          Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              SidebarAdmin()
+            ],
+          ),
+          Center(
+            child: Text('data'),
+          )
+
+        ],
+      ),
+    );
   }
 }
