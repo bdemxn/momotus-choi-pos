@@ -49,11 +49,11 @@ class _InventoryTableState extends State<InventoryTable> {
                   .map(
                     (item) => DataRow(cells: [
                       DataCell(Text(item.id)),
+                      DataCell(Text(item.barCode)),
+                      DataCell(Text(item.category)),
                       DataCell(Text(item.name)),
                       DataCell(Text(item.price.toString())),
-                      DataCell(Text(item.barCode)),
                       DataCell(Text(item.quantity.toString())),
-                      DataCell(Text(item.category)),
                     ]),
                   )
                   .toList(),

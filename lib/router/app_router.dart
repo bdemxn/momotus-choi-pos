@@ -1,5 +1,6 @@
 import 'package:choi_pos/screens/admin/customers_screen.dart';
 import 'package:choi_pos/screens/admin/inventory_screen.dart';
+import 'package:choi_pos/screens/admin/modifiers/inventory_form.dart';
 import 'package:choi_pos/screens/admin/overview_screen.dart';
 import 'package:choi_pos/screens/admin/reports_screen.dart';
 import 'package:choi_pos/screens/admin/users_screen.dart';
@@ -40,6 +41,12 @@ final GoRouter appRouter = GoRouter(
         GoRoute(
           path: 'inventory',
           builder: (context, state) => const InventoryScreen(),
+          routes: [
+            GoRoute(
+              path: 'create-item',
+              builder: (context, state) => const InventoryFormWidget()
+            )
+          ]
         ),
         GoRoute(
           path: 'customers',
