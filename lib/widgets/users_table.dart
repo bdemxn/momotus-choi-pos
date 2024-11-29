@@ -2,9 +2,8 @@ import 'package:choi_pos/services/get_users.dart';
 import 'package:flutter/material.dart';
 
 class UsersTable extends StatefulWidget {
-  final List<Map<String, dynamic>> data;
 
-  const UsersTable({super.key, required this.data});
+  const UsersTable({super.key});
 
   @override
   State<UsersTable> createState() => _UsersTableState();

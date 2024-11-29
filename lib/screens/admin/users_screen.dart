@@ -8,20 +8,10 @@ class UsersScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
 
-    final List<Map<String, dynamic>> mockData = [
-      {
-        'id': 1,
-        'fullname': 'Kevin Bonilla',
-        'role': 'admin',
-        'username': 'bdemxn',
-        'branch': 'Villa Sol'
-      }
-    ];
-
-    return Scaffold(
+    return const Scaffold(
       body: Row(
         children: [
-          const Padding(
+          Padding(
             padding: EdgeInsets.only(top: 30),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
@@ -31,18 +21,18 @@ class UsersScreen extends StatelessWidget {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 40),
+            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 40),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
+                Text(
                   'Usuarios',
                   style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                const Text(
+                Text(
                   'Todos los usuarios que has creado:',
                   style: TextStyle(
                     fontSize: 14,
@@ -51,7 +41,7 @@ class UsersScreen extends StatelessWidget {
                 ),
 
                 // DataTable:
-                UsersTable(data: mockData,)
+                UsersTable()
           
               ],
             )
