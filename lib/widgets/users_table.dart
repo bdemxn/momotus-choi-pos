@@ -1,37 +1,64 @@
+import 'package:choi_pos/services/get_users.dart';
 import 'package:flutter/material.dart';
 
-class UsersTable extends StatelessWidget {
+class UsersTable extends StatefulWidget {
   final List<Map<String, dynamic>> data;
 
   const UsersTable({super.key, required this.data});
 
   @override
+  State<UsersTable> createState() => _UsersTableState();
+}
+
+class _UsersTableState extends State<UsersTable> {
+  final GetUsersService _getUsersService = GetUsersService();
+
+  @override
+  void initState() {
+    super.initState();
+
+    // Fetching:
+    _getUsersService.fetchUsers();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: SingleChildScrollView(
-        scrollDirection: Axis.vertical,
-        child: DataTable(
-          columns: const [
-            DataColumn(label: Text('ID')),
-            DataColumn(label: Text('Nombre Completo')),
-            DataColumn(label: Text('Rol')),
-            DataColumn(label: Text('Nombre de Usuario')),
-            DataColumn(label: Text('Sucursal')),
-          ],
-          rows: data
-              .map(
-                (item) => DataRow(cells: [
-                  DataCell(Text(item['id'].toString())),
-                  DataCell(Text(item['fullname'])),
-                  DataCell(Text(item['role'])),
-                  DataCell(Text(item['username'])),
-                  DataCell(Text(item['branch'].toString())),
-                ]),
-              )
-              .toList(),
-        ),
-      ),
+    return FutureBuilder(
+      future: _getUsersService.fetchUsers(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        } else if (snapshot.hasError) {
+          return Center(child: Text('Error: ${snapshot.error}'));
+        }
+
+        final usersList = _getUsersService.userList;
+
+        return SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: SingleChildScrollView(
+            scrollDirection: Axis.vertical,
+            child: DataTable(
+              columns: const [
+                DataColumn(label: Text('Nombre Completo')),
+                DataColumn(label: Text('Rol')),
+                DataColumn(label: Text('Nombre de Usuario')),
+                DataColumn(label: Text('Sucursal')),
+              ],
+              rows: usersList
+                  .map(
+                    (item) => DataRow(cells: [
+                      DataCell(Text(item.fullname)),
+                      DataCell(Text(item.roles)),
+                      DataCell(Text(item.username)),
+                      DataCell(Text(item.branch)),
+                    ]),
+                  )
+                  .toList(),
+            ),
+          ),
+        );
+      },
     );
   }
 }

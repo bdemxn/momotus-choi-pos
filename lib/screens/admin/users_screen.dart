@@ -36,14 +36,14 @@ class UsersScreen extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text(
-                  'Inventario',
+                  'Usuarios',
                   style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
                 const Text(
-                  'Encuentra todo tu stock aquí',
+                  'Todos los usuarios que has creado:',
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.normal,

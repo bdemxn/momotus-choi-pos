@@ -1,39 +1,66 @@
+import 'package:choi_pos/services/get_inventory.dart';
 import 'package:flutter/material.dart';
 
-class InventoryTable extends StatelessWidget {
-  final List<Map<String, dynamic>> data;
+class InventoryTable extends StatefulWidget {
+  const InventoryTable({super.key});
 
-  const InventoryTable({super.key, required this.data});
+  @override
+  State<InventoryTable> createState() => _InventoryTableState();
+}
+
+class _InventoryTableState extends State<InventoryTable> {
+  // InventoryService new state
+  final InventoryService _inventoryService = InventoryService();
+
+  @override
+  void initState() {
+    super.initState();
+    // fetch:
+    _inventoryService.fetchInventory();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: SingleChildScrollView(
-        scrollDirection: Axis.vertical,
-        child: DataTable(
-          columns: const [
-            DataColumn(label: Text('ID')),
-            DataColumn(label: Text('Código de Barras')),
-            DataColumn(label: Text('Categoría')),
-            DataColumn(label: Text('Nombre')),
-            DataColumn(label: Text('Precio')),
-            DataColumn(label: Text('Cantidad')),
-          ],
-          rows: data
-              .map(
-                (item) => DataRow(cells: [
-                  DataCell(Text(item['id'].toString())),
-                  DataCell(Text(item['barcode'])),
-                  DataCell(Text(item['category'])),
-                  DataCell(Text(item['name'])),
-                  DataCell(Text(item['price'].toString())),
-                  DataCell(Text(item['quantity'].toString())),
-                ]),
-              )
-              .toList(),
-        ),
-      ),
+    return FutureBuilder(
+      future: _inventoryService.fetchInventory(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        } else if (snapshot.hasError) {
+          return Center(child: Text('Error: ${snapshot.error}'));
+        }
+
+        final inventory = _inventoryService.inventory;
+
+        return SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: SingleChildScrollView(
+            scrollDirection: Axis.vertical,
+            child: DataTable(
+              columns: const [
+                DataColumn(label: Text('ID')),
+                DataColumn(label: Text('Código de Barras')),
+                DataColumn(label: Text('Categoría')),
+                DataColumn(label: Text('Nombre')),
+                DataColumn(label: Text('Precio')),
+                DataColumn(label: Text('Cantidad')),
+              ],
+              rows: inventory
+                  .map(
+                    (item) => DataRow(cells: [
+                      DataCell(Text(item.id)),
+                      DataCell(Text(item.name)),
+                      DataCell(Text(item.price.toString())),
+                      DataCell(Text(item.barCode)),
+                      DataCell(Text(item.quantity.toString())),
+                      DataCell(Text(item.category)),
+                    ]),
+                  )
+                  .toList(),
+            ),
+          ),
+        );
+      },
     );
   }
 }
