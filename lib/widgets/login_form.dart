@@ -36,7 +36,7 @@ class _LoginFormState extends State<LoginForm> {
                       const EdgeInsets.symmetric(horizontal: 0, vertical: 10),
                   child: ElevatedButton(
                     onPressed: () => context.go('/admin'),
-                    child: const Text('Admin Center'),
+                    child: const Text('Admin Center', style: TextStyle(color: Colors.blueAccent),),
                   ),
                 ),
                 Padding(
@@ -44,7 +44,7 @@ class _LoginFormState extends State<LoginForm> {
                       const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
                   child: ElevatedButton(
                     onPressed: () => context.go('/app'),
-                    child: const Text('POS App'),
+                    child: const Text('POS App', style: TextStyle(color: Colors.blueAccent),),
                   ),
                 )
               ],
@@ -66,7 +66,7 @@ class _LoginFormState extends State<LoginForm> {
       controller: controller,
       decoration: InputDecoration(
           hintText: hintText,
-          hintStyle: const TextStyle(color: Colors.white),
+          hintStyle: const TextStyle(color: Colors.grey),
           enabledBorder: border,
           focusedBorder: border,
           fillColor: Colors.black26),
