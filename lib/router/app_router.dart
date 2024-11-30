@@ -1,6 +1,7 @@
 import 'package:choi_pos/screens/admin/customers_screen.dart';
 import 'package:choi_pos/screens/admin/inventory_screen.dart';
 import 'package:choi_pos/screens/admin/modifiers/inventory_form.dart';
+import 'package:choi_pos/screens/admin/modifiers/user_form.dart';
 import 'package:choi_pos/screens/admin/overview_screen.dart';
 import 'package:choi_pos/screens/admin/reports_screen.dart';
 import 'package:choi_pos/screens/admin/users_screen.dart';
@@ -37,6 +38,12 @@ final GoRouter appRouter = GoRouter(
         GoRoute(
           path: 'users',
           builder: (context, state) => const UsersScreen(),
+          routes: [
+            GoRoute(
+              path: 'create-user',
+              builder: (context, state) => const UserFormWidget(),
+            )
+          ]
         ),
         GoRoute(
           path: 'inventory',

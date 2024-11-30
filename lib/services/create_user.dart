@@ -1,11 +1,11 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
-// Post an user
-Future<void> createUser(Map<String, dynamic> inventoryData) async {
+// Post an inventory's item
+Future<void> createUser(Map<String, dynamic> userData) async {
   const String username = 'kevin.bonilla';
   const String password = 'caca1234';
-  const String apiUrl = 'https://localhost/admin/inventory';
+  const String apiUrl = 'https://localhost/admin/users';
 
   final String basicAuth =
       'Basic ${base64Encode(utf8.encode('$username:$password'))}';
@@ -16,7 +16,7 @@ Future<void> createUser(Map<String, dynamic> inventoryData) async {
       'Authorization': basicAuth,
       'Content-Type': 'application/json',
     },
-    body: json.encode(inventoryData),
+    body: json.encode(userData),
   );
 
   if (response.statusCode != 201) {

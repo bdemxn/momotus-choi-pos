@@ -7,10 +7,7 @@ class SidebarAdmin extends StatelessWidget {
   // Colors constants:
 
   final TextStyle _myStyle = const TextStyle(
-    color: Colors.white,
-    fontSize: 15,
-    fontWeight: FontWeight.bold
-  );
+      color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold);
 
   final Color _iconColor = Colors.white;
 
@@ -23,24 +20,13 @@ class SidebarAdmin extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
           // Logo:
-          Padding(
-              padding: const EdgeInsets.only(bottom: 30),
+          const Padding(
+              padding: EdgeInsets.only(bottom: 30),
               child: Column(
                 children: [
-                  const Image(
+                  Image(
                     image: AssetImage('assets/choi-image.png'),
                     height: 20,
-                  ),
-                  // Go back login form:
-                  TextButton(
-                    onPressed: () => context.go('/'),
-                    child: Row(
-                      children: [
-                        Icon(Icons.reset_tv_rounded, color: _iconColor,),
-                        const SizedBox(width: 8),
-                        Text('Cerrar sesión', style: _myStyle)
-                      ],
-                    ),
                   ),
                 ],
               )),
@@ -57,7 +43,10 @@ class SidebarAdmin extends StatelessWidget {
                   color: _iconColor,
                 ),
                 const SizedBox(width: 8),
-                Text('Resumen', style: _myStyle,)
+                Text(
+                  'Resumen',
+                  style: _myStyle,
+                )
               ],
             ),
           ),
@@ -69,7 +58,10 @@ class SidebarAdmin extends StatelessWidget {
               children: [
                 Icon(Icons.inventory, size: 20, color: _iconColor),
                 const SizedBox(width: 8),
-                Text('Inventario', style: _myStyle,)
+                Text(
+                  'Inventario',
+                  style: _myStyle,
+                )
               ],
             ),
           ),
@@ -108,7 +100,22 @@ class SidebarAdmin extends StatelessWidget {
                 Text('Clientes', style: _myStyle)
               ],
             ),
-          )
+          ),
+
+          // Go to LoginForm:
+          TextButton(
+            onPressed: () => context.go('/'),
+            child: Row(
+              children: [
+                Icon(
+                  Icons.reset_tv_rounded,
+                  color: _iconColor,
+                ),
+                const SizedBox(width: 8),
+                Text('Cerrar sesión', style: _myStyle)
+              ],
+            ),
+          ),
         ],
       ),
     );

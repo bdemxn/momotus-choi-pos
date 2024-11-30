@@ -1,40 +1,42 @@
-import 'package:choi_pos/services/create_inventory_item.dart';
+import 'package:choi_pos/services/create_user.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-class InventoryFormWidget extends StatefulWidget {
-  const InventoryFormWidget({super.key});
+class UserFormWidget extends StatefulWidget {
+  const UserFormWidget({super.key});
 
   @override
-  State<InventoryFormWidget> createState() => _InventoryFormWidgetState();
+  State<UserFormWidget> createState() => _UserFormWidgetState();
 }
 
-class _InventoryFormWidgetState extends State<InventoryFormWidget> {
+class _UserFormWidgetState extends State<UserFormWidget> {
   final _formKey = GlobalKey<FormState>();
-  final TextEditingController _nameController = TextEditingController();
-  final TextEditingController _priceController = TextEditingController();
-  final TextEditingController _categoryController = TextEditingController();
-  final TextEditingController _barcodeController = TextEditingController();
-  final TextEditingController _quantityController = TextEditingController();
+  final TextEditingController _fullnameController = TextEditingController();
+  final TextEditingController _usernameController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _branchController = TextEditingController();
+  String _selectedRole = 'usuario';
+
   bool _isLoading = false;
 
   Future<void> _submitForm() async {
     if (_formKey.currentState!.validate()) {
-      final Map<String, dynamic> inventoryData = {
-        'name': _nameController.text,
-        'price': double.parse(_priceController.text),
-        'category': _categoryController,
-        'bar_code': _barcodeController.text,
-        'quantity': int.parse(_quantityController.text),
+      final Map<String, dynamic> userData = {
+        'fullname': _fullnameController.text,
+        'username': _usernameController.text,
+        'password': _passwordController.text,
+        'branch': _branchController.text,
+        'role': _selectedRole,
       };
 
       try {
         setState(() => _isLoading = true);
-        await createUser(inventoryData);
+        await createUser(userData);
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Objeto creado exitosamente')),
+          const SnackBar(content: Text('Usuario creado exitosamente')),
         );
         _formKey.currentState!.reset();
+        setState(() => _selectedRole = 'usuario');
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(e.toString())),
@@ -49,9 +51,9 @@ class _InventoryFormWidgetState extends State<InventoryFormWidget> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-          title: const Text('Crea un item para el inventario'),
+          title: const Text('Crea usuarios'),
           leading: IconButton(
-              onPressed: () => context.go('/admin/inventory'),
+              onPressed: () => context.go('/admin/users'),
               icon: const Icon(Icons.arrow_back))),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -61,7 +63,7 @@ class _InventoryFormWidgetState extends State<InventoryFormWidget> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               TextFormField(
-                controller: _nameController,
+                controller: _fullnameController,
                 decoration:
                     const InputDecoration(labelText: 'Nombre del producto'),
                 validator: (value) {
@@ -73,59 +75,56 @@ class _InventoryFormWidgetState extends State<InventoryFormWidget> {
               ),
               const SizedBox(height: 16),
               TextFormField(
-                controller: _priceController,
-                decoration: const InputDecoration(labelText: 'Precio'),
-                keyboardType: TextInputType.number,
+                controller: _usernameController,
+                decoration: const InputDecoration(labelText: 'Nombre de usuario'),
+                keyboardType: TextInputType.text,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'El precio no puede estar vacío';
-                  }
-                  if (double.tryParse(value) == null) {
-                    return 'Debe ser un número válido';
+                    return 'El usuario no puede estar vacío';
                   }
                   return null;
                 },
               ),
               const SizedBox(height: 16),
               TextFormField(
-                controller: _barcodeController,
+                obscureText: true,
+                controller: _passwordController,
                 decoration:
-                    const InputDecoration(labelText: 'Código de barras'),
+                    const InputDecoration(labelText: 'Contraseña'),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'El código de barras no puede estar vacío';
+                    return 'La contraseña no puede estar vacía';
                   }
                   return null;
                 },
               ),
               const SizedBox(height: 16),
               TextFormField(
-                controller: _categoryController,
-                decoration:
-                    const InputDecoration(labelText: 'Categoría'),
+                controller: _branchController,
+                decoration: const InputDecoration(labelText: 'Sucursal'),
+                keyboardType: TextInputType.text,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'La categoría no puede estar vacía';
+                    return 'La sucursal no puede estar vacía';
                   }
                   return null;
                 },
               ),
               const SizedBox(height: 16),
-              TextFormField(
-                controller: _quantityController,
-                decoration: const InputDecoration(labelText: 'Cantidad'),
-                keyboardType: TextInputType.number,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'La cantidad no puede estar vacía';
-                  }
-                  if (int.tryParse(value) == null) {
-                    return 'Debe ser un número válido';
-                  }
-                  return null;
+              DropdownButtonFormField<String>(
+                value: _selectedRole,
+                decoration: const InputDecoration(labelText: 'Rol'),
+                items: const [
+                  DropdownMenuItem(value: 'usuario', child: Text('Usuario')),
+                  DropdownMenuItem(value: 'admin', child: Text('Administrador')),
+                ],
+                onChanged: (value) {
+                  setState(() {
+                    _selectedRole = value!;
+                  });
                 },
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 24),
               _isLoading
                   ? const Center(child: CircularProgressIndicator())
                   : ElevatedButton(
