@@ -1,6 +1,9 @@
 import 'package:choi_pos/models/promo_code.dart';
 import 'package:choi_pos/services/cart_validation.dart';
+import 'package:choi_pos/widgets/cart_widget.dart';
+import 'package:choi_pos/widgets/inventory_widget.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class AppScreen extends StatefulWidget {
   const AppScreen({super.key});
@@ -16,26 +19,34 @@ class _AppScreenState extends State<AppScreen> {
       "name": "Producto A",
       "price": 50.0,
       "quantity": 10,
-      "category": "Bebidas"
+      "category": "Bebidas",
+      "barcode": "producta"
     },
     {
       "id": "2",
       "name": "Producto B",
       "price": 30.0,
-      "quantity": 0,
-      "category": "Comida"
+      "quantity": 2,
+      "category": "Comida",
+      "barcode": "producta"
     },
     {
       "id": "3",
       "name": "Producto C",
       "price": 20.0,
       "quantity": 8,
-      "category": "Bebidas"
+      "category": "Bebidas",
+      "barcode": "producta"
     },
   ];
 
   final List<Map<String, dynamic>> cart = [];
+
+  String searchQuery = "";
+  String selectedCategory = "Todas";
+
   String selectedPaymentMethod = 'Efectivo';
+  String onSelectedPaymentMethod = 'Efectivo';
   final TextEditingController referenceController = TextEditingController();
   final TextEditingController promoCodeController = TextEditingController();
   PromoCode? appliedPromoCode;
@@ -53,6 +64,24 @@ class _AppScreenState extends State<AppScreen> {
 
     setState(() {
       cart.add({...product, "quantity": 1});
+    });
+  }
+
+  void updatePaymentMethod(String method) {
+    setState(() {
+      selectedPaymentMethod = method;
+    });
+  }
+
+  void updateSearchQuery(String query) {
+    setState(() {
+      searchQuery = query;
+    });
+  }
+
+  void updateSelectedCategory(String category) {
+    setState(() {
+      selectedCategory = category;
     });
   }
 
@@ -77,35 +106,41 @@ class _AppScreenState extends State<AppScreen> {
           isActive: false), // Código inactivo
     ];
 
+    // Buscar el código de promoción
     final promoCode = promoCodes.where((p) => p.code == code).isNotEmpty
-      ? promoCodes.firstWhere((p) => p.code == code)
-      : null;
+        ? promoCodes.firstWhere((p) => p.code == code)
+        : null;
 
-  // Validar si no se encontró el código o si está inactivo
-  if (promoCode == null || !promoCode.isActive) {
+    // Validar si no se encontró el código o si está inactivo
+    if (promoCode == null || !promoCode.isActive) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+            content:
+                Text("El código de promoción no es válido o está inactivo.")),
+      );
+      return;
+    }
+
+    // Aplicar la promoción
+    setState(() {
+      appliedPromoCode = promoCode; // Guardar el código aplicado
+    });
+
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text("El código de promoción no es válido o está inactivo.")),
+      SnackBar(content: Text("Código aplicado: ${promoCode.code}")),
     );
-    return;
-  }
-
-  // Aplicar la promoción
-  ScaffoldMessenger.of(context).showSnackBar(
-    SnackBar(content: Text("Código aplicado: ${promoCode.code}")),
-  );
   }
 
   void confirmPurchase() {
-    if (_formKey.currentState!.validate()) {
-      if (CartValidations.isCartEmpty(cart)) {
+    if (_formKey.currentState?.validate() ?? false) {
+      if (cart.isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text("El carrito está vacío")),
         );
         return;
       }
 
-      // Aquí iría la lógica de compra y la actualización del backend
-
+      // Aquí iría la lógica de compra y actualización del backend
       setState(() {
         cart.clear();
         appliedPromoCode = null;
@@ -117,121 +152,64 @@ class _AppScreenState extends State<AppScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Compra realizada con éxito')),
       );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+            content: Text("Por favor, completa los campos correctamente.")),
+      );
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Cajero')),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
+        appBar: AppBar(
+          title: const Row(
+            children: [
+              Text('Cajero'),
+              Padding(
+                padding: EdgeInsets.only(left: 20),
+                child: Image(
+                  image: AssetImage('assets/choi-image.png'),
+                  height: 30,
+                ),
+              ),
+            ],
+          ),
+          leading: IconButton(
+              onPressed: () => context.go('/'),
+              icon: const Icon(Icons.arrow_back)),
+        ),
+        body: Padding(
+          padding: const EdgeInsets.all(10),
           child: Row(
             children: [
               Expanded(
                 flex: 3,
-                child: Column(
-                  children: [
-                    const Text("Inventario",
-                        style: TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.bold)),
-                    Expanded(
-                      child: ListView.builder(
-                        itemCount: inventory.length,
-                        itemBuilder: (context, index) {
-                          final product = inventory[index];
-                          return Card(
-                            child: ListTile(
-                              title: Text(product['name']),
-                              subtitle: Text("Precio: \$${product['price']}"),
-                              trailing: ElevatedButton(
-                                onPressed: () => addToCart(product),
-                                child: const Text("Añadir"),
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-                  ],
+                child: InventoryWidget(
+                  inventory: inventory,
+                  searchQuery: searchQuery,
+                  selectedCategory: selectedCategory,
+                  onAddToCart: addToCart,
+                  onSearchQueryChanged: updateSearchQuery,
+                  onCategoryChanged: updateSelectedCategory,
                 ),
               ),
               const SizedBox(width: 16),
               Expanded(
                 flex: 2,
-                child: Column(
-                  children: [
-                    const Text("Carrito",
-                        style: TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.bold)),
-                    Expanded(
-                      child: ListView.builder(
-                        itemCount: cart.length,
-                        itemBuilder: (context, index) {
-                          final item = cart[index];
-                          return Card(
-                            child: ListTile(
-                              title: Text(item['name']),
-                              subtitle: Text("Cantidad: ${item['quantity']}"),
-                              trailing: Text("Subtotal: \$${item['price']}"),
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-                    Text("Total: \$${calculateTotal().toStringAsFixed(2)}"),
-                    DropdownButtonFormField<String>(
-                      value: selectedPaymentMethod,
-                      onChanged: (value) {
-                        setState(() {
-                          selectedPaymentMethod = value!;
-                        });
-                      },
-                      items: const [
-                        DropdownMenuItem(
-                            value: 'Efectivo', child: Text('Efectivo')),
-                        DropdownMenuItem(
-                            value: 'Tarjeta', child: Text('Tarjeta')),
-                        DropdownMenuItem(
-                            value: 'Transferencia',
-                            child: Text('Transferencia')),
-                      ],
-                    ),
-                    if (selectedPaymentMethod != 'Efectivo')
-                      TextFormField(
-                        controller: referenceController,
-                        decoration:
-                            const InputDecoration(labelText: "Referencia"),
-                        validator: (value) {
-                          if (!CartValidations.isReferenceValid(
-                              value, selectedPaymentMethod)) {
-                            return "Debe ingresar una referencia válida.";
-                          }
-                          return null;
-                        },
-                      ),
-                    TextFormField(
-                      controller: promoCodeController,
-                      decoration: const InputDecoration(
-                          labelText: "Código de promoción"),
-                    ),
-                    ElevatedButton(
-                      onPressed: applyPromoCode,
-                      child: const Text("Aplicar Promoción"),
-                    ),
-                    ElevatedButton(
-                      onPressed: confirmPurchase,
-                      child: const Text("Comprar"),
-                    ),
-                  ],
+                child: CartWidget(
+                  onPaymentMethodChanged: updatePaymentMethod,
+                  cart: cart,
+                  selectedPaymentMethod: selectedPaymentMethod,
+                  applyPromoCode: applyPromoCode,
+                  confirmPurchase: confirmPurchase,
+                  promoCodeController: promoCodeController,
+                  referenceController: referenceController,
                 ),
               ),
             ],
           ),
-        ),
-      ),
-    );
+        ));
   }
 }

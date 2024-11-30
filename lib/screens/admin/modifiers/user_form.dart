@@ -26,7 +26,7 @@ class _UserFormWidgetState extends State<UserFormWidget> {
         'username': _usernameController.text,
         'password': _passwordController.text,
         'branch': _branchController.text,
-        'role': _selectedRole,
+        'roles': _selectedRole,
       };
 
       try {
@@ -76,7 +76,7 @@ class _UserFormWidgetState extends State<UserFormWidget> {
               const SizedBox(height: 16),
               TextFormField(
                 controller: _usernameController,
-                decoration: const InputDecoration(labelText: 'Nombre de usuario'),
+                decoration: const InputDecoration(labelText: 'Usuario (ej. juan.sanchez)'),
                 keyboardType: TextInputType.text,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
