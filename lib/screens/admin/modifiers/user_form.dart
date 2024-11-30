@@ -65,7 +65,7 @@ class _UserFormWidgetState extends State<UserFormWidget> {
               TextFormField(
                 controller: _fullnameController,
                 decoration:
-                    const InputDecoration(labelText: 'Nombre del producto'),
+                    const InputDecoration(labelText: 'Nombre del usuario'),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'El nombre no puede estar vacío';
