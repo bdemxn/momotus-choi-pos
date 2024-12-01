@@ -8,23 +8,20 @@ class GetUsersService {
   List<User> get userList => _userList;
 
   Future<void> fetchUsers() async {
-    const String username = 'kevin.bonilla';
-    const String password = 'caca1234';
-    const String apiUrl = 'https://localhost/admin/users';
+    const String username = 'larry.davila';
+    const String password = 'Prueba1#';
+    const String apiUrl = 'http://localhost:8000/admin/inventory';
 
     try {
-      final String basicAuth = 'Basic ${base64Encode(utf8.encode('$username:$password'))}';
+      final String basicAuth =
+          'Basic ${base64Encode(utf8.encode('$username:$password'))}';
 
-      final response = await http.get(
-        Uri.parse(apiUrl),
-        headers: {
-          'Authorization': basicAuth,
-          'Content-Type': 'application/json',
-        }
-      );
+      final response = await http.get(Uri.parse(apiUrl), headers: {
+        'Authorization': basicAuth,
+        'Content-Type': 'application/json',
+      });
 
       if (response.statusCode == 200) {
-
         final List<dynamic> data = json.decode(response.body);
 
         _userList.clear();

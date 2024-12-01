@@ -3,9 +3,9 @@ import 'package:http/http.dart' as http;
 
 // Post an user
 Future<void> createUser(Map<String, dynamic> inventoryData) async {
-  const String username = 'kevin.bonilla';
-  const String password = 'caca1234';
-  const String apiUrl = 'https://localhost/admin/inventory';
+  const String username = 'larry.davila';
+  const String password = 'Prueba1#';
+  const String apiUrl = 'http://localhost:8000/admin/inventory';
 
   final String basicAuth =
       'Basic ${base64Encode(utf8.encode('$username:$password'))}';
