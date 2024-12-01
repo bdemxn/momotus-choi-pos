@@ -120,7 +120,7 @@ class _AppScreenState extends State<AppScreen> {
       }
 
       if (selectedPaymentMethod != 'Efectivo' &&
-          !CartValidations.isReferenceValid(
+          CartValidations.isReferenceValid(
               referenceController.text, selectedPaymentMethod)) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text("Debe ingresar una referencia válida.")),

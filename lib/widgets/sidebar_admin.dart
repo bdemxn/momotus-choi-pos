@@ -26,7 +26,7 @@ class SidebarAdmin extends StatelessWidget {
                 children: [
                   Image(
                     image: AssetImage('assets/choi-image.png'),
-                    height: 20,
+                    height: 30,
                   ),
                 ],
               )),
