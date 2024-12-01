@@ -1,10 +1,11 @@
+import 'package:choi_pos/models/inventory_item.dart';
 import 'package:flutter/material.dart';
 
 class InventoryWidget extends StatelessWidget {
-  final List<Map<String, dynamic>> inventory;
+  final List<InventoryItem> inventory;
   final String searchQuery;
   final String selectedCategory;
-  final void Function(Map<String, dynamic>) onAddToCart;
+  final void Function(InventoryItem) onAddToCart;
   final void Function(String) onSearchQueryChanged;
   final void Function(String) onCategoryChanged;
 
@@ -19,17 +20,17 @@ class InventoryWidget extends StatelessWidget {
   });
 
   List<String> get categories {
-    return ["Todas", ...inventory.map((item) => item['category']).toSet()];
+    return ["Todas", ...inventory.map((item) => item.category).toSet()];
   }
 
-  List<Map<String, dynamic>> get filteredInventory {
+  List<InventoryItem> get filteredInventory {
     return inventory.where((product) {
-      final matchesSearch = product['name']
+      final matchesSearch = product.name
               .toLowerCase()
               .contains(searchQuery.toLowerCase()) ||
-          product['barcode'].contains(searchQuery);
+          product.barCode.contains(searchQuery);
       final matchesCategory =
-          selectedCategory == "Todas" || product['category'] == selectedCategory;
+          selectedCategory == "Todas" || product.category == selectedCategory;
       return matchesSearch && matchesCategory;
     }).toList();
   }
@@ -76,9 +77,9 @@ class InventoryWidget extends StatelessWidget {
               final product = filteredInventory[index];
               return Card(
                 child: ListTile(
-                  title: Text(product['name']),
+                  title: Text(product.name),
                   subtitle: Text(
-                      "Precio: \$${product['price']} | Stock: ${product['quantity']}"),
+                      "Precio: \$${product.price} | Stock: ${product.quantity}"),
                   trailing: ElevatedButton(
                     onPressed: () => onAddToCart(product),
                     child: const Text("Añadir"),

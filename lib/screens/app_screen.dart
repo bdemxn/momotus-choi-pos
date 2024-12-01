@@ -1,5 +1,8 @@
+import 'package:choi_pos/models/inventory_item.dart';
 import 'package:choi_pos/models/promo_code.dart';
 import 'package:choi_pos/services/cart_validation.dart';
+import 'package:choi_pos/services/get_inventory.dart';
+import 'package:choi_pos/services/shop_cart.dart';
 import 'package:choi_pos/widgets/cart_widget.dart';
 import 'package:choi_pos/widgets/inventory_widget.dart';
 import 'package:flutter/material.dart';
@@ -13,34 +16,10 @@ class AppScreen extends StatefulWidget {
 }
 
 class _AppScreenState extends State<AppScreen> {
-  final List<Map<String, dynamic>> inventory = [
-    {
-      "id": "1",
-      "name": "Producto A",
-      "price": 50.0,
-      "quantity": 10,
-      "category": "Bebidas",
-      "barcode": "producta"
-    },
-    {
-      "id": "2",
-      "name": "Producto B",
-      "price": 30.0,
-      "quantity": 2,
-      "category": "Comida",
-      "barcode": "producta"
-    },
-    {
-      "id": "3",
-      "name": "Producto C",
-      "price": 20.0,
-      "quantity": 8,
-      "category": "Bebidas",
-      "barcode": "producta"
-    },
-  ];
+  
+  final List<InventoryItem> inventory = InventoryService().inventory;
 
-  final List<Map<String, dynamic>> cart = [];
+  final List<CartItem> cart = [];
 
   String searchQuery = "";
   String selectedCategory = "Todas";
@@ -53,7 +32,7 @@ class _AppScreenState extends State<AppScreen> {
 
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
-  void addToCart(Map<String, dynamic> product) {
+  void addToCart(InventoryItem product) {
     if (!CartValidations.isProductAvailable(product)) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -63,7 +42,7 @@ class _AppScreenState extends State<AppScreen> {
     }
 
     setState(() {
-      cart.add({...product, "quantity": 1});
+      cart.add(CartItem(name: 'testing', price: 123, quantity: 1));
     });
   }
 
@@ -87,7 +66,7 @@ class _AppScreenState extends State<AppScreen> {
 
   double calculateTotal() {
     double total =
-        cart.fold(0, (sum, item) => sum + (item['price'] * item['quantity']));
+        cart.fold(0, (sum, item) => sum + (item.price * item.quantity));
     if (appliedPromoCode != null) {
       total = PromoCode.applyPromoCode(appliedPromoCode!, total);
     }
@@ -132,10 +111,19 @@ class _AppScreenState extends State<AppScreen> {
   }
 
   void confirmPurchase() {
-    if (_formKey.currentState?.validate() ?? false) {
+    if (_formKey.currentState?.validate() ?? true) {
       if (cart.isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text("El carrito está vacío")),
+        );
+        return;
+      }
+
+      if (selectedPaymentMethod != 'Efectivo' &&
+          !CartValidations.isReferenceValid(
+              referenceController.text, selectedPaymentMethod)) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Debe ingresar una referencia válida.")),
         );
         return;
       }
@@ -199,12 +187,13 @@ class _AppScreenState extends State<AppScreen> {
               Expanded(
                 flex: 2,
                 child: CartWidget(
+                  calculateTotal: calculateTotal,
                   onPaymentMethodChanged: updatePaymentMethod,
                   cart: cart,
                   selectedPaymentMethod: selectedPaymentMethod,
                   applyPromoCode: applyPromoCode,
                   confirmPurchase: confirmPurchase,
-                  promoCodeController: promoCodeController,
+                  promoCodeController: appliedPromoCode,
                   referenceController: referenceController,
                 ),
               ),

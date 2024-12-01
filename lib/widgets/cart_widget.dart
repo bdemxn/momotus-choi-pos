@@ -1,14 +1,16 @@
 import 'package:choi_pos/services/cart_validation.dart';
+import 'package:choi_pos/services/shop_cart.dart';
 import 'package:flutter/material.dart';
 
 class CartWidget extends StatefulWidget {
-  final List<Map<String, dynamic>> cart;
+  final List<CartItem> cart;
   final String selectedPaymentMethod;
   final dynamic applyPromoCode;
   final dynamic promoCodeController;
   final dynamic referenceController;
   final dynamic confirmPurchase;
   final ValueChanged<String> onPaymentMethodChanged;
+  final double Function() calculateTotal;
 
   const CartWidget({
     super.key,
@@ -19,6 +21,7 @@ class CartWidget extends StatefulWidget {
     required this.confirmPurchase,
     required this.applyPromoCode,
     required this.onPaymentMethodChanged,
+    required this.calculateTotal,
   });
 
   @override
@@ -41,16 +44,16 @@ class _CartWidgetState extends State<CartWidget> {
               final item = widget.cart[index];
               return Card(
                 child: ListTile(
-                  title: Text(item['name']),
-                  subtitle: Text("Cantidad: ${item['quantity']}"),
-                  trailing: Text("Subtotal: \$${item['price']}"),
+                  title: Text(item.name),
+                  subtitle: Text("Cantidad: ${item.quantity}"),
+                  trailing: Text("Subtotal: \$${item.price}"),
                 ),
               );
             },
           ),
         ),
         Text(
-          "Total: \$${widget.cart.fold(0.0, (sum, item) => sum + item['price']).toStringAsFixed(2)}",
+          "Total: \$${widget.calculateTotal().toStringAsFixed(2)}",
         ),
         DropdownButtonFormField<String>(
           value: widget.selectedPaymentMethod,

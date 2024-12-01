@@ -1,14 +1,15 @@
+import 'package:choi_pos/models/inventory_item.dart';
 import 'package:choi_pos/models/promo_code.dart';
 
 class CartValidations {
   // Validate if the cart isn't empty
-  static bool isCartEmpty(List<Map<String, dynamic>> cart) {
+  static bool isCartEmpty(List<InventoryItem> cart) {
     return cart.isEmpty;
   }
 
   // Validate if a product has available quantity
-  static bool isProductAvailable(Map<String, dynamic> product) {
-    return product['quantity'] > 0;
+  static bool isProductAvailable(InventoryItem product) {
+    return product.quantity > 0;
   }
 
   // Validate if the reference number is valid
