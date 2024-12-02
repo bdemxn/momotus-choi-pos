@@ -1,14 +1,14 @@
 import 'package:choi_pos/services/get_reports.dart';
 import 'package:flutter/material.dart';
 
-class ReportView extends StatefulWidget {
-  const ReportView({super.key});
+class ReportCards extends StatefulWidget {
+  const ReportCards({super.key});
 
   @override
-  State<ReportView> createState() => _ReportViewState();
+  State<ReportCards> createState() => _ReportCardsState();
 }
 
-class _ReportViewState extends State<ReportView> {
+class _ReportCardsState extends State<ReportCards> {
   late Future<List<dynamic>> reports;
 
   @override

@@ -1,3 +1,4 @@
+import 'package:choi_pos/widgets/report_card.dart';
 import 'package:choi_pos/widgets/sidebar_admin.dart';
 import 'package:flutter/material.dart';
 class ReportsScreen extends StatelessWidget {
@@ -18,7 +19,7 @@ class ReportsScreen extends StatelessWidget {
             ),
           ),
           Center(
-            child: Text('General'),
+            child: ReportCards(),
           )
 
         ],
