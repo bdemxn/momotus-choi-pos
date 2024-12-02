@@ -56,6 +56,12 @@ class _CustomerRegistrationScreenState
           key: _formKey,
           child: Column(
             children: [
+              const Center(
+                child: Image(
+                  image: AssetImage('assets/choi-client.png'),
+                  height: 100,
+                ),
+              ),
               TextFormField(
                 decoration: const InputDecoration(labelText: 'Nombre completo'),
                 onSaved: (value) => fullname = value ?? '',

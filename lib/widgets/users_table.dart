@@ -39,6 +39,7 @@ class _UsersTableState extends State<UsersTable> {
             scrollDirection: Axis.vertical,
             child: DataTable(
               columns: const [
+                DataColumn(label: Text('')),
                 DataColumn(label: Text('Nombre Completo')),
                 DataColumn(label: Text('Rol')),
                 DataColumn(label: Text('Nombre de Usuario')),
@@ -47,11 +48,11 @@ class _UsersTableState extends State<UsersTable> {
               rows: usersList
                   .map(
                     (item) => DataRow(cells: [
+                      const DataCell(Image(image: AssetImage('assets/choi-user.png'), height: 40,) as Widget),
                       DataCell(Text(item.fullname)),
                       DataCell(Text(item.roles)),
                       DataCell(Text(item.username)),
                       DataCell(Text(item.branch)),
-                      const DataCell(Image(image: AssetImage('assets/choi-user.png'), height: 20,) as Widget)
                     ]),
                   )
                   .toList(),

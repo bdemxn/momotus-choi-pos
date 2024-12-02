@@ -38,18 +38,15 @@ class UpdateInventory {
     required double totalPaid,
   }) async {
 
-    final serializedProducts = products.map((product) {
-      return {
-        'id': product['id'].toString(),
-        'quantity': product['quantity'].toString(),
-      };
-    }).toList();
+    final String basicAuth = 'Basic ${base64Encode(utf8.encode('$username:$password'))}';
+
+    final serializedProducts = products.map((product) => product['id']).toString();
 
     final saleReport = {
       'cashier': cashier,
       'customer': customer,
       'payment_ref': paymentRef,
-      'products': serializedProducts.toString(),
+      'products': serializedProducts,
       'promocode': promoCode,
       'total_paid': totalPaid,
     };
@@ -57,9 +54,13 @@ class UpdateInventory {
     final response = await http.post(
       Uri.parse('$baseUrl/cashier/sales'),
       body: jsonEncode(saleReport),
-      headers: {'Content-Type': 'application/json'},
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': basicAuth
+      },
     );
-
+    
+    //? Error handler:
     if (response.statusCode != 201) {
       throw Exception('Error enviando el reporte de ventas');
     }
