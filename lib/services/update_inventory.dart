@@ -30,7 +30,7 @@ class UpdateInventory {
   // Enviar reporte de ventas
   static Future<void> postSalesReport({
     required String cashier,
-    required String customer,
+    required String? customer,
     required String paymentRef,
     required List<Map<String, dynamic>> products,
     required String promoCode,

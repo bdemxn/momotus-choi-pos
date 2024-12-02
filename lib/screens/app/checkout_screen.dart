@@ -1,5 +1,6 @@
 import 'package:choi_pos/models/inventory_item.dart';
 import 'package:choi_pos/models/promo_code.dart';
+import 'package:choi_pos/services/update_inventory.dart';
 import 'package:flutter/material.dart';
 
 class CheckoutScreen extends StatefulWidget {
@@ -13,6 +14,7 @@ class CheckoutScreen extends StatefulWidget {
 
 class _CheckoutScreenState extends State<CheckoutScreen> {
   
+  bool? isLoading;
   final _formKey = GlobalKey<FormState>();
   String paymentMethod = 'Efectivo';
   String? referenceCode;
@@ -34,61 +36,58 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     return cartTotal;
   }
 
-  // Changes: PromoCodes
-
-  /* //? Original:
-  double get totalPrice =>
-      widget.cart.fold(0.0, (sum, item) => sum + item.price);
-  */
-
   int get totalItems => widget.cart.length;
 
-  // Submit changes:
   Future<void> _submitCheckout() async {
-    if (_formKey.currentState?.validate() ?? false) {
-      _formKey.currentState?.save();
+  if (_formKey.currentState?.validate() ?? false) {
+    _formKey.currentState?.save();
 
-      // Validar referencia si es transferencia o tarjeta
-      if ((paymentMethod == 'Transferencia' || paymentMethod == 'Tarjeta') &&
-          (referenceCode == null || referenceCode!.isEmpty)) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-              content: Text('El código de referencia es obligatorio')),
-        );
-        return;
-      }
+    if ((paymentMethod == 'Transferencia' || paymentMethod == 'Tarjeta') &&
+        (referenceCode == null || referenceCode!.isEmpty)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('El código de referencia es obligatorio')),
+      );
+      return;
+    }
 
-      // Validar y aplicar código de promoción
-      if (promoCodeInput != null && promoCodeInput!.isNotEmpty) {
-        final promoCode = promoCodes.firstWhere(
-          (code) => code.code == promoCodeInput,
-          orElse: () =>
-              PromoCode(code: '', type: '', value: 0, isActive: false),
-        );
+    setState(() {
+      isLoading = true; // Activar indicador de carga
+    });
 
-        if (PromoCode.validatePromoCode(promoCodeInput!) &&
-            PromoCode.isPromoCodeActive(promoCode)) {
-          setState(() {
-            appliedPromoCode = promoCode;
-          });
-        } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-                content: Text('El código de promoción no es válido')),
-          );
-          return;
-        }
-      }
+    try {
+      // Actualizar inventario
+      await UpdateInventory.updateInventory(widget.cart);
 
-      // Procesar la compra
+      // Enviar reporte de ventas
+      final products = widget.cart.map((item) {
+        return {'id': item.id, 'quantity': item.quantity};
+      }).toList();
+
+      await UpdateInventory.postSalesReport(
+        cashier: 'NombreDelCajero',
+        customer: 'Cliente Generico',
+        paymentRef: referenceCode ?? 'N/A',
+        products: products,
+        promoCode: appliedPromoCode?.code ?? 'Ninguno',
+        totalPaid: totalPrice,
+      );
+
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Compra realizada con éxito')),
       );
 
-      await Future.delayed(const Duration(seconds: 2));
-      Navigator.pop(context);
+      Navigator.pop(context); // Volver a la pantalla anterior
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: ${e.toString()}')),
+      );
+    } finally {
+      setState(() {
+        isLoading = false; // Desactivar indicador de carga
+      });
     }
   }
+}
   // Submit changes🚀
 
   @override
