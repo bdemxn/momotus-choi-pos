@@ -1,4 +1,4 @@
-import 'package:choi_pos/models/inventory_item.dart';
+/*import 'package:choi_pos/models/inventory_item.dart';
 import 'package:choi_pos/services/get_inventory.dart';
 import 'package:flutter/material.dart';
 
@@ -35,6 +35,7 @@ class _InventoryWidgetState extends State<InventoryWidget> {
     _fetchFuture = _inventoryService.fetchInventory();
   }
 
+  /*
   List<String> get categories {
     return ["Todas", ...widget.inventory.map((item) => item.category).toSet()];
   }
@@ -50,6 +51,7 @@ class _InventoryWidgetState extends State<InventoryWidget> {
       return matchesSearch && matchesCategory;
     }).toList();
   }
+  */
 
   @override
   Widget build(BuildContext context) {
@@ -63,6 +65,7 @@ class _InventoryWidgetState extends State<InventoryWidget> {
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(width: 16),
+            /*
             DropdownButton<String>(
               value: widget.selectedCategory,
               onChanged: (value) => widget.onCategoryChanged(value!),
@@ -73,6 +76,7 @@ class _InventoryWidgetState extends State<InventoryWidget> {
                       ))
                   .toList(),
             ),
+            */
             const SizedBox(width: 16),
             Expanded(
               child: TextField(
@@ -104,22 +108,28 @@ class _InventoryWidgetState extends State<InventoryWidget> {
                 return ListView.builder(
                   itemCount: inventory.length,
                   itemBuilder: (context, index) {
-                    return ListView.builder(
-                      itemCount: filteredInventory.length,
-                      itemBuilder: (context, index) {
-                        final product = filteredInventory[index];
-                        return Card(
-                          child: ListTile(
-                            title: Text(product.name),
-                            subtitle: Text(
-                                "Precio: \$${product.price} | Stock: ${product.quantity}"),
-                            trailing: ElevatedButton(
-                              onPressed: () => widget.onAddToCart(product),
-                              child: const Text("Añadir"),
+                    return Card(
+                      elevation: 3,
+                      margin: const EdgeInsets.symmetric(
+                          vertical: 8, horizontal: 16),
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              item.name,
+                              style: const TextStyle(
+                                  fontSize: 18, fontWeight: FontWeight.bold),
                             ),
-                          ),
-                        );
-                      },
+                            const SizedBox(height: 8),
+                            Text("Categoría: ${item.category}"),
+                            Text("Código de barras: ${item.barCode}"),
+                            Text("Cantidad: ${item.quantity}"),
+                            Text("Precio: \$${item.price.toStringAsFixed(2)}"),
+                          ],
+                        ),
+                      ),
                     );
                   },
                 );
@@ -131,3 +141,4 @@ class _InventoryWidgetState extends State<InventoryWidget> {
     );
   }
 }
+*/

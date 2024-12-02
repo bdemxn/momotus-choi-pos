@@ -1,204 +1,190 @@
 import 'package:choi_pos/models/inventory_item.dart';
-import 'package:choi_pos/models/promo_code.dart';
-import 'package:choi_pos/services/cart_validation.dart';
+import 'package:choi_pos/screens/app/checkout_screen.dart';
 import 'package:choi_pos/services/get_inventory.dart';
-import 'package:choi_pos/services/shop_cart.dart';
-import 'package:choi_pos/widgets/cart_widget.dart';
-import 'package:choi_pos/widgets/inventory_widget.dart';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 
 class AppScreen extends StatefulWidget {
   const AppScreen({super.key});
 
   @override
-  State<AppScreen> createState() => _AppScreenState();
+  // ignore: library_private_types_in_public_api
+  _AppScreenState createState() => _AppScreenState();
 }
 
 class _AppScreenState extends State<AppScreen> {
-  
-  final List<InventoryItem> inventory = InventoryService().inventory;
+  final InventoryService _inventoryService = InventoryService();
+  final List<InventoryItem> _cart = [];
+  String _searchQuery = "";
 
-  final List<CartItem> cart = [];
+  @override
+  void initState() {
+    super.initState();
+    _fetchInventory();
+  }
 
-  String searchQuery = "";
-  String selectedCategory = "Todas";
+  Future<void> _fetchInventory() async {
+    await _inventoryService.fetchInventory();
+    setState(() {});
+  }
 
-  String selectedPaymentMethod = 'Efectivo';
-  String onSelectedPaymentMethod = 'Efectivo';
-  final TextEditingController referenceController = TextEditingController();
-  final TextEditingController promoCodeController = TextEditingController();
-  PromoCode? appliedPromoCode;
+  void _addToCart(InventoryItem item) {
+    setState(() {
+      _cart.add(item);
+    });
+  }
 
-  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  double get totalPrice => _cart.fold(0.0, (sum, item) => sum + item.price);
 
-  void addToCart(InventoryItem product) {
-    if (!CartValidations.isProductAvailable(product)) {
+  int get totalItems => _cart.length;
+
+  void _goToCheckout() {
+    if (_cart.isEmpty) {
+      // Mostrar un mensaje si el carrito está vacío
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-            content: Text('Este producto no tiene cantidad disponible')),
+          content: Text(
+              'El carrito está vacío. Agrega artículos antes de continuar.'),
+        ),
       );
       return;
     }
 
-    setState(() {
-      cart.add(CartItem(name: 'testing', price: 123, quantity: 1));
-    });
-  }
+    bool hasInsufficientStock = _cart.any((item) =>
+        _inventoryService.inventory
+            .firstWhere((invItem) => invItem.id == item.id)
+            .quantity <
+        1);
 
-  void updatePaymentMethod(String method) {
-    setState(() {
-      selectedPaymentMethod = method;
-    });
-  }
-
-  void updateSearchQuery(String query) {
-    setState(() {
-      searchQuery = query;
-    });
-  }
-
-  void updateSelectedCategory(String category) {
-    setState(() {
-      selectedCategory = category;
-    });
-  }
-
-  double calculateTotal() {
-    double total =
-        cart.fold(0, (sum, item) => sum + (item.price * item.quantity));
-    if (appliedPromoCode != null) {
-      total = PromoCode.applyPromoCode(appliedPromoCode!, total);
-    }
-    return total;
-  }
-
-  void applyPromoCode() {
-    final String code = promoCodeController.text.trim();
-    // Simulación de códigos de promoción disponibles
-    final promoCodes = [
-      PromoCode(code: "PROMO10", type: "porcentaje", value: 10, isActive: true),
-      PromoCode(
-          code: "DISCOUNT50",
-          type: "fijo",
-          value: 50,
-          isActive: false), // Código inactivo
-    ];
-
-    // Buscar el código de promoción
-    final promoCode = promoCodes.where((p) => p.code == code).isNotEmpty
-        ? promoCodes.firstWhere((p) => p.code == code)
-        : null;
-
-    // Validar si no se encontró el código o si está inactivo
-    if (promoCode == null || !promoCode.isActive) {
+    if (hasInsufficientStock) {
+      // Mostrar un mensaje si hay artículos sin stock suficiente
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-            content:
-                Text("El código de promoción no es válido o está inactivo.")),
+          content: Text('Uno o más artículos no tienen stock suficiente.'),
+        ),
       );
       return;
     }
 
-    // Aplicar la promoción
-    setState(() {
-      appliedPromoCode = promoCode; // Guardar el código aplicado
-    });
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text("Código aplicado: ${promoCode.code}")),
+    // Si pasa las validaciones, navegar al CheckoutScreen
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => CheckoutScreen(cart: _cart),
+      ),
     );
-  }
-
-  void confirmPurchase() {
-    if (_formKey.currentState?.validate() ?? true) {
-      if (cart.isEmpty) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("El carrito está vacío")),
-        );
-        return;
-      }
-
-      if (selectedPaymentMethod != 'Efectivo' &&
-          CartValidations.isReferenceValid(
-              referenceController.text, selectedPaymentMethod)) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Debe ingresar una referencia válida.")),
-        );
-        return;
-      }
-
-      // Aquí iría la lógica de compra y actualización del backend
-      setState(() {
-        cart.clear();
-        appliedPromoCode = null;
-        promoCodeController.clear();
-        referenceController.clear();
-        selectedPaymentMethod = 'Efectivo';
-      });
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Compra realizada con éxito')),
-      );
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text("Por favor, completa los campos correctamente.")),
-      );
-    }
   }
 
   @override
   Widget build(BuildContext context) {
+    final filteredInventory = _inventoryService.inventory
+        .where((item) =>
+            item.barCode.contains(_searchQuery) || _searchQuery.isEmpty)
+        .toList();
+
     return Scaffold(
-        appBar: AppBar(
-          title: const Row(
-            children: [
-              Text('Cajero'),
-              Padding(
-                padding: EdgeInsets.only(left: 20),
-                child: Image(
-                  image: AssetImage('assets/choi-image.png'),
-                  height: 30,
+      appBar: AppBar(
+        title: const Text('Sistema de Inventario'),
+      ),
+      body: Row(
+        children: [
+          // Sección izquierda: Inventario y búsqueda
+          Expanded(
+            flex: 2,
+            child: Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: TextField(
+                    decoration: const InputDecoration(
+                      labelText: 'Buscar por código de barras',
+                      prefixIcon: Icon(Icons.search),
+                    ),
+                    onChanged: (value) {
+                      setState(() {
+                        _searchQuery = value;
+                      });
+                    },
+                  ),
                 ),
-              ),
-            ],
+                Expanded(
+                  child: ListView.builder(
+                    itemCount: filteredInventory.length,
+                    itemBuilder: (context, index) {
+                      final item = filteredInventory[index];
+                      return Card(
+                        margin: const EdgeInsets.all(8.0),
+                        child: ListTile(
+                          title: Text(item.name),
+                          subtitle: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text('Stock: ${item.quantity}'),
+                              Text(
+                                  'Precio: \$${item.price.toStringAsFixed(2)}'),
+                            ],
+                          ),
+                          trailing: IconButton(
+                            icon: const Icon(Icons.add_shopping_cart),
+                            onPressed: () => _addToCart(item),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
           ),
-          leading: IconButton(
-              onPressed: () => context.go('/'),
-              icon: const Icon(Icons.arrow_back)),
-        ),
-        body: Padding(
-          padding: const EdgeInsets.all(10),
-          child: Row(
-            children: [
-              Expanded(
-                flex: 3,
-                child: InventoryWidget(
-                  inventory: inventory,
-                  searchQuery: searchQuery,
-                  selectedCategory: selectedCategory,
-                  onAddToCart: addToCart,
-                  onSearchQueryChanged: updateSearchQuery,
-                  onCategoryChanged: updateSelectedCategory,
+          const VerticalDivider(width: 1.0),
+          // Sección derecha: Carrito
+          Expanded(
+            flex: 1,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Padding(
+                  padding: EdgeInsets.all(8.0),
+                  child: Text(
+                    'Carrito de Compras',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
                 ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                flex: 2,
-                child: CartWidget(
-                  calculateTotal: calculateTotal,
-                  onPaymentMethodChanged: updatePaymentMethod,
-                  cart: cart,
-                  selectedPaymentMethod: selectedPaymentMethod,
-                  applyPromoCode: applyPromoCode,
-                  confirmPurchase: confirmPurchase,
-                  promoCodeController: appliedPromoCode,
-                  referenceController: referenceController,
+                Expanded(
+                  child: ListView.builder(
+                    itemCount: _cart.length,
+                    itemBuilder: (context, index) {
+                      final item = _cart[index];
+                      return ListTile(
+                        title: Text(item.name),
+                        subtitle:
+                            Text('Precio: \$${item.price.toStringAsFixed(2)}'),
+                      );
+                    },
+                  ),
                 ),
-              ),
-            ],
+                const Divider(),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('Total de artículos: $totalItems'),
+                      Text('Total a pagar: \$${totalPrice.toStringAsFixed(2)}'),
+                      const SizedBox(height: 20),
+                      Center(
+                        child: ElevatedButton(
+                          onPressed: _goToCheckout,
+                          child: const Text('Confirmar Compra'),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
-        ));
+        ],
+      ),
+    );
   }
 }
