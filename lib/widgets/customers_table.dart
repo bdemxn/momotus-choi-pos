@@ -48,18 +48,16 @@ class _CustomerTableState extends State<CustomerTable> {
               DataColumn(label: Text('Correo')),
               DataColumn(label: Text('¿Menor de Edad?')),
               DataColumn(label: Text('Preferido')),
-              DataColumn(label: Text('ID')),
             ],
             rows: customers.map((customer) {
               return DataRow(
                 cells: [
-                  const DataCell(Image(image: AssetImage('assets/choi-user.png'), height: 40,) as Widget),
+                  const DataCell(Image(image: AssetImage('assets/choi-client.png'), height: 40,) as Widget),
                   DataCell(Text(customer['fullname'] ?? 'N/A')),
                   DataCell(Text(customer['phone'] ?? 'N/A')),
                   DataCell(Text(customer['email'] ?? 'N/A')),
                   DataCell(Text(customer['is_minor'] ? 'Sí' : 'No')),
                   DataCell(Text(customer['is_preferred'] ? 'Sí' : 'No')),
-                  DataCell(Text(customer['id'])),
                 ],
               );
             }).toList(),

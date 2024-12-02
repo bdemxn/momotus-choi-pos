@@ -20,70 +20,49 @@ class _ReportCardsState extends State<ReportCards> {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<List<dynamic>>(
-      future: reports,
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
-        } else if (snapshot.hasError) {
-          return Center(child: Text('Error: ${snapshot.error}'));
-        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-          return const Center(child: Text('No hay reportes disponibles'));
-        }
+        future: reports,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return const Center(child: Text('No hay reportes disponibles'));
+          }
 
-        final reportList = snapshot.data!;
+          final reportList = snapshot.data!;
 
-        return ListView.builder(
-          itemCount: reportList.length,
-          itemBuilder: (context, index) {
-            final report = reportList[index];
-            return _buildReportCard(report);
-          },
-        );
-      },
-    );
-  }
-
-  Widget _buildReportCard(dynamic report) {
-    return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-      elevation: 3,
-      child: Padding(
-        padding: const EdgeInsets.all(10.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildRow('Cajero:', report['cashier']),
-            _buildRow('Cliente:', report['customer']),
-            _buildRow('Fecha:', report['date']),
-            _buildRow('ID Venta:', report['id']),
-            _buildRow('Referencia de Pago:', report['payment_ref']),
-            _buildRow('Productos:', report['products']),
-            _buildRow('Promoción:', report['promocode']),
-            _buildRow('Total Pagado:', '\$${report['total_paid']}'),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildRow(String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 2),
-      child: Row(
-        children: [
-          Text(
-            label,
-            style: const TextStyle(fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Text(
-              value,
-              style: const TextStyle(color: Colors.black87),
+          return SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: DataTable(
+              columns: const [
+                DataColumn(label: Text('Cajero')),
+                DataColumn(label: Text('Cliente')),
+                DataColumn(label: Text('Fecha')),
+                DataColumn(label: Text('ID Venta')),
+                DataColumn(label: Text('Referencia de Pago')),
+                DataColumn(label: Text('Productos')),
+                DataColumn(label: Text('Promoción')),
+                DataColumn(label: Text('Total Pagado')),
+              ],
+              rows: reportList.map((report) {
+                return DataRow(
+                  cells: [
+                    DataCell(Text(report['cashier'] ?? 'N/A')),
+                    DataCell(Text(report['customer'] ?? 'N/A')),
+                    DataCell(Text(report['date'] ?? 'N/A')),
+                    DataCell(Text(report['id'] ?? 'N/A')),
+                    DataCell(Text(report['payment_ref'] ?? 'N/A')),
+                    DataCell(Text((report['products'] as List<dynamic>)
+                        .map((product) => product.toString())
+                        .join(', '))),
+                    DataCell(Text(report['promocode'] ?? 'Ninguno')),
+                    DataCell(Text('\$${report['total_paid']}')),
+                  ],
+                );
+              }).toList(),
             ),
-          ),
-        ],
-      ),
-    );
+          );
+        });
   }
 }

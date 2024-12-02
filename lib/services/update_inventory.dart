@@ -37,10 +37,18 @@ class UpdateInventory {
     required String promoCode,
     required double totalPaid,
   }) async {
+    final String basicAuth =
+        'Basic ${base64Encode(utf8.encode('$username:$password'))}';
 
-    final String basicAuth = 'Basic ${base64Encode(utf8.encode('$username:$password'))}';
-
-    final serializedProducts = products.map((product) => product['id']).toString();
+    final serializedProducts = products.map((product) {
+      if (product.containsKey('id')) {
+        return {
+          'id': product['id'], // Verificar que cada producto tenga 'id'
+        };
+      } else {
+        throw Exception('Cada producto debe contener un ID.');
+      }
+    }).toList();
 
     final saleReport = {
       'cashier': cashier,
@@ -54,12 +62,9 @@ class UpdateInventory {
     final response = await http.post(
       Uri.parse('$baseUrl/cashier/sales'),
       body: jsonEncode(saleReport),
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': basicAuth
-      },
+      headers: {'Content-Type': 'application/json', 'Authorization': basicAuth},
     );
-    
+
     //? Error handler:
     if (response.statusCode != 201) {
       throw Exception('Error enviando el reporte de ventas');
