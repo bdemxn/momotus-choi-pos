@@ -70,4 +70,52 @@ class UpdateInventory {
       throw Exception('Error enviando el reporte de ventas');
     }
   }
+
+  static Future<void> updateInventoryQuantities(
+      List<InventoryItem> cart) async {
+    final String basicAuth =
+        'Basic ${base64Encode(utf8.encode('$username:$password'))}';
+
+    for (var item in cart) {
+      // Obtener la cantidad actual del inventario
+      final response = await http.get(
+        Uri.parse('$baseUrl/cashier/inventory/${item.id}'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': basicAuth
+        },
+      );
+
+      if (response.statusCode != 200) {
+        throw Exception('Error obteniendo el inventario para ${item.id}');
+      }
+
+      // Parsear la cantidad actual
+      final currentInventory = jsonDecode(response.body);
+      final int currentQuantity = currentInventory['quantity'];
+
+      // Calcular la nueva cantidad
+      final int updatedQuantity = currentQuantity - item.quantity;
+
+      // Validar que no quede en negativo
+      if (updatedQuantity < 0) {
+        throw Exception(
+            'Error: La cantidad en el carrito (${item.quantity}) supera la cantidad disponible ($currentQuantity) para el producto ${item.id}');
+      }
+
+      // Actualizar la cantidad
+      final updateResponse = await http.put(
+        Uri.parse('$baseUrl/cashier/inventory/${item.id}'),
+        body: jsonEncode({'quantity': updatedQuantity}),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': basicAuth
+        },
+      );
+
+      if (updateResponse.statusCode != 200) {
+        throw Exception('Error actualizando el inventario para ${item.id}');
+      }
+    }
+  }
 }
