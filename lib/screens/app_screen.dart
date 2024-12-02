@@ -39,7 +39,7 @@ class _AppScreenState extends State<AppScreen> {
   int get totalItems => _cart.length;
 
   void _goToCheckout() {
-    /*if (_cart.isEmpty) {
+    if (_cart.isEmpty) {
       // Mostrar un mensaje si el carrito está vacío
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -48,7 +48,7 @@ class _AppScreenState extends State<AppScreen> {
         ),
       );
       return;
-    }*/
+    }
 
     bool hasInsufficientStock = _cart.any((item) =>
         _inventoryService.inventory
