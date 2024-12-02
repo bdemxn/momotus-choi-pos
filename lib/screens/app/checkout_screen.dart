@@ -56,7 +56,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
       try {
         // Actualizar inventario
-        await UpdateInventory.updateInventoryQuantities(widget.cart);
+        await UpdateInventory.updateInventory(widget.cart);
 
         // Enviar reporte de ventas
         final products = widget.cart.map((item) {
