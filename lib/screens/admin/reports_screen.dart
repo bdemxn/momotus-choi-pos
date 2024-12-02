@@ -18,8 +18,31 @@ class ReportsScreen extends StatelessWidget {
               ],
             ),
           ),
-          Center(
-            child: ReportCards(),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 40),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Reportería',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                Text(
+                  'Toda tu data de ventas aquí',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.normal,
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsets.only(top: 20, left: 40),
+                  child: ReportCards(),
+                )
+              ]
+            ),
           )
 
         ],

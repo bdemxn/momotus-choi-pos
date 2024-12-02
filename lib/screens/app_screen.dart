@@ -69,9 +69,18 @@ class _AppScreenState extends State<AppScreen> {
     // Si pasa las validaciones, navegar al CheckoutScreen
     Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (context) => CheckoutScreen(cart: _cart)
-      ),
+      MaterialPageRoute(builder: (context) => CheckoutScreen(cart: _cart)),
+    );
+  }
+
+  void _clearCart() {
+    setState(() {
+      _cart.clear();
+    });
+
+    // Mostrar un mensaje de confirmación
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Carrito limpiado exitosamente.')),
     );
   }
 
@@ -89,7 +98,10 @@ class _AppScreenState extends State<AppScreen> {
             Text('Cajero'),
             Padding(
               padding: EdgeInsets.only(left: 20),
-              child: Image(image: AssetImage('assets/choi-image.png'), height: 30,),
+              child: Image(
+                image: AssetImage('assets/choi-image.png'),
+                height: 30,
+              ),
             )
           ],
         ),
@@ -185,11 +197,21 @@ class _AppScreenState extends State<AppScreen> {
                       Text('Total a pagar: \$${totalPrice.toStringAsFixed(2)}'),
                       const SizedBox(height: 20),
                       Center(
-                        child: ElevatedButton(
-                          onPressed: _goToCheckout,
-                          child: const Text('Confirmar Compra'),
-                        ),
-                      ),
+                          child: Row(
+                        children: [
+                          ElevatedButton(
+                            onPressed: _goToCheckout,
+                            child: const Text('Confirmar Compra'),
+                          ),
+                          ElevatedButton(
+                            onPressed: _cart.isEmpty ? null : _clearCart,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.red,
+                            ),
+                            child: const Text('Limpiar Carrito'),
+                          ),
+                        ],
+                      )),
                     ],
                   ),
                 ),
