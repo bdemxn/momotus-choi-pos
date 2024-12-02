@@ -2,6 +2,7 @@ import 'package:choi_pos/models/inventory_item.dart';
 import 'package:choi_pos/screens/app/checkout_screen.dart';
 import 'package:choi_pos/services/get_inventory.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class AppScreen extends StatefulWidget {
   const AppScreen({super.key});
@@ -83,7 +84,19 @@ class _AppScreenState extends State<AppScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Sistema de Inventario'),
+        title: const Row(
+          children: [
+            Text('Cajero'),
+            Padding(
+              padding: EdgeInsets.only(left: 20),
+              child: Image(image: AssetImage('assets/choi-image.png'), height: 30,),
+            )
+          ],
+        ),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => context.go('/'),
+        ),
       ),
       body: Row(
         children: [

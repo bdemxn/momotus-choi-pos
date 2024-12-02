@@ -1,5 +1,4 @@
 import 'package:choi_pos/widgets/customers_table.dart';
-import 'package:choi_pos/widgets/inventory_table.dart';
 import 'package:choi_pos/widgets/sidebar_admin.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';

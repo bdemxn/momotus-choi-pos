@@ -60,7 +60,6 @@ class InventoryScreen extends StatelessWidget {
 
                 // DataTable:
                 const InventoryTable()
-          
               ],
             )
           )
