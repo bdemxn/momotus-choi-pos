@@ -62,6 +62,9 @@ class _UserFormWidgetState extends State<UserFormWidget> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              const Center(
+                child: Image(image: AssetImage('assets/choi-user.png'), height: 100,),
+              ),
               TextFormField(
                 controller: _fullnameController,
                 decoration:
@@ -125,6 +128,7 @@ class _UserFormWidgetState extends State<UserFormWidget> {
                 },
               ),
               const SizedBox(height: 24),
+
               _isLoading
                   ? const Center(child: CircularProgressIndicator())
                   : ElevatedButton(

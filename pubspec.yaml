@@ -24,3 +24,5 @@ flutter:
   uses-material-design: true
   assets:
     - assets/choi-image.png
+    - assets/choi-user.png
+    - assets/choi-client.png

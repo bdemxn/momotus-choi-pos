@@ -13,7 +13,6 @@ class CheckoutScreen extends StatefulWidget {
 }
 
 class _CheckoutScreenState extends State<CheckoutScreen> {
-  
   bool? isLoading;
   final _formKey = GlobalKey<FormState>();
   String paymentMethod = 'Efectivo';
@@ -39,55 +38,56 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   int get totalItems => widget.cart.length;
 
   Future<void> _submitCheckout() async {
-  if (_formKey.currentState?.validate() ?? false) {
-    _formKey.currentState?.save();
+    if (_formKey.currentState?.validate() ?? false) {
+      _formKey.currentState?.save();
 
-    if ((paymentMethod == 'Transferencia' || paymentMethod == 'Tarjeta') &&
-        (referenceCode == null || referenceCode!.isEmpty)) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('El código de referencia es obligatorio')),
-      );
-      return;
-    }
+      if ((paymentMethod == 'Transferencia' || paymentMethod == 'Tarjeta') &&
+          (referenceCode == null || referenceCode!.isEmpty)) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+              content: Text('El código de referencia es obligatorio')),
+        );
+        return;
+      }
 
-    setState(() {
-      isLoading = true; // Activar indicador de carga
-    });
-
-    try {
-      // Actualizar inventario
-      await UpdateInventory.updateInventory(widget.cart);
-
-      // Enviar reporte de ventas
-      final products = widget.cart.map((item) {
-        return {'id': item.id, 'quantity': item.quantity};
-      }).toList();
-
-      await UpdateInventory.postSalesReport(
-        cashier: 'NombreDelCajero',
-        customer: 'Cliente Generico',
-        paymentRef: referenceCode ?? 'N/A',
-        products: products,
-        promoCode: appliedPromoCode?.code ?? 'Ninguno',
-        totalPaid: totalPrice,
-      );
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Compra realizada con éxito')),
-      );
-
-      Navigator.pop(context); // Volver a la pantalla anterior
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: ${e.toString()}')),
-      );
-    } finally {
       setState(() {
-        isLoading = false; // Desactivar indicador de carga
+        isLoading = true; // Activar indicador de carga
       });
+
+      try {
+        // Actualizar inventario
+        await UpdateInventory.updateInventory(widget.cart);
+
+        // Enviar reporte de ventas
+        final products = widget.cart.map((item) {
+          return {'id': item.id, 'quantity': item.quantity};
+        }).toList();
+
+        await UpdateInventory.postSalesReport(
+          cashier: 'NombreDelCajero',
+          customer: 'Cliente Generico',
+          paymentRef: referenceCode ?? 'N/A',
+          products: products,
+          promoCode: appliedPromoCode?.code ?? 'Ninguno',
+          totalPaid: totalPrice,
+        );
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Compra realizada con éxito')),
+        );
+
+        Navigator.pop(context); // Volver a la pantalla anterior
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: ${e.toString()}')),
+        );
+      } finally {
+        setState(() {
+          isLoading = false; // Desactivar indicador de carga
+        });
+      }
     }
   }
-}
   // Submit changes🚀
 
   @override

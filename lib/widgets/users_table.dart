@@ -51,6 +51,7 @@ class _UsersTableState extends State<UsersTable> {
                       DataCell(Text(item.roles)),
                       DataCell(Text(item.username)),
                       DataCell(Text(item.branch)),
+                      const DataCell(Image(image: AssetImage('assets/choi-user.png'), height: 20,) as Widget)
                     ]),
                   )
                   .toList(),

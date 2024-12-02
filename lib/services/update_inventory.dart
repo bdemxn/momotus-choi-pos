@@ -9,7 +9,8 @@ class UpdateInventory {
 
   // Actualizar inventario
   static Future<void> updateInventory(List<InventoryItem> cart) async {
-    final String basicAuth = 'Basic ${base64Encode(utf8.encode('$username:$password'))}';
+    final String basicAuth =
+        'Basic ${base64Encode(utf8.encode('$username:$password'))}';
 
     for (var item in cart) {
       final response = await http.put(
@@ -36,17 +37,25 @@ class UpdateInventory {
     required String promoCode,
     required double totalPaid,
   }) async {
+
+    final serializedProducts = products.map((product) {
+      return {
+        'id': product['id'].toString(),
+        'quantity': product['quantity'].toString(),
+      };
+    }).toList();
+
     final saleReport = {
       'cashier': cashier,
       'customer': customer,
       'payment_ref': paymentRef,
-      'products': products,
+      'products': serializedProducts.toString(),
       'promocode': promoCode,
       'total_paid': totalPaid,
     };
 
     final response = await http.post(
-      Uri.parse('$baseUrl/cashier/sales-report'),
+      Uri.parse('$baseUrl/cashier/sales'),
       body: jsonEncode(saleReport),
       headers: {'Content-Type': 'application/json'},
     );
