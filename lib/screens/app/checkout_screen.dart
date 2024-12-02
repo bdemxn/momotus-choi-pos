@@ -4,9 +4,8 @@ import 'package:flutter/material.dart';
 
 class CheckoutScreen extends StatefulWidget {
   final List<InventoryItem> cart;
-  final VoidCallback onCheckoutComplete; // Changed <==
 
-  const CheckoutScreen({super.key, required this.cart, required this.onCheckoutComplete});
+  const CheckoutScreen({super.key, required this.cart});
 
   @override
   State<CheckoutScreen> createState() => _CheckoutScreenState();
@@ -87,7 +86,6 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       );
 
       await Future.delayed(const Duration(seconds: 2));
-      widget.onCheckoutComplete;
       Navigator.pop(context);
     }
   }

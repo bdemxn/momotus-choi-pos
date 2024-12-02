@@ -70,9 +70,7 @@ class _AppScreenState extends State<AppScreen> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => CheckoutScreen(cart: _cart, onCheckoutComplete: () => setState(() {
-          _cart.clear();
-        }),),
+        builder: (context) => CheckoutScreen(cart: _cart)
       ),
     );
   }
