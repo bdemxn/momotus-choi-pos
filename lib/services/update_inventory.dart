@@ -12,7 +12,7 @@ class UpdateInventory {
     final String basicAuth =
         'Basic ${base64Encode(utf8.encode('$username:$password'))}';
 
-    for (var item in cart) {
+    /*for (var item in cart) {
       // Obtener la cantidad actual del inventario
       final response = await http.get(
         Uri.parse('$baseUrl/cashier/inventory/${item.id}'),
@@ -52,9 +52,9 @@ class UpdateInventory {
       if (updateResponse.statusCode != 200) {
         throw Exception('Error actualizando el inventario para ${item.id}');
       }
-    }
+    }*/
 
-    /*for (var item in cart) {
+    for (var item in cart) {
       final response = await http.put(
         Uri.parse('$baseUrl/cashier/inventory/${item.id}'),
         body: jsonEncode({'quantity': item.quantity}),
@@ -67,7 +67,7 @@ class UpdateInventory {
       if (response.statusCode != 200) {
         throw Exception('Error actualizando el inventario para ${item.id}');
       }
-    }*/
+    }
   }
 
   // Enviar reporte de ventas
