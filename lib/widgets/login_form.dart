@@ -35,7 +35,7 @@ class _LoginFormState extends State<LoginForm> {
                       const EdgeInsets.symmetric(horizontal: 0, vertical: 10),
                   child: ElevatedButton(
                     onPressed: () {
-                      if (userController.text == "alan.arguello" && passwordController.text == "Prueba1#") {
+                      if (userController.text == "allan.arguello" && passwordController.text == "Prueba1#") {
                         context.go('/admin');
                       }
                     },
@@ -50,7 +50,7 @@ class _LoginFormState extends State<LoginForm> {
                       const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
                   child: ElevatedButton(
                     onPressed: () {
-                      if (userController.text == "alan.arguello" && passwordController.text == "Prueba1#" || userController.text == 'cajero1' && passwordController.text == 'Testing123@') {
+                      if (userController.text == "allan.arguello" && passwordController.text == "Prueba1#" || userController.text == 'cajero1' && passwordController.text == 'Testing123@') {
                         context.go('/app');
                       }
                     },
