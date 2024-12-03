@@ -23,7 +23,7 @@ class _InventoryFormWidgetState extends State<InventoryFormWidget> {
       final Map<String, dynamic> inventoryData = {
         'name': _nameController.text,
         'price': double.parse(_priceController.text),
-        'category': _categoryController,
+        'category': _categoryController.text,
         'bar_code': _barcodeController.text,
         'quantity': int.parse(_quantityController.text),
       };

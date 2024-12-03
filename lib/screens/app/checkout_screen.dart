@@ -67,7 +67,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
           cashier: 'NombreDelCajero',
           customer: 'Cliente Generico',
           paymentRef: referenceCode ?? 'N/A',
-          products: products,
+          cart: products as List<InventoryItem>,
           promoCode: appliedPromoCode?.code ?? 'Ninguno',
           totalPaid: totalPrice,
         );
