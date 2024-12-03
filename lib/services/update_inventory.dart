@@ -8,14 +8,14 @@ class UpdateInventory {
   static const String baseUrl = 'http://localhost:8000';
 
   // Método para actualizar el inventario
-  static Future<void> updateInventory(List<InventoryItem> cart) async {
+  static Future<void> updateInventory(List<Map<String, dynamic>> cart) async {
     final String basicAuth =
         'Basic ${base64Encode(utf8.encode('$username:$password'))}';
 
     for (var item in cart) {
       // Obtener cantidad actual del inventario
       final response = await http.get(
-        Uri.parse('$baseUrl/cashier/inventory/${item.id}'),
+        Uri.parse('$baseUrl/cashier/inventory/${item['id']}'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': basicAuth
@@ -23,23 +23,23 @@ class UpdateInventory {
       );
 
       if (response.statusCode != 200) {
-        throw Exception('Error obteniendo inventario para ${item.name}');
+        throw Exception('Error obteniendo inventario para ${item['name']}');
       }
 
       final currentInventory = jsonDecode(response.body);
       final int currentQuantity = currentInventory['quantity'];
 
       // Calcular la nueva cantidad
-      final int updatedQuantity = currentQuantity - item.quantity;
+      final num updatedQuantity = currentQuantity - item['quantity'];
 
       if (updatedQuantity < 0) {
         throw Exception(
-            'Stock insuficiente: ${item.name} (Disponible: $currentQuantity, Requerido: ${item.quantity})');
+            'Stock insuficiente: ${item['name']} (Disponible: $currentQuantity, Requerido: ${item['quantity']})');
       }
 
       // Hacer PUT para actualizar cantidad
       final updateResponse = await http.put(
-        Uri.parse('$baseUrl/cashier/inventory/${item.id}'),
+        Uri.parse('$baseUrl/cashier/inventory/${item['id']}'),
         body: jsonEncode({'quantity': updatedQuantity}),
         headers: {
           'Content-Type': 'application/json',
@@ -49,7 +49,7 @@ class UpdateInventory {
 
       if (updateResponse.statusCode != 200) {
         throw Exception(
-            'Error actualizando inventario para ${item.name}.');
+            'Error actualizando inventario para ${item['name']}.');
       }
     }
   }
@@ -59,7 +59,7 @@ class UpdateInventory {
     required String cashier,
     required String? customer,
     required String paymentRef,
-    required List<InventoryItem> cart,
+    required List<Map<String, dynamic>> cart,
     required String promoCode,
     required double totalPaid,
   }) async {
@@ -68,7 +68,7 @@ class UpdateInventory {
 
     // Serializar los productos del carrito
     final products = cart
-        .map((item) => {'id': item.id, 'quantity': item.quantity})
+        .map((item) => {'id': item['id'], 'quantity': item['quantity']})
         .toList();
 
     final saleReport = {
