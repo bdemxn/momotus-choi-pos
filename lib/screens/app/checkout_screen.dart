@@ -4,7 +4,7 @@ import 'package:choi_pos/services/update_inventory.dart';
 import 'package:flutter/material.dart';
 
 class CheckoutScreen extends StatefulWidget {
-  final List<Map<String, dynamic>> cart;
+  final List<InventoryItem> cart;
 
   const CheckoutScreen({super.key, required this.cart});
 
@@ -27,7 +27,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   ];
 
   double get totalPrice {
-    double cartTotal = widget.cart.fold(0.0, (sum, item) => sum + item['price']);
+    double cartTotal = widget.cart.fold(0.0, (sum, item) => sum + item.price);
     if (appliedPromoCode != null &&
         PromoCode.isPromoCodeActive(appliedPromoCode!)) {
       cartTotal = PromoCode.applyPromoCode(appliedPromoCode!, cartTotal);
@@ -60,7 +60,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
         // Enviar reporte de ventas
         final products = widget.cart.map((item) {
-          return {'id': item['id'], 'quantity': item['quantity']};
+          return {'id': item.id, 'quantity': item.quantity};
         }).toList();
 
         await UpdateInventory.postSalesReport(
@@ -110,9 +110,9 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                   itemBuilder: (context, index) {
                     final item = widget.cart[index];
                     return ListTile(
-                      title: Text(item['name']),
+                      title: Text(item.name),
                       subtitle:
-                          Text('Precio: \$${item['price'].toStringAsFixed(2)}'),
+                          Text('Precio: \$${item.price.toStringAsFixed(2)}'),
                     );
                   },
                 ),

@@ -14,7 +14,7 @@ class AppScreen extends StatefulWidget {
 
 class _AppScreenState extends State<AppScreen> {
   final InventoryService _inventoryService = InventoryService();
-  final List<Map<String, dynamic>> _cart = [];
+  final List<InventoryItem> _cart = [];
   String _searchQuery = "";
 
   @override
@@ -28,13 +28,13 @@ class _AppScreenState extends State<AppScreen> {
     setState(() {});
   }
 
-  void _addToCart(Map<String, dynamic> item) {
+  void _addToCart(InventoryItem item) {
     setState(() {
       _cart.add(item);
     });
   }
 
-  double get totalPrice => _cart.fold(0.0, (sum, item) => sum + item['price']);
+  double get totalPrice => _cart.fold(0.0, (sum, item) => sum + item.price);
 
   int get totalItems => _cart.length;
 
@@ -52,7 +52,7 @@ class _AppScreenState extends State<AppScreen> {
 
     bool hasInsufficientStock = _cart.any((item) =>
         _inventoryService.inventory
-            .firstWhere((invItem) => invItem.id == item['id'])
+            .firstWhere((invItem) => invItem.id == item.id)
             .quantity <
         1);
 
@@ -150,7 +150,7 @@ class _AppScreenState extends State<AppScreen> {
                           ),
                           trailing: IconButton(
                             icon: const Icon(Icons.add_shopping_cart),
-                            onPressed: () => _addToCart(item as Map<String, dynamic>),
+                            onPressed: () => _addToCart(item),
                           ),
                         ),
                       );
@@ -180,9 +180,9 @@ class _AppScreenState extends State<AppScreen> {
                     itemBuilder: (context, index) {
                       final item = _cart[index];
                       return ListTile(
-                        title: Text(item['name']),
+                        title: Text(item.name),
                         subtitle:
-                            Text('Precio: \$${item['price'].toStringAsFixed(2)}'),
+                            Text('Precio: \$${item.price.toStringAsFixed(2)}'),
                       );
                     },
                   ),
