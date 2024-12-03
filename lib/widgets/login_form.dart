@@ -26,7 +26,6 @@ class _LoginFormState extends State<LoginForm> {
             _inputField("Usuario", userController),
             const SizedBox(height: 10),
             _inputField("Contraseña", passwordController, isPassword: true),
-
             // Buttons:
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
@@ -35,16 +34,30 @@ class _LoginFormState extends State<LoginForm> {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 0, vertical: 10),
                   child: ElevatedButton(
-                    onPressed: () => context.go('/admin'),
-                    child: const Text('Admin Center', style: TextStyle(color: Colors.blueAccent),),
+                    onPressed: () {
+                      if (userController.text == "alan.arguello" && passwordController.text == "Prueba1#") {
+                        context.go('/admin');
+                      }
+                    },
+                    child: const Text(
+                      'Admin Center',
+                      style: TextStyle(color: Colors.blueAccent),
+                    ),
                   ),
                 ),
                 Padding(
                   padding:
                       const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
                   child: ElevatedButton(
-                    onPressed: () => context.go('/app'),
-                    child: const Text('POS App', style: TextStyle(color: Colors.blueAccent),),
+                    onPressed: () {
+                      if (userController.text == "alan.arguello" && passwordController.text == "Prueba1#" || userController.text == 'cajero1' && passwordController.text == 'Testing123@') {
+                        context.go('/app');
+                      }
+                    },
+                    child: const Text(
+                      'POS App',
+                      style: TextStyle(color: Colors.blueAccent),
+                    ),
                   ),
                 )
               ],

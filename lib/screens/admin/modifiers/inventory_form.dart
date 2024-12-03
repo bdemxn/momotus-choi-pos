@@ -2,6 +2,9 @@ import 'package:choi_pos/services/create_inventory_item.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+// Para el admin: alan.arguello | Prueba1#
+// para el cajero: cajero1 | Testing123@
+
 class InventoryFormWidget extends StatefulWidget {
   const InventoryFormWidget({super.key});
 
