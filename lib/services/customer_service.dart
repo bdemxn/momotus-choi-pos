@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class CustomerService {
-  static const String apiUrl = 'http://localhost:8000/admin/clients';
+  static const String apiUrl = 'http://45.79.205.216:8000/admin/clients';
   static const String username = 'larry.davila';
   static const String password = 'Prueba1#';
   final String basicAuth =

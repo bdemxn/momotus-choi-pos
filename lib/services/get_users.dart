@@ -10,7 +10,7 @@ class GetUsersService {
   Future<void> fetchUsers() async {
     const String username = 'larry.davila';
     const String password = 'Prueba1#';
-    const String apiUrl = 'http://localhost:8000/admin/users';
+    const String apiUrl = 'http://45.79.205.216:8000/admin/users';
 
     try {
       final String basicAuth =

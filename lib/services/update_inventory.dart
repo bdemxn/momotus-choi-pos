@@ -5,7 +5,7 @@ import 'package:choi_pos/models/inventory_item.dart';
 class UpdateInventory {
   static const String username = 'larry.davila';
   static const String password = 'Prueba1#';
-  static const String baseUrl = 'http://localhost:8000';
+  static const String baseUrl = 'http://45.79.205.216:8000';
 
   // Método para actualizar el inventario
   static Future<void> updateInventory(List<InventoryItem> cart) async {
