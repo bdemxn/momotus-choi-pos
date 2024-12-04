@@ -4,7 +4,7 @@ import 'dart:convert';
 class ReportService {
   static const String username = 'larry.davila';
   static const String password = 'Prueba1#';
-  static const String apiUrl = 'http://45.79.205.216:8000/cashier/sales';
+  static const String apiUrl = 'http://192.168.1.27:8000/cashier/sales';
 
   static Future<List<dynamic>> fetchReports() async {
     final String basicAuth =

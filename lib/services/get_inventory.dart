@@ -10,7 +10,7 @@ class InventoryService {
   Future<void> fetchInventory() async {
     const String username = 'larry.davila';
     const String password = 'Prueba1#';
-    const String apiUrl = 'http://45.79.205.216:8000/admin/inventory';
+    const String apiUrl = 'http://192.168.1.27:8000/admin/inventory';
 
     try {
       final String basicAuth =
