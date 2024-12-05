@@ -7,6 +7,34 @@ class UpdateInventory {
   static const String password = 'Prueba1#';
   static const String baseUrl = 'http://45.79.205.216:8000';
 
+  static Future<void> postSales(List<InventoryItem> cart) async {
+    final String basicAuth =
+        'Basic ${base64Encode(utf8.encode('$username:$password'))}';
+
+    // Crear lista de mapas con id y cantidad
+    final List<Map<String, dynamic>> salesData = cart.map((item) {
+      return {
+        'id': item.id,
+        'quantity': item.quantity,
+      };
+    }).toList();
+
+    // Realizar el POST
+    final response = await http.post(
+      Uri.parse('$baseUrl/cashier/sales/update'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': basicAuth,
+      },
+      body: jsonEncode(salesData),
+    );
+
+    // Manejo de la respuesta
+    if (response.statusCode != 200) {
+      throw Exception('Error al enviar los datos de venta: ${response.body}');
+    }
+  }
+
   // Método para actualizar el inventario
   static Future<void> updateInventory(List<InventoryItem> cart) async {
     final String basicAuth =
@@ -48,8 +76,7 @@ class UpdateInventory {
       );
 
       if (updateResponse.statusCode != 200) {
-        throw Exception(
-            'Error actualizando inventario para ${item.name}.');
+        throw Exception('Error actualizando inventario para ${item.name}.');
       }
     }
   }
