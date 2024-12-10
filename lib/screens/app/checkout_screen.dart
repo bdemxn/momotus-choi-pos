@@ -1,211 +1,176 @@
-import 'package:choi_pos/models/inventory_item.dart';
-import 'package:choi_pos/models/promo_code.dart';
-import 'package:choi_pos/services/update_inventory.dart';
+import 'package:choi_pos/store/cart_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class CheckoutScreen extends StatefulWidget {
-  final List<InventoryItem> cart;
-
-  const CheckoutScreen({super.key, required this.cart});
+  const CheckoutScreen({super.key});
 
   @override
-  State<CheckoutScreen> createState() => _CheckoutScreenState();
+  _CheckoutScreenState createState() => _CheckoutScreenState();
 }
 
 class _CheckoutScreenState extends State<CheckoutScreen> {
-  bool? isLoading;
-  final _formKey = GlobalKey<FormState>();
-  String paymentMethod = 'Efectivo';
+  String selectedPaymentMethod = 'Tarjeta';
   String? referenceCode;
-  String? promoCodeInput;
-  PromoCode? appliedPromoCode;
+  String? promoCode;
+  double discount = 0.0;
 
-  final promoCodes = [
-    PromoCode(code: 'PROMO10', type: 'porcentaje', value: 10),
-    PromoCode(code: 'DISCOUNT20', type: 'fijo', value: 20),
-    PromoCode(code: 'SALE30', type: 'porcentaje', value: 30),
-  ];
-
-  double get totalPrice {
-    double cartTotal = widget.cart.fold(0.0, (sum, item) => sum + item.price);
-    if (appliedPromoCode != null &&
-        PromoCode.isPromoCodeActive(appliedPromoCode!)) {
-      cartTotal = PromoCode.applyPromoCode(appliedPromoCode!, cartTotal);
-    }
-    return cartTotal;
-  }
-
-  int get totalItems => widget.cart.length;
-
-  Future<void> _submitCheckout() async {
-    if (_formKey.currentState?.validate() ?? false) {
-      _formKey.currentState?.save();
-
-      if ((paymentMethod == 'Transferencia' || paymentMethod == 'Tarjeta') &&
-          (referenceCode == null || referenceCode!.isEmpty)) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-              content: Text('El código de referencia es obligatorio')),
-        );
-        return;
-      }
-
+  void applyPromoCode(CartProvider cartProvider) {
+    if (promoCode == 'DESCUENTO10') {
       setState(() {
-        isLoading = true; // Activar indicador de carga
+        discount = cartProvider.totalPrice * 0.10;
       });
-
-      try {
-        // Actualizar inventario
-        await UpdateInventory.postSales(widget.cart);
-
-        // Enviar reporte de ventas
-        final products = widget.cart.map((item) {
-          return {'id': item.id, 'quantity': item.quantity};
-        }).toList();
-
-        await UpdateInventory.postSalesReport(
-          cashier: 'NombreDelCajero',
-          customer: 'Cliente Generico',
-          paymentRef: referenceCode ?? 'N/A',
-          cart: products,
-          promoCode: appliedPromoCode?.code ?? 'Ninguno',
-          totalPaid: totalPrice,
-        );
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Compra realizada con éxito')),
-        );
-
-        Navigator.pop(context); // Volver a la pantalla anterior
-      } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: ${e.toString()}')),
-        );
-      } finally {
-        setState(() {
-          isLoading = false; // Desactivar indicador de carga
-        });
-      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+            content: Text('Código promocional aplicado: 10% de descuento.')),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Código promocional inválido.')),
+      );
     }
   }
-  // Submit changes🚀
+
+  void confirmPurchase(CartProvider cartProvider) {
+    if (selectedPaymentMethod != 'Mixto' &&
+        (referenceCode == null || referenceCode!.isEmpty)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+            content: Text('Por favor, introduzca el código de referencia.')),
+      );
+      return;
+    }
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Compra confirmada. ¡Gracias!')),
+    );
+
+    cartProvider.clearCart();
+  }
 
   @override
   Widget build(BuildContext context) {
+    final cartProvider = Provider.of<CartProvider>(context);
+
     return Scaffold(
-        appBar: AppBar(
-          title: const Text('Resumen de compra'),
-        ),
-        body: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child:
-                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              const Text(
-                'Artículos en el carrito:',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              Expanded(
-                child: ListView.builder(
-                  itemCount: widget.cart.length,
-                  itemBuilder: (context, index) {
-                    final item = widget.cart[index];
-                    return ListTile(
-                      title: Text(item.name),
-                      subtitle:
-                          Text('Precio: \$${item.price.toStringAsFixed(2)}'),
-                    );
-                  },
-                ),
-              ),
-              const Divider(),
-              Text('Total de artículos: $totalItems'),
-              Text('Total a pagar: \$${totalPrice.toStringAsFixed(2)}'),
-              const SizedBox(height: 20),
-              if (appliedPromoCode != null)
-                Text(
-                  'Código aplicado: ${appliedPromoCode!.code} (${appliedPromoCode!.type == 'porcentaje' ? '${appliedPromoCode!.value}% de descuento' : '\$${appliedPromoCode!.value} de descuento'})',
-                  style: const TextStyle(color: Colors.green),
-                ),
-              const SizedBox(height: 20),
-              Form(
-                key: _formKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Método de Pago',
+      appBar: AppBar(
+        title: const Row(
+          children: [
+            Text('Confirmación de compra'),
+            Padding(
+              padding: EdgeInsets.only(left: 40),
+              child: Image(image: AssetImage('assets/choi-image.png'), height: 30,),
+            )
+          ],
+        )
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Row(
+          children: [
+            // Carrito (Izquierda)
+            Expanded(
+              flex: 2,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text('Resumen del carrito:',
                       style:
-                          TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                    ),
-                    DropdownButtonFormField<String>(
-                      value: paymentMethod,
-                      items: const [
-                        DropdownMenuItem(
-                            value: 'Efectivo', child: Text('Efectivo')),
-                        DropdownMenuItem(
-                            value: 'Transferencia',
-                            child: Text('Transferencia')),
-                        DropdownMenuItem(
-                            value: 'Tarjeta', child: Text('Tarjeta')),
-                      ],
-                      onChanged: (value) {
-                        setState(() {
-                          paymentMethod = value!;
-                          referenceCode = null; // Reinicia la referencia
-                        });
-                      },
-                      decoration: const InputDecoration(
-                        border: OutlineInputBorder(),
-                        contentPadding: EdgeInsets.symmetric(horizontal: 10),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    if (paymentMethod == 'Transferencia' ||
-                        paymentMethod == 'Tarjeta')
-                      TextFormField(
-                        decoration: const InputDecoration(
-                          labelText: 'Código de Referencia',
-                          border: OutlineInputBorder(),
-                        ),
-                        onSaved: (value) => referenceCode = value,
-                        validator: (value) {
-                          if (paymentMethod != 'Efectivo' &&
-                              (value == null || value.isEmpty)) {
-                            return 'El código de referencia es obligatorio';
-                          }
-                          return null;
-                        },
-                      ),
-                    const SizedBox(height: 16),
-                    const Text(
-                      'Código de Promoción',
-                      style:
-                          TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                    ),
-                    TextFormField(
-                      decoration: const InputDecoration(
-                        labelText: 'Código de Promoción (opcional)',
-                        border: OutlineInputBorder(),
-                      ),
-                      onSaved: (value) => promoCodeInput = value,
-                    ),
-                    Row(
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: ElevatedButton(
-                            onPressed: () {
-                              // Aquí puedes manejar la confirmación de la compra
-                              _submitCheckout();
-                            },
-                            child: const Text('Confirmar compra'),
+                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 8),
+                  Expanded(
+                    child: ListView.builder(
+                      itemCount: cartProvider.cartItems.length,
+                      itemBuilder: (context, index) {
+                        final cartItem = cartProvider.cartItems[index];
+                        return Container(
+                          margin: const EdgeInsets.only(bottom: 8),
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Colors.grey),
+                            borderRadius: BorderRadius.circular(8),
                           ),
-                        ),
-                      ],
-                    )
-                  ],
-                ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(cartItem.item.name,
+                                  style: const TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w500)),
+                              Text(
+                                  'Precio: \$${cartItem.item.price.toStringAsFixed(2)} x Cantidad: ${cartItem.quantity}'),
+                              Text(
+                                  'Total: \$${cartItem.totalPrice.toStringAsFixed(2)}'),
+                            ],
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ],
               ),
-            ])));
+            ),
+            const SizedBox(width: 16),
+
+            // Opciones de pago y confirmación (Derecha)
+            Expanded(
+              flex: 1,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text('Selecciona el método de pago:',
+                      style:
+                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 8),
+                  DropdownButton<String>(
+                    value: selectedPaymentMethod,
+                    items: ['Tarjeta', 'Efectivo', 'Mixto'].map((method) {
+                      return DropdownMenuItem(
+                          value: method, child: Text(method));
+                    }).toList(),
+                    onChanged: (value) {
+                      setState(() {
+                        selectedPaymentMethod = value!;
+                        referenceCode = null;
+                      });
+                    },
+                  ),
+                  if (selectedPaymentMethod != 'Mixto')
+                    TextField(
+                      decoration:
+                          const InputDecoration(labelText: 'Código de referencia'),
+                      onChanged: (value) {
+                        referenceCode = value;
+                      },
+                    ),
+                  const SizedBox(height: 16),
+                  TextField(
+                    decoration:
+                        const InputDecoration(labelText: 'Código promocional'),
+                    onChanged: (value) {
+                      promoCode = value;
+                    },
+                  ),
+                  ElevatedButton(
+                    onPressed: () => applyPromoCode(cartProvider),
+                    child: const Text('Aplicar código promocional'),
+                  ),
+                  const Spacer(),
+                  Text(
+                    'Total: \$${(cartProvider.totalPrice - discount).toStringAsFixed(2)}',
+                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: () => confirmPurchase(cartProvider),
+                    child: const Text('Confirmar compra'),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }

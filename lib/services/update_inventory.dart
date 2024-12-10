@@ -15,13 +15,15 @@ class UpdateInventory {
     final List<Map<String, dynamic>> salesData = cart.map((item) {
       return {
         'id': item.id,
-        'quantity': item.quantity,
+        'qnt': item.quantity,
       };
     }).toList();
 
+    print(salesData);
+
     // Realizar el POST
     final response = await http.post(
-      Uri.parse('$baseUrl/cashier/sales/update'),
+      Uri.parse('$baseUrl/cashier/update_inventory'),
       headers: {
         'Content-Type': 'application/json',
         'Authorization': basicAuth,

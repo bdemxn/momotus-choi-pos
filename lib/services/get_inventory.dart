@@ -7,6 +7,21 @@ class InventoryService {
 
   List<InventoryItem> get inventory => _inventory;
 
+  // Obtener categorías únicas
+  List<String> get categories {
+    final Set<String> categorySet = _inventory.map((item) => item.category).toSet();
+    return ["Todas", ...categorySet]; // Añadimos "Todas" como opción inicial.
+  }
+
+  // Filtrar inventario por texto y categoría
+  List<InventoryItem> filteredInventory(String search, [String? category]) {
+    return _inventory.where((item) {
+      final matchesSearch = search.isEmpty || item.barCode.contains(search);
+      final matchesCategory = category == null || category == "Todas" || item.category == category;
+      return matchesSearch && matchesCategory;
+    }).toList();
+  }
+
   Future<void> fetchInventory() async {
     const String username = 'larry.davila';
     const String password = 'Prueba1#';

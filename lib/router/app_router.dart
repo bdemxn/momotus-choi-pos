@@ -1,11 +1,13 @@
 import 'package:choi_pos/screens/admin/customer_registration_screen.dart';
 import 'package:choi_pos/screens/admin/customers_screen.dart';
 import 'package:choi_pos/screens/admin/inventory_screen.dart';
+import 'package:choi_pos/screens/admin/modifiers/category_form.dart';
 import 'package:choi_pos/screens/admin/modifiers/inventory_form.dart';
 import 'package:choi_pos/screens/admin/modifiers/user_form.dart';
 import 'package:choi_pos/screens/admin/overview_screen.dart';
 import 'package:choi_pos/screens/admin/reports_screen.dart';
 import 'package:choi_pos/screens/admin/users_screen.dart';
+import 'package:choi_pos/screens/app/checkout_screen.dart';
 import 'package:choi_pos/screens/app_screen.dart';
 import 'package:choi_pos/screens/forgot_screen.dart';
 import 'package:choi_pos/screens/login_screen.dart';
@@ -27,6 +29,13 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: '/app',
       builder: (context, state) => const AppScreen(),
+      routes: [
+        GoRoute(
+          path: 'checkout',
+          builder: (context, state) => const CheckoutScreen(),
+        )
+      ]
+
     ),
     GoRoute(
       path: '/admin',
@@ -63,6 +72,10 @@ final GoRouter appRouter = GoRouter(
             GoRoute(
               path: 'create-item',
               builder: (context, state) => const InventoryFormWidget()
+            ),
+            GoRoute(
+              path: 'create-category',
+              builder:(context, state) => const CategoryFormWidget(),
             )
           ]
         ),

@@ -53,6 +53,15 @@ class InventoryScreen extends StatelessWidget {
                             Text('Añadir al inventario', style: TextStyle(color: Colors.lightBlue),)
                           ],
                         ),
+                      ),
+                      ElevatedButton(
+                        onPressed: () => context.go('/admin/inventory/create-category'),
+                        child: const Row(
+                          children: [
+                            Icon(Icons.add, color: Colors.lightBlue,),
+                            Text('Crear categoría', style: TextStyle(color: Colors.lightBlue),)
+                          ],
+                        ),
                       )
                     ],
                   ),

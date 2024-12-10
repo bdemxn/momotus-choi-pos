@@ -33,7 +33,7 @@ class _InventoryFormWidgetState extends State<InventoryFormWidget> {
 
       try {
         setState(() => _isLoading = true);
-        await createUser(inventoryData);
+        await createInventoryItem(inventoryData);
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Objeto creado exitosamente')),
         );
