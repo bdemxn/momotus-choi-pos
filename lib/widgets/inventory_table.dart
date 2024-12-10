@@ -33,33 +33,33 @@ class _InventoryTableState extends State<InventoryTable> {
         final inventory = _inventoryService.inventory;
 
         return Flexible(
+          fit: FlexFit.tight,
+          flex: 5,
           child: SingleChildScrollView(
             scrollDirection: Axis.vertical,
-            child: Flexible(
-              child: SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: DataTable(
-                  columns: const [
-                    DataColumn(label: Text('ID')),
-                    DataColumn(label: Text('Código de Barras')),
-                    DataColumn(label: Text('Categoría')),
-                    DataColumn(label: Text('Nombre')),
-                    DataColumn(label: Text('Precio')),
-                    DataColumn(label: Text('Cantidad')),
-                  ],
-                  rows: inventory
-                      .map(
-                        (item) => DataRow(cells: [
-                          DataCell(Text(item.id)),
-                          DataCell(Text(item.barCode)),
-                          DataCell(Text(item.category)),
-                          DataCell(Text(item.name)),
-                          DataCell(Text(item.price.toString())),
-                          DataCell(Text(item.quantity.toString())),
-                        ]),
-                      )
-                      .toList(),
-                ),
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: DataTable(
+                columns: const [
+                  DataColumn(label: Text('ID')),
+                  DataColumn(label: Text('Código de Barras')),
+                  DataColumn(label: Text('Categoría')),
+                  DataColumn(label: Text('Nombre')),
+                  DataColumn(label: Text('Precio')),
+                  DataColumn(label: Text('Cantidad')),
+                ],
+                rows: inventory
+                    .map(
+                      (item) => DataRow(cells: [
+                        DataCell(Text(item.id)),
+                        DataCell(Text(item.barCode)),
+                        DataCell(Text(item.category)),
+                        DataCell(Text(item.name)),
+                        DataCell(Text(item.price.toString())),
+                        DataCell(Text(item.quantity.toString())),
+                      ]),
+                    )
+                    .toList(),
               ),
             ),
           ),
