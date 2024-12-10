@@ -1,5 +1,6 @@
 import 'package:choi_pos/store/cart_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 class CheckoutScreen extends StatefulWidget {
@@ -32,7 +33,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   }
 
   void confirmPurchase(CartProvider cartProvider) {
-    if (selectedPaymentMethod != 'Mixto' &&
+    if (selectedPaymentMethod != 'Efectivo' &&
         (referenceCode == null || referenceCode!.isEmpty)) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -46,6 +47,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     );
 
     cartProvider.clearCart();
+    context.go('/app');
   }
 
   @override
@@ -54,16 +56,18 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Row(
-          children: [
-            Text('Confirmación de compra'),
-            Padding(
-              padding: EdgeInsets.only(left: 40),
-              child: Image(image: AssetImage('assets/choi-image.png'), height: 30,),
-            )
-          ],
-        )
-      ),
+          title: const Row(
+        children: [
+          Text('Confirmación de compra'),
+          Padding(
+            padding: EdgeInsets.only(left: 40),
+            child: Image(
+              image: AssetImage('assets/choi-image.png'),
+              height: 30,
+            ),
+          )
+        ],
+      )),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Row(
@@ -124,9 +128,12 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                   const SizedBox(height: 8),
                   DropdownButton<String>(
                     value: selectedPaymentMethod,
-                    items: ['Tarjeta', 'Efectivo', 'Mixto'].map((method) {
+                    items: ['Efectivo', 'Tarjeta', 'Transferencia', 'Mixto']
+                        .map((method) {
                       return DropdownMenuItem(
-                          value: method, child: Text(method));
+                        value: method,
+                        child: Text(method),
+                      );
                     }).toList(),
                     onChanged: (value) {
                       setState(() {
@@ -135,13 +142,78 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                       });
                     },
                   ),
-                  if (selectedPaymentMethod != 'Mixto')
+                  const SizedBox(height: 16),
+
+// Opciones para métodos específicos
+                  if (selectedPaymentMethod == 'Tarjeta' ||
+                      selectedPaymentMethod == 'Transferencia')
                     TextField(
-                      decoration:
-                          const InputDecoration(labelText: 'Código de referencia'),
+                      decoration: const InputDecoration(
+                        labelText: 'Código de referencia',
+                      ),
                       onChanged: (value) {
                         referenceCode = value;
                       },
+                    ),
+
+                  if (selectedPaymentMethod == 'Mixto')
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Expanded(
+                              child: TextField(
+                                decoration: const InputDecoration(
+                                  labelText: 'Monto efectivo',
+                                ),
+                                keyboardType: TextInputType.number,
+                                onChanged: (value) {
+                                  // Guardar el monto efectivo
+                                },
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: TextField(
+                                decoration: const InputDecoration(
+                                  labelText: 'Referencia efectivo',
+                                ),
+                                onChanged: (value) {
+                                  // Guardar referencia efectivo
+                                },
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: TextField(
+                                decoration: const InputDecoration(
+                                  labelText: 'Monto tarjeta/transferencia',
+                                ),
+                                keyboardType: TextInputType.number,
+                                onChanged: (value) {
+                                  // Guardar monto tarjeta/transferencia
+                                },
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: TextField(
+                                decoration: const InputDecoration(
+                                  labelText: 'Referencia tarjeta/transferencia',
+                                ),
+                                onChanged: (value) {
+                                  // Guardar referencia tarjeta/transferencia
+                                },
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
                   const SizedBox(height: 16),
                   TextField(
@@ -158,7 +230,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                   const Spacer(),
                   Text(
                     'Total: \$${(cartProvider.totalPrice - discount).toStringAsFixed(2)}',
-                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    style: const TextStyle(
+                        fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 16),
                   ElevatedButton(

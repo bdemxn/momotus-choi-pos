@@ -22,7 +22,8 @@ class _AppScreenState extends State<AppScreen> {
   }
 
   Future<void> fetchInventory() async {
-    final inventoryService = Provider.of<InventoryService>(context, listen: false);
+    final inventoryService =
+        Provider.of<InventoryService>(context, listen: false);
     await inventoryService.fetchInventory();
   }
 
@@ -33,8 +34,10 @@ class _AppScreenState extends State<AppScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('POS - Vista Cajero'),
-        leading: IconButton(onPressed: () => context.go('/'), icon: const Icon(Icons.arrow_back)),
+        title: const Image(image: AssetImage('assets/choi-image.png'), height: 40,),
+        leading: IconButton(
+            onPressed: () => context.go('/'),
+            icon: const Icon(Icons.arrow_back)),
         actions: [
           IconButton(
             icon: const Icon(Icons.delete_forever),
@@ -87,10 +90,12 @@ class _AppScreenState extends State<AppScreen> {
 
                 Expanded(
                   child: ListView.builder(
-                    itemCount: inventoryService.filteredInventory(
-                      _searchController.text,
-                      cartProvider.selectedCategory,
-                    ).length,
+                    itemCount: inventoryService
+                        .filteredInventory(
+                          _searchController.text,
+                          cartProvider.selectedCategory,
+                        )
+                        .length,
                     itemBuilder: (context, index) {
                       final item = inventoryService.filteredInventory(
                         _searchController.text,
@@ -102,9 +107,8 @@ class _AppScreenState extends State<AppScreen> {
                           'Precio: \$${item.price.toStringAsFixed(2)}\nStock: ${item.quantity}',
                         ),
                         trailing: IconButton(
-                          icon: const Icon(Icons.add_shopping_cart),
-                          onPressed: () => cartProvider.addToCart(item)
-                        ),
+                            icon: const Icon(Icons.add_shopping_cart),
+                            onPressed: () => cartProvider.addToCart(item)),
                       );
                     },
                   ),
@@ -156,21 +160,36 @@ class _AppScreenState extends State<AppScreen> {
                   padding: const EdgeInsets.all(8.0),
                   child: Column(
                     children: [
-                      Text('Total: \$${cartProvider.totalPrice.toStringAsFixed(2)}'),
+                      Text(
+                          'Total: \$${cartProvider.totalPrice.toStringAsFixed(2)}'),
                       Text('Artículos: ${cartProvider.totalItems}'),
                       Padding(
-                        padding: const EdgeInsets.all(10),
-                        child: ElevatedButton(
-                          onPressed: () => context.go('/app/checkout'),
-                          child: const Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(Icons.add),
-                              Text('Confirmar Compra')
-                            ],
-                          )
-                        )
-                      )
+                          padding: const EdgeInsets.all(10),
+                          child: ElevatedButton(
+                              onPressed: () {
+                                final cartProvider = Provider.of<CartProvider>(
+                                    context,
+                                    listen: false);
+
+                                if (cartProvider.cartItems.isNotEmpty) {
+                                  context.go('/app/checkout');
+                                } else {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text(
+                                          'El carrito está vacío. Por favor, agrega al menos un producto.'),
+                                      duration: Duration(seconds: 2),
+                                    ),
+                                  );
+                                }
+                              },
+                              child: const Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(Icons.add),
+                                  Text('Confirmar Compra')
+                                ],
+                              )))
                     ],
                   ),
                 )
