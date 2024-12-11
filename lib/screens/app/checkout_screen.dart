@@ -1,3 +1,5 @@
+import 'package:choi_pos/models/inventory_item.dart';
+import 'package:choi_pos/services/update_inventory.dart';
 import 'package:choi_pos/store/cart_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -32,7 +34,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     }
   }
 
-  void confirmPurchase(CartProvider cartProvider) {
+  void confirmPurchase(CartProvider cartProvider) async {
     if (selectedPaymentMethod != 'Efectivo' &&
         (referenceCode == null || referenceCode!.isEmpty)) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -42,12 +44,57 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       return;
     }
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Compra confirmada. ¡Gracias!')),
-    );
+    try {
+      // Obtener el carrito actual desde el CartProvider
+      final cartItems = cartProvider.cartItems;
 
-    cartProvider.clearCart();
-    context.go('/app');
+      // Actualizar inventario
+      await UpdateInventory.updateInventory(
+        cartItems
+            .map((cartItem) => InventoryItem(
+                  barCode: "",
+                  category: "",
+                  name: "",
+                  price: 0,
+                  id: cartItem.item.id,
+                  quantity: cartItem.quantity,
+                ))
+            .toList(),
+      );
+
+      // Crear los datos para el reporte de ventas
+      final List<Map<String, dynamic>> cartData = cartItems.map((cartItem) {
+        return {
+          'id': cartItem.item.id,
+          'quantity': cartItem.quantity,
+        };
+      }).toList();
+
+      // Enviar reporte de ventas
+      await UpdateInventory.postSalesReport(
+        cashier:
+            'nombre_cajero', // Ajustar con el nombre del cajero correspondiente
+        customer: 'cliente_ejemplo', // Reemplazar con el cliente si aplica
+        paymentRef: referenceCode ?? '',
+        cart: cartData,
+        promoCode: promoCode ?? '',
+        totalPaid: cartProvider.totalPrice - discount,
+      );
+
+      // Mostrar mensaje de confirmación
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Compra confirmada. ¡Gracias!')),
+      );
+
+      // Limpiar el carrito y redirigir
+      cartProvider.clearCart();
+      context.go('/app');
+    } catch (e) {
+      // Manejar errores y mostrar mensaje al usuario
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: ${e.toString()}')),
+      );
+    }
   }
 
   @override

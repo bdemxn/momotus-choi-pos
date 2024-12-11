@@ -1,4 +1,3 @@
-import 'package:choi_pos/screens/app/cashier_customer_registration.dart';
 import 'package:choi_pos/services/get_inventory.dart';
 import 'package:choi_pos/store/cart_provider.dart';
 import 'package:flutter/material.dart';
