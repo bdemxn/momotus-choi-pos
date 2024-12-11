@@ -1,3 +1,4 @@
+import 'package:choi_pos/screens/app/cashier_customer_registration.dart';
 import 'package:choi_pos/services/get_inventory.dart';
 import 'package:choi_pos/store/cart_provider.dart';
 import 'package:flutter/material.dart';
@@ -123,8 +124,18 @@ class _AppScreenState extends State<AppScreen> {
           Expanded(
             flex: 1,
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                const Text('Carrito'),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    const Text('Carrito'),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 20),
+                      child: IconButton(onPressed: () => context.go('/app/create-customer'), icon: const Icon(Icons.add_reaction_sharp)),
+                    )
+                  ],
+                ),
                 Expanded(
                   child: ListView.builder(
                     itemCount: cartProvider.cartItems.length,

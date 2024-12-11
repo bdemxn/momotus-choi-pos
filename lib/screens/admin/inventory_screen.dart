@@ -24,7 +24,8 @@ class InventoryScreen extends StatelessWidget {
           Expanded(
             flex: 5,
             child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 40),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 40),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -42,15 +43,53 @@ class InventoryScreen extends StatelessWidget {
                         fontWeight: FontWeight.normal,
                       ),
                     ),
-            
+
                     Padding(
                       padding: const EdgeInsets.only(top: 10, bottom: 10),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
+                          Padding(
+                            padding: const EdgeInsets.only(right: 20),
+                            child: ElevatedButton(
+                              onPressed: () =>
+                                  context.go('/admin/inventory/create-item'),
+                              child: const Row(
+                                children: [
+                                  Icon(
+                                    Icons.add,
+                                    color: Colors.lightBlue,
+                                  ),
+                                  Text(
+                                    'Añadir al inventario',
+                                    style: TextStyle(color: Colors.lightBlue),
+                                  )
+                                ],
+                              ),
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(right: 20),
+                            child: ElevatedButton(
+                              onPressed: () => context
+                                  .go('/admin/inventory/create-category'),
+                              child: const Row(
+                                children: [
+                                  Icon(
+                                    Icons.add,
+                                    color: Colors.lightBlue,
+                                  ),
+                                  Text(
+                                    'Crear categoría',
+                                    style: TextStyle(color: Colors.lightBlue),
+                                  )
+                                ],
+                              ),
+                            ),
+                          ),
                           ElevatedButton(
                             onPressed: () =>
-                                context.go('/admin/inventory/create-item'),
+                                context.go('/admin/inventory/create-promo'),
                             child: const Row(
                               children: [
                                 Icon(
@@ -58,32 +97,16 @@ class InventoryScreen extends StatelessWidget {
                                   color: Colors.lightBlue,
                                 ),
                                 Text(
-                                  'Añadir al inventario',
+                                  'Crear promoción',
                                   style: TextStyle(color: Colors.lightBlue),
                                 )
                               ],
                             ),
                           ),
-                          ElevatedButton(
-                            onPressed: () =>
-                                context.go('/admin/inventory/create-category'),
-                            child: const Row(
-                              children: [
-                                Icon(
-                                  Icons.add,
-                                  color: Colors.lightBlue,
-                                ),
-                                Text(
-                                  'Crear categoría',
-                                  style: TextStyle(color: Colors.lightBlue),
-                                )
-                              ],
-                            ),
-                          )
                         ],
                       ),
                     ),
-            
+
                     // DataTable:
                     const InventoryTable()
                   ],

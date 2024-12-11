@@ -1,27 +1,30 @@
-import 'package:choi_pos/services/customer_service.dart';
+import 'package:choi_pos/services/create_cashier_customer.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-class CustomerRegistrationScreen extends StatefulWidget {
-  const CustomerRegistrationScreen({super.key});
+class CashierCustomerRegistration extends StatefulWidget {
+  const CashierCustomerRegistration({super.key});
 
   @override
-  State<CustomerRegistrationScreen> createState() =>
-      _CustomerRegistrationScreenState();
+  State<CashierCustomerRegistration> createState() =>
+      _CashierCustomerRegistrationState();
 }
 
-class _CustomerRegistrationScreenState
-    extends State<CustomerRegistrationScreen> {
+class _CashierCustomerRegistrationState
+    extends State<CashierCustomerRegistration> {
   final _formKey = GlobalKey<FormState>();
-  final _customerService = CustomerService();
+  final _customerService = CashierCustomerService();
 
   String fullname = '';
   String phone = '';
   String email = '';
   bool isMinor = false;
   bool isPreferred = false;
+
+  // Variable para almacenar la opción seleccionada
   String? selectedPlan;
 
+  // Lista de opciones para el Dropdown
   final List<String> plans = [
     'Mensualidad Standard',
     'Mensualidad Niños 2-4',
@@ -39,7 +42,7 @@ class _CustomerRegistrationScreenState
         "phone": phone,
         "email": email,
         "is_preferred": isPreferred,
-        "monthly_pay_ref": selectedPlan
+        "monthly_pay_ref": selectedPlan,  // Agregamos el plan seleccionado
       };
 
       try {
@@ -48,7 +51,7 @@ class _CustomerRegistrationScreenState
           const SnackBar(content: Text('Cliente registrado con éxito')),
         );
         _formKey.currentState?.reset();
-        context.go('/admin/customers');
+        context.go('/app');
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Error al registrar cliente')),
@@ -96,6 +99,14 @@ class _CustomerRegistrationScreenState
                 validator: (value) =>
                     value?.isEmpty == true ? 'El correo es obligatorio' : null,
               ),
+              SwitchListTile(
+                title: const Text('¿Es menor de edad?'),
+                value: isMinor,
+                onChanged: (value) => setState(() => isMinor = value),
+              ),
+              const SizedBox(height: 20),
+              
+              // DropdownButtonFormField para seleccionar un plan
               DropdownButtonFormField<String>(
                 value: selectedPlan,
                 decoration: const InputDecoration(
@@ -114,16 +125,6 @@ class _CustomerRegistrationScreenState
                 },
                 validator: (value) =>
                     value == null ? 'Por favor selecciona un plan' : null,
-              ),
-              SwitchListTile(
-                title: const Text('¿Es menor de edad?'),
-                value: isMinor,
-                onChanged: (value) => setState(() => isMinor = value),
-              ),
-              SwitchListTile(
-                title: const Text('¿Es cliente preferido?'),
-                value: isPreferred,
-                onChanged: (value) => setState(() => isPreferred = value),
               ),
               const SizedBox(height: 20),
               ElevatedButton(

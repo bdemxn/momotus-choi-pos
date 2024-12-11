@@ -1,5 +1,3 @@
-import 'package:choi_pos/widgets/data_card.dart';
-import 'package:choi_pos/widgets/screen_card.dart';
 import 'package:choi_pos/widgets/sidebar_admin.dart';
 import 'package:flutter/material.dart';
 
@@ -38,21 +36,14 @@ class OverviewScreen extends StatelessWidget {
                   ),
                 ),
 
-                // Cards:
-                Row(
-                  children: [
-                    DataCard(),
-                    DataCard(),
-                    DataCard(),
-                  ],
+                // Coming soon:
+                Padding(
+                  padding: EdgeInsets.only(top: 40),
+                  child: Text('Próximamente más funcionalidades al POS'),
                 ),
-                Row(
-                  children: [
-                    ScreenCard(),
-                    ScreenCard(),
-                    ScreenCard(),
-                    ScreenCard(),
-                  ],
+                Padding(
+                  padding: EdgeInsets.only(top: 20),
+                  child: Image(image: AssetImage('assets/choi-user.png'), height: 100,),
                 )
               ],
             )
