@@ -1,4 +1,5 @@
 import 'package:choi_pos/models/inventory_item.dart';
+import 'package:choi_pos/services/exchange_value.dart';
 import 'package:choi_pos/services/update_inventory.dart';
 import 'package:choi_pos/store/cart_provider.dart';
 import 'package:flutter/material.dart';
@@ -14,6 +15,7 @@ class CheckoutScreen extends StatefulWidget {
 
 class _CheckoutScreenState extends State<CheckoutScreen> {
   String selectedPaymentMethod = 'Tarjeta';
+  String currency = 'Dolares';
   String? referenceCode;
   String? promoCode;
   double discount = 0.0;
@@ -21,6 +23,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   String? _customer;
   num? changeValue;
   double? cashPayment;
+  double exchangeRate = 1.0;
 
   void applyPromoCode(CartProvider cartProvider) {
     if (promoCode == 'DESCUENTO10') {
@@ -38,11 +41,31 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     }
   }
 
-  void calculateChange(CartProvider cartProvider) {
-    if (cashPayment != null &&
-        cashPayment! >= (cartProvider.totalPrice - discount)) {
+  // update the new exchange
+  Future<void> updateExchangeRate() async {
+    final rate = await fetchExchangeRate();
+    if (rate != null) {
       setState(() {
-        changeValue = cashPayment! - (cartProvider.totalPrice - discount);
+        exchangeRate = rate;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+            content: Text('Tasa de cambio actualizada correctamente.')),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('No se pudo obtener la tasa de cambio.')),
+      );
+    }
+  }
+
+  void calculateChange(CartProvider cartProvider) {
+    double totalInSelectedCurrency = (cartProvider.totalPrice - discount) *
+        (currency == 'Cordobas' ? exchangeRate : 1.0);
+
+    if (cashPayment != null && cashPayment! >= totalInSelectedCurrency) {
+      setState(() {
+        changeValue = cashPayment! - totalInSelectedCurrency;
       });
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Cambio calculado correctamente.')),
@@ -214,6 +237,24 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                   ),
                   const SizedBox(height: 16),
 
+                  DropdownButton<String>(
+                    value: currency,
+                    items: ['Dolares', 'Cordobas'].map((currencyOption) {
+                      return DropdownMenuItem(
+                        value: currencyOption,
+                        child: Text(currencyOption),
+                      );
+                    }).toList(),
+                    onChanged: (value) async {
+                      if (value == 'Cordobas') {
+                        await updateExchangeRate();
+                      }
+                      setState(() {
+                        currency = value!;
+                      });
+                    },
+                  ),
+
                   // Opciones para métodos específicos
                   if (selectedPaymentMethod == 'Tarjeta' ||
                       selectedPaymentMethod == 'Transferencia')
@@ -267,16 +308,17 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                     child: const Text('Aplicar código promocional'),
                   ),
                   const Spacer(),
+
                   Text(
-                    'Total: \$${(cartProvider.totalPrice - discount).toStringAsFixed(2)}',
-                    style: const TextStyle(
-                        fontSize: 18, fontWeight: FontWeight.bold),
+                    "Total: \$${((cartProvider.totalPrice - discount) * (currency == 'Cordobas' ? exchangeRate : 1.0)).toStringAsFixed(2)}",
+                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                   if (changeValue != null)
                     Text(
                       'Cambio: \$${changeValue!.toStringAsFixed(2)}',
                       style: const TextStyle(fontSize: 14, color: Colors.grey),
                     ),
+
                   const SizedBox(height: 16),
                   ElevatedButton(
                     onPressed: () => confirmPurchase(cartProvider),
