@@ -47,6 +47,7 @@ class _InventoryTableState extends State<InventoryTable> {
                   DataColumn(label: Text('Nombre')),
                   DataColumn(label: Text('Precio')),
                   DataColumn(label: Text('Cantidad')),
+                  DataColumn(label: Text('Acciones')), // Nueva columna
                 ],
                 rows: inventory
                     .map(
@@ -57,6 +58,42 @@ class _InventoryTableState extends State<InventoryTable> {
                         DataCell(Text(item.name)),
                         DataCell(Text(item.price.toString())),
                         DataCell(Text(item.quantity.toString())),
+                        DataCell(
+                          IconButton(
+                            icon: const Icon(Icons.delete, color: Colors.red),
+                            onPressed: () async {
+                              final confirm = await showDialog<bool>(
+                                context: context,
+                                builder: (context) {
+                                  return AlertDialog(
+                                    title: const Text('Confirmar Eliminación'),
+                                    content: Text(
+                                        '¿Estás seguro de que quieres eliminar "${item.name}"?'),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () =>
+                                            Navigator.of(context).pop(false),
+                                        child: const Text('Cancelar'),
+                                      ),
+                                      TextButton(
+                                        onPressed: () =>
+                                            Navigator.of(context).pop(true),
+                                        child: const Text('Eliminar'),
+                                      ),
+                                    ],
+                                  );
+                                },
+                              );
+
+                              if (confirm ?? false) {
+                                await _inventoryService
+                                    .deleteInventoryItem(item.id);
+                                setState(
+                                    () {}); // Refrescar la UI tras eliminar
+                              }
+                            },
+                          ),
+                        ),
                       ]),
                     )
                     .toList(),

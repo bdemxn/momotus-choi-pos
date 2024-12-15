@@ -45,4 +45,23 @@ class CustomerService {
       rethrow;
     }
   }
+
+  Future<void> deleteCustomer(String id) async {
+    try {
+      final response = await http.delete(
+        Uri.parse('$apiUrl/$id'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': basicAuth,
+        },
+      );
+
+      if (response.statusCode != 200) {
+        throw Exception('Error al eliminar cliente: ${response.body}');
+      }
+    } catch (e) {
+      print('Error al eliminar cliente: $e');
+      rethrow;
+    }
+  }
 }

@@ -33,4 +33,30 @@ class GetUsersService {
       print('Error al hacer fetch: $e');
     }
   }
+
+  Future<void> deleteUser(String id) async {
+    const String username = 'larry.davila';
+    const String password = 'Prueba1#';
+    const String apiUrl = 'http://45.79.205.216:8000/admin/users';
+
+    try {
+      final String basicAuth =
+          'Basic ${base64Encode(utf8.encode('$username:$password'))}';
+
+      final response = await http.delete(
+        Uri.parse('$apiUrl/$id'),
+        headers: {
+          'Authorization': basicAuth,
+          'Content-Type': 'application/json',
+        },
+      );
+
+      if (response.statusCode != 200) {
+        throw Exception('Error al eliminar usuario: ${response.body}');
+      }
+    } catch (e) {
+      print('Error al eliminar usuario: $e');
+      rethrow;
+    }
+  }
 }

@@ -15,7 +15,41 @@ class _CustomerTableState extends State<CustomerTable> {
   @override
   void initState() {
     super.initState();
-    _customers = _customerService.fetchCustomers();
+    _fetchCustomers();
+  }
+
+  void _fetchCustomers() {
+    setState(() {
+      _customers = _customerService.fetchCustomers();
+    });
+  }
+
+  Future<void> _deleteCustomer(String id) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Confirmar Eliminación'),
+          content:
+              const Text('¿Estás seguro de que deseas eliminar este cliente?'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: const Text('Cancelar'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              child: const Text('Eliminar'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirm == true) {
+      await _customerService.deleteCustomer(id);
+      _fetchCustomers(); // Refrescar la lista tras eliminar
+    }
   }
 
   @override
@@ -45,22 +79,31 @@ class _CustomerTableState extends State<CustomerTable> {
               scrollDirection: Axis.vertical,
               child: DataTable(
                 columns: const [
-                  DataColumn(label: Text('')),
+                  DataColumn(label: Text('Imagen')),
                   DataColumn(label: Text('Nombre')),
                   DataColumn(label: Text('Teléfono')),
                   DataColumn(label: Text('Correo')),
                   DataColumn(label: Text('¿Menor de Edad?')),
                   DataColumn(label: Text('Preferido')),
+                  DataColumn(label: Text('Acciones')), // Nueva columna
                 ],
                 rows: customers.map((customer) {
                   return DataRow(
                     cells: [
-                      const DataCell(Image(image: AssetImage('assets/choi-client.png'), height: 40,) as Widget),
+                      DataCell(
+                        Image.asset('assets/choi-client.png', height: 40),
+                      ),
                       DataCell(Text(customer['fullname'] ?? 'N/A')),
                       DataCell(Text(customer['phone'] ?? 'N/A')),
                       DataCell(Text(customer['email'] ?? 'N/A')),
                       DataCell(Text(customer['is_minor'] ? 'Sí' : 'No')),
                       DataCell(Text(customer['is_preferred'] ? 'Sí' : 'No')),
+                      DataCell(
+                        IconButton(
+                          icon: const Icon(Icons.delete, color: Colors.red),
+                          onPressed: () => _deleteCustomer(customer['id']),
+                        ),
+                      ),
                     ],
                   );
                 }).toList(),
