@@ -1,4 +1,4 @@
-import 'package:choi_pos/widgets/sidebar_admin.dart';
+import 'package:choi_pos/widgets/admin/sidebar_admin.dart';
 import 'package:flutter/material.dart';
 
 class OverviewScreen extends StatelessWidget {

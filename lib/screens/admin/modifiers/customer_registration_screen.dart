@@ -1,4 +1,4 @@
-import 'package:choi_pos/services/customer_service.dart';
+import 'package:choi_pos/services/users/customer_service.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 

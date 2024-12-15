@@ -1,5 +1,5 @@
 import 'package:choi_pos/services/cart_validation.dart';
-import 'package:choi_pos/services/shop_cart.dart';
+import 'package:choi_pos/services/inventory/shop_cart.dart';
 import 'package:flutter/material.dart';
 
 class CartWidget extends StatefulWidget {

@@ -1,6 +1,6 @@
 import 'package:choi_pos/models/inventory_item.dart';
-import 'package:choi_pos/services/exchange_value.dart';
-import 'package:choi_pos/services/update_inventory.dart';
+import 'package:choi_pos/services/exchange/exchange_value.dart';
+import 'package:choi_pos/services/inventory/update_inventory.dart';
 import 'package:choi_pos/store/cart_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';

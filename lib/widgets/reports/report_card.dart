@@ -1,4 +1,4 @@
-import 'package:choi_pos/services/get_reports.dart';
+import 'package:choi_pos/services/reports/get_reports.dart';
 import 'package:flutter/material.dart';
 
 class ReportCards extends StatefulWidget {

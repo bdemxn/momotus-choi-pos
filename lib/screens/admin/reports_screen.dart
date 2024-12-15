@@ -1,5 +1,5 @@
-import 'package:choi_pos/widgets/report_card.dart';
-import 'package:choi_pos/widgets/sidebar_admin.dart';
+import 'package:choi_pos/widgets/reports/report_card.dart';
+import 'package:choi_pos/widgets/admin/sidebar_admin.dart';
 import 'package:flutter/material.dart';
 class ReportsScreen extends StatelessWidget {
   const ReportsScreen({super.key});

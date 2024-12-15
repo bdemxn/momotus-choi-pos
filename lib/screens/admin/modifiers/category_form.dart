@@ -1,4 +1,4 @@
-import 'package:choi_pos/services/create_category.dart';
+import 'package:choi_pos/services/category/create_category.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 

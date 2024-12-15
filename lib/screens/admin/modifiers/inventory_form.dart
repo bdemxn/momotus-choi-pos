@@ -1,5 +1,4 @@
-import 'package:choi_pos/services/get_categories.dart';
-import 'package:choi_pos/services/create_inventory_item.dart';
+import 'package:choi_pos/services/inventory/create_inventory_item.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -19,7 +18,7 @@ class _InventoryFormWidgetState extends State<InventoryFormWidget> {
 
   final TextEditingController _categoryController = TextEditingController();
 
-  String? _selectedCategory;
+  // String? _selectedCategory;
   bool _isLoading = false;
 
   //bool _isFetchingCategories = false;

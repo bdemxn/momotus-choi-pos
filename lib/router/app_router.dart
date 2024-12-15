@@ -1,12 +1,14 @@
-import 'package:choi_pos/screens/admin/customer_registration_screen.dart';
+import 'package:choi_pos/screens/admin/modifiers/customer_registration_screen.dart';
 import 'package:choi_pos/screens/admin/customers_screen.dart';
 import 'package:choi_pos/screens/admin/inventory_screen.dart';
 import 'package:choi_pos/screens/admin/modifiers/category_form.dart';
 import 'package:choi_pos/screens/admin/modifiers/inventory_form.dart';
 import 'package:choi_pos/screens/admin/modifiers/promo_form.dart';
+import 'package:choi_pos/screens/admin/modifiers/tournament_form.dart';
 import 'package:choi_pos/screens/admin/modifiers/user_form.dart';
 import 'package:choi_pos/screens/admin/overview_screen.dart';
 import 'package:choi_pos/screens/admin/reports_screen.dart';
+import 'package:choi_pos/screens/admin/tournamets_screen.dart';
 import 'package:choi_pos/screens/admin/users_screen.dart';
 import 'package:choi_pos/screens/app/cashier_customer_registration.dart';
 import 'package:choi_pos/screens/app/checkout_screen.dart';
@@ -81,6 +83,16 @@ final GoRouter appRouter = GoRouter(
                   path: 'create-promo',
                   builder: (context, state) => const PromoForm())
             ]),
+        GoRoute(
+          path: 'tournaments',
+          builder: (context, state) => const TournamentsScreen(),
+          routes: [
+            GoRoute(
+              path: 'create-tournament',
+              builder: (context, state) => const TournamentForm()
+            )
+          ]
+        )
       ],
     ),
   ],

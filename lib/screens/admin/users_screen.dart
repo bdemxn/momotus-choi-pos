@@ -1,5 +1,5 @@
-import 'package:choi_pos/widgets/sidebar_admin.dart';
-import 'package:choi_pos/widgets/users_table.dart';
+import 'package:choi_pos/widgets/admin/sidebar_admin.dart';
+import 'package:choi_pos/widgets/users/users_table.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 

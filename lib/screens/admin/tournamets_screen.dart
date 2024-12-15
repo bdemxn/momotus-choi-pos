@@ -1,10 +1,9 @@
-import 'package:choi_pos/widgets/inventory/inventory_table.dart';
 import 'package:choi_pos/widgets/admin/sidebar_admin.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-class InventoryScreen extends StatelessWidget {
-  const InventoryScreen({super.key});
+class TournamentsScreen extends StatelessWidget {
+  const TournamentsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -30,14 +29,14 @@ class InventoryScreen extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Text(
-                      'Inventario',
+                      'Torneos',
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                     const Text(
-                      'Encuentra todo tu stock aquí',
+                      'Todos los torneos que hallas creado apareceran aquí',
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.normal,
@@ -53,7 +52,7 @@ class InventoryScreen extends StatelessWidget {
                             padding: const EdgeInsets.only(right: 20),
                             child: ElevatedButton(
                               onPressed: () =>
-                                  context.go('/admin/inventory/create-item'),
+                                  context.go('/admin/tournaments/create-tournament'),
                               child: const Row(
                                 children: [
                                   Icon(
@@ -61,46 +60,11 @@ class InventoryScreen extends StatelessWidget {
                                     color: Colors.lightBlue,
                                   ),
                                   Text(
-                                    'Añadir al inventario',
+                                    'Añadir torneo',
                                     style: TextStyle(color: Colors.lightBlue),
                                   )
                                 ],
                               ),
-                            ),
-                          ),
-                          // Padding(
-                          //   padding: const EdgeInsets.only(right: 20),
-                          //   child: ElevatedButton(
-                          //     onPressed: () => context
-                          //         .go('/admin/inventory/create-category'),
-                          //     child: const Row(
-                          //       children: [
-                          //         Icon(
-                          //           Icons.add,
-                          //           color: Colors.lightBlue,
-                          //         ),
-                          //         Text(
-                          //           'Crear categoría',
-                          //           style: TextStyle(color: Colors.lightBlue),
-                          //         )
-                          //       ],
-                          //     ),
-                          //   ),
-                          // ),
-                          ElevatedButton(
-                            onPressed: () =>
-                                context.go('/admin/inventory/create-promo'),
-                            child: const Row(
-                              children: [
-                                Icon(
-                                  Icons.add,
-                                  color: Colors.lightBlue,
-                                ),
-                                Text(
-                                  'Crear promoción',
-                                  style: TextStyle(color: Colors.lightBlue),
-                                )
-                              ],
                             ),
                           ),
                         ],
@@ -108,7 +72,6 @@ class InventoryScreen extends StatelessWidget {
                     ),
 
                     // DataTable:
-                    const InventoryTable()
                   ],
                 )),
           )

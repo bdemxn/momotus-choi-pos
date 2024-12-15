@@ -1,4 +1,4 @@
-import 'package:choi_pos/services/get_users.dart';
+import 'package:choi_pos/services/users/get_users.dart';
 import 'package:flutter/material.dart';
 
 class UsersTable extends StatefulWidget {

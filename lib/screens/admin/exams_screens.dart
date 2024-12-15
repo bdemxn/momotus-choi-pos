@@ -1,4 +1,3 @@
-import 'package:choi_pos/widgets/inventory/inventory_table.dart';
 import 'package:choi_pos/widgets/admin/sidebar_admin.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -30,14 +29,14 @@ class InventoryScreen extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Text(
-                      'Inventario',
+                      'Exámenes',
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                     const Text(
-                      'Encuentra todo tu stock aquí',
+                      'Próximos exámenes a realizar',
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.normal,
@@ -61,32 +60,13 @@ class InventoryScreen extends StatelessWidget {
                                     color: Colors.lightBlue,
                                   ),
                                   Text(
-                                    'Añadir al inventario',
+                                    'Añadir examen',
                                     style: TextStyle(color: Colors.lightBlue),
                                   )
                                 ],
                               ),
                             ),
                           ),
-                          // Padding(
-                          //   padding: const EdgeInsets.only(right: 20),
-                          //   child: ElevatedButton(
-                          //     onPressed: () => context
-                          //         .go('/admin/inventory/create-category'),
-                          //     child: const Row(
-                          //       children: [
-                          //         Icon(
-                          //           Icons.add,
-                          //           color: Colors.lightBlue,
-                          //         ),
-                          //         Text(
-                          //           'Crear categoría',
-                          //           style: TextStyle(color: Colors.lightBlue),
-                          //         )
-                          //       ],
-                          //     ),
-                          //   ),
-                          // ),
                           ElevatedButton(
                             onPressed: () =>
                                 context.go('/admin/inventory/create-promo'),
@@ -108,7 +88,7 @@ class InventoryScreen extends StatelessWidget {
                     ),
 
                     // DataTable:
-                    const InventoryTable()
+                    
                   ],
                 )),
           )

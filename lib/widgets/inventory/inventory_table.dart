@@ -1,4 +1,4 @@
-import 'package:choi_pos/services/get_inventory.dart';
+import 'package:choi_pos/services/inventory/get_inventory.dart';
 import 'package:flutter/material.dart';
 
 class InventoryTable extends StatefulWidget {
