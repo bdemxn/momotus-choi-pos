@@ -18,6 +18,10 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   String? promoCode;
   double discount = 0.0;
 
+  String? _customer;
+  num? changeValue;
+  double? cashPayment;
+
   void applyPromoCode(CartProvider cartProvider) {
     if (promoCode == 'DESCUENTO10') {
       setState(() {
@@ -30,6 +34,24 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Código promocional inválido.')),
+      );
+    }
+  }
+
+  void calculateChange(CartProvider cartProvider) {
+    if (cashPayment != null &&
+        cashPayment! >= (cartProvider.totalPrice - discount)) {
+      setState(() {
+        changeValue = cashPayment! - (cartProvider.totalPrice - discount);
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Cambio calculado correctamente.')),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+            content: Text(
+                'El monto ingresado no es suficiente para cubrir el total.')),
       );
     }
   }
@@ -72,9 +94,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
       // Enviar reporte de ventas
       await UpdateInventory.postSalesReport(
-        cashier:
-            'nombre_cajero', // Ajustar con el nombre del cajero correspondiente
-        customer: 'cliente_ejemplo', // Reemplazar con el cliente si aplica
+        cashier: 'nombre_cajero',
+        customer: _customer ?? '',
         paymentRef: referenceCode ?? '',
         cart: cartData,
         promoCode: promoCode ?? '',
@@ -186,12 +207,14 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                       setState(() {
                         selectedPaymentMethod = value!;
                         referenceCode = null;
+                        changeValue = null;
+                        cashPayment = null;
                       });
                     },
                   ),
                   const SizedBox(height: 16),
 
-// Opciones para métodos específicos
+                  // Opciones para métodos específicos
                   if (selectedPaymentMethod == 'Tarjeta' ||
                       selectedPaymentMethod == 'Transferencia')
                     TextField(
@@ -203,66 +226,35 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                       },
                     ),
 
-                  if (selectedPaymentMethod == 'Mixto')
+                  if (selectedPaymentMethod == 'Efectivo')
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Row(
-                          children: [
-                            Expanded(
-                              child: TextField(
-                                decoration: const InputDecoration(
-                                  labelText: 'Monto efectivo',
-                                ),
-                                keyboardType: TextInputType.number,
-                                onChanged: (value) {
-                                  // Guardar el monto efectivo
-                                },
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: TextField(
-                                decoration: const InputDecoration(
-                                  labelText: 'Referencia efectivo',
-                                ),
-                                onChanged: (value) {
-                                  // Guardar referencia efectivo
-                                },
-                              ),
-                            ),
-                          ],
+                        TextField(
+                          decoration: const InputDecoration(
+                            labelText: 'Monto con el que paga',
+                          ),
+                          keyboardType: TextInputType.number,
+                          onChanged: (value) {
+                            cashPayment = double.tryParse(value);
+                          },
                         ),
                         const SizedBox(height: 8),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: TextField(
-                                decoration: const InputDecoration(
-                                  labelText: 'Monto tarjeta/transferencia',
-                                ),
-                                keyboardType: TextInputType.number,
-                                onChanged: (value) {
-                                  // Guardar monto tarjeta/transferencia
-                                },
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: TextField(
-                                decoration: const InputDecoration(
-                                  labelText: 'Referencia tarjeta/transferencia',
-                                ),
-                                onChanged: (value) {
-                                  // Guardar referencia tarjeta/transferencia
-                                },
-                              ),
-                            ),
-                          ],
+                        ElevatedButton(
+                          onPressed: () => calculateChange(cartProvider),
+                          child: const Text('Calcular cambio'),
                         ),
                       ],
                     ),
+
                   const SizedBox(height: 16),
+                  TextField(
+                    decoration:
+                        const InputDecoration(labelText: 'Nombre del cliente'),
+                    onChanged: (value) {
+                      _customer = value;
+                    },
+                  ),
                   TextField(
                     decoration:
                         const InputDecoration(labelText: 'Código promocional'),
@@ -280,6 +272,11 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                     style: const TextStyle(
                         fontSize: 18, fontWeight: FontWeight.bold),
                   ),
+                  if (changeValue != null)
+                    Text(
+                      'Cambio: \$${changeValue!.toStringAsFixed(2)}',
+                      style: const TextStyle(fontSize: 14, color: Colors.grey),
+                    ),
                   const SizedBox(height: 16),
                   ElevatedButton(
                     onPressed: () => confirmPurchase(cartProvider),
