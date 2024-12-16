@@ -1,3 +1,4 @@
+import 'package:choi_pos/screens/admin/categories_screen.dart';
 import 'package:choi_pos/screens/admin/modifiers/customer_registration_screen.dart';
 import 'package:choi_pos/screens/admin/customers_screen.dart';
 import 'package:choi_pos/screens/admin/inventory_screen.dart';
@@ -81,7 +82,11 @@ final GoRouter appRouter = GoRouter(
               ),
               GoRoute(
                   path: 'create-promo',
-                  builder: (context, state) => const PromoForm())
+                  builder: (context, state) => const PromoForm()),
+              GoRoute(
+                path: 'categories',
+                builder: (context, state) => const CategoriesScreen(),
+              )
             ]),
         GoRoute(
           path: 'tournaments',
