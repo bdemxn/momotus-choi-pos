@@ -20,7 +20,7 @@ class ReportService {
       );
 
       if (response.statusCode == 200) {
-        return jsonDecode(response.body) as List<dynamic>;
+        return json.decode(utf8.decode(response.bodyBytes)) as List<dynamic>;
       } else {
         throw Exception('Error al cargar los reportes');
       }

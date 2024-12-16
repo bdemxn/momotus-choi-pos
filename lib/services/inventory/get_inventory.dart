@@ -39,7 +39,7 @@ class InventoryService {
       });
 
       if (response.statusCode == 200) {
-        final List<dynamic> data = json.decode(response.body);
+        final List<dynamic> data = json.decode(utf8.decode(response.bodyBytes));
 
         _inventory.clear();
         _inventory.addAll(data.map((item) => InventoryItem.fromJson(item)));

@@ -14,7 +14,7 @@ class CheckoutScreen extends StatefulWidget {
 }
 
 class _CheckoutScreenState extends State<CheckoutScreen> {
-  String selectedPaymentMethod = 'Tarjeta';
+  String selectedPaymentMethod = 'Efectivo';
   String currency = 'Dolares';
   String? referenceCode;
   String? promoCode;
@@ -24,6 +24,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   num? changeValue;
   double? cashPayment;
   double exchangeRate = 1.0;
+
+  List<String> mixReference = [];
 
   void applyPromoCode(CartProvider cartProvider) {
     if (promoCode == 'DESCUENTO10') {
@@ -80,7 +82,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   }
 
   void confirmPurchase(CartProvider cartProvider) async {
-    if (selectedPaymentMethod != 'Efectivo' &&
+    if ((selectedPaymentMethod == 'Tarjeta' &&
+            selectedPaymentMethod == 'Transferencia') &&
         (referenceCode == null || referenceCode!.isEmpty)) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -117,13 +120,19 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
       // Enviar reporte de ventas
       await UpdateInventory.postSalesReport(
-        cashier: 'nombre_cajero',
-        customer: _customer ?? '',
-        paymentRef: referenceCode ?? '',
-        cart: cartData,
-        promoCode: promoCode ?? '',
-        totalPaid: cartProvider.totalPrice - discount,
-      );
+          cashier: 'nombre_cajero',
+          customer: _customer ?? '',
+          paymentRef: selectedPaymentMethod == 'Mixto'
+              ? mixReference.join(', ')
+              : referenceCode ?? '',
+          cart: cartData,
+          promoCode: promoCode ?? '',
+          totalPaid: currency == 'Dolares'
+              ? cartProvider.totalPrice - discount
+              : (cartProvider.totalPrice - discount) * 36.79,
+          currency: currency == 'Dolares' ? 'USD' : 'NIO',
+          type: selectedPaymentMethod,
+          change: changeValue ?? 0);
 
       // Mostrar mensaje de confirmación
       ScaffoldMessenger.of(context).showSnackBar(
@@ -267,6 +276,40 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                       },
                     ),
 
+                  if (selectedPaymentMethod == 'Mixto')
+                    Column(
+                      children: [
+                        TextField(
+                          decoration: const InputDecoration(
+                            labelText: 'Referencia 1',
+                          ),
+                          onChanged: (value) {
+                            setState(() {
+                              if (mixReference.isNotEmpty) {
+                                mixReference[0] = value;
+                              } else {
+                                mixReference.add(value);
+                              }
+                            });
+                          },
+                        ),
+                        TextField(
+                          decoration: const InputDecoration(
+                            labelText: 'Referencia 2',
+                          ),
+                          onChanged: (value) {
+                            setState(() {
+                              if (mixReference.length >= 2) {
+                                mixReference[1] = value;
+                              } else {
+                                mixReference.add(value);
+                              }
+                            });
+                          },
+                        ),
+                      ],
+                    ),
+
                   if (selectedPaymentMethod == 'Efectivo')
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -311,7 +354,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
                   Text(
                     "Total: ${currency == 'Cordobas' ? "C\$" : "\$"} ${((cartProvider.totalPrice - discount) * (currency == 'Cordobas' ? exchangeRate : 1.0)).toStringAsFixed(2)}",
-                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    style: const TextStyle(
+                        fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                   if (changeValue != null)
                     Text(

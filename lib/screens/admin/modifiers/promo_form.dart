@@ -30,7 +30,7 @@ class _PromoFormState extends State<PromoForm> {
 
       try {
         final response = await http.post(
-          Uri.parse("https://45.79.205.216:8000/admin/promos"),
+          Uri.parse("http://45.79.205.216:8000/admin/promos"),
           headers: {
             "Content-Type": "application/json",
             "Authorization": basicAuth
@@ -57,6 +57,7 @@ class _PromoFormState extends State<PromoForm> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text("Error de red: $e")),
         );
+        print(e);
       }
     }
   }

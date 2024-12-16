@@ -34,9 +34,15 @@ class _AppScreenState extends State<AppScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Image(image: AssetImage('assets/choi-image.png'), height: 40,),
+        title: const Image(
+          image: AssetImage('assets/choi-image.png'),
+          height: 40,
+        ),
         leading: IconButton(
-            onPressed: () => context.go('/'),
+            onPressed: () {
+              context.go('/');
+              cartProvider.clearCart();
+            },
             icon: const Icon(Icons.arrow_back)),
         actions: [
           IconButton(
@@ -131,7 +137,9 @@ class _AppScreenState extends State<AppScreen> {
                     const Text('Carrito'),
                     Padding(
                       padding: const EdgeInsets.only(left: 20),
-                      child: IconButton(onPressed: () => context.go('/app/create-customer'), icon: const Icon(Icons.add_reaction_sharp)),
+                      child: IconButton(
+                          onPressed: () => context.go('/app/create-customer'),
+                          icon: const Icon(Icons.add_reaction_sharp)),
                     )
                   ],
                 ),

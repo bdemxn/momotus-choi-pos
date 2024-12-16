@@ -101,10 +101,13 @@ class UpdateInventory {
   static Future<void> postSalesReport({
     required String cashier,
     required String? customer,
+    required String? type,
+    required String? currency,
     required String paymentRef,
     required List<Map<String, dynamic>> cart,
     required String promoCode,
     required double totalPaid,
+    required num change
   }) async {
     final String basicAuth =
         'Basic ${base64Encode(utf8.encode('$username:$password'))}';
@@ -121,6 +124,9 @@ class UpdateInventory {
       'products': products,
       'promocode': promoCode,
       'total_paid': totalPaid,
+      'type_': type,
+      'currency': currency,
+      'change': change
     };
 
     final response = await http.post(
@@ -128,6 +134,8 @@ class UpdateInventory {
       body: jsonEncode(saleReport),
       headers: {'Content-Type': 'application/json', 'Authorization': basicAuth},
     );
+
+    print(jsonEncode(saleReport));
 
     if (response.statusCode != 201) {
       throw Exception('Error enviando el reporte de ventas.');

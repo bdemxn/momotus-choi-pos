@@ -22,7 +22,7 @@ class GetUsersService {
       });
 
       if (response.statusCode == 200) {
-        final List<dynamic> data = json.decode(response.body);
+        final List<dynamic> data = json.decode(utf8.decode(response.bodyBytes));
 
         _userList.clear();
         _userList.addAll(data.map((item) => User.fromJson(item)));

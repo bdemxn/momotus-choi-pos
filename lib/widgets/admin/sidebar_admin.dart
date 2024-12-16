@@ -102,16 +102,16 @@ class SidebarAdmin extends StatelessWidget {
             ),
           ),
 
-          TextButton(
-            onPressed: () => context.go('/admin/tournaments'),
-            child: Row(
-              children: [
-                Icon(Icons.data_object_rounded, size: 20, color: _iconColor),
-                const SizedBox(width: 8),
-                Text('Torneos', style: _myStyle)
-              ],
-            ),
-          ),
+          // TextButton(
+          //   onPressed: () => context.go('/admin/tournaments'),
+          //   child: Row(
+          //     children: [
+          //       Icon(Icons.data_object_rounded, size: 20, color: _iconColor),
+          //       const SizedBox(width: 8),
+          //       Text('Torneos', style: _myStyle)
+          //     ],
+          //   ),
+          // ),
 
           // Go to LoginForm:
           TextButton(
