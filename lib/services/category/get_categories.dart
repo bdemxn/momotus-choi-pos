@@ -10,7 +10,6 @@ Future<List<String>> fetchCategories() async {
     final String basicAuth =
         'Basic ${base64Encode(utf8.encode('$username:$password'))}';
 
-    // print('Haciendo fetch a: $apiUrl');
     final response = await http.get(
       Uri.parse(apiUrl),
       headers: {
@@ -19,15 +18,9 @@ Future<List<String>> fetchCategories() async {
       },
     );
 
-    // print('Código de estado: ${response.statusCode}');
-    // print('Respuesta completa: ${response.body}');
-
     if (response.statusCode == 200) {
-      final data = json.decode(response.body);
-      // print('Tipo de dato decodificado: ${data.runtimeType}');
-      // print('Contenido decodificado: $data');
+      final data = json.decode(utf8.decode(response.bodyBytes));
 
-      // Validar que la respuesta sea una lista de strings
       if (data is List && data.every((item) => item is String)) {
         return List<String>.from(data);
       } else {

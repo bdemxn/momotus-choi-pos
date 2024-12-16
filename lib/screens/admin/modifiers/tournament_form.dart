@@ -11,8 +11,9 @@ class TournamentForm extends StatefulWidget {
 class _TournamentFormState extends State<TournamentForm> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _nameController = TextEditingController();
-  final TextEditingController _locationController = TextEditingController();
-  // final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _beginningDateController =
+      TextEditingController();
+  final TextEditingController _endingDateController = TextEditingController();
   // final TextEditingController _branchController = TextEditingController();
 
   final bool _isLoading = false;
@@ -49,25 +50,38 @@ class _TournamentFormState extends State<TournamentForm> {
                   return null;
                 },
               ),
-              const SizedBox(height: 16),
               TextFormField(
-                controller: _locationController,
-                decoration: const InputDecoration(
-                    labelText: 'Lugar del torneo'),
-                keyboardType: TextInputType.text,
+                controller: _beginningDateController,
+                decoration: const InputDecoration(labelText: 'Fecha de inicio'),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'El lugar del torneo no puede estar vacío';
+                    return 'La fecha de inicio no puede estar vacía';
+                  }
+                  return null;
+                },
+              ),
+              TextFormField(
+                controller: _endingDateController,
+                decoration:
+                    const InputDecoration(labelText: 'Fecha de finalización'),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'La fecha de finalización no puede estar vacía';
                   }
                   return null;
                 },
               ),
               const SizedBox(height: 16),
-              
               _isLoading
                   ? const Center(child: CircularProgressIndicator())
                   : ElevatedButton(
-                      onPressed: () => {},
+                      onPressed: () => {
+                        print({
+                          _nameController.text,
+                          _beginningDateController.text,
+                          _endingDateController.text
+                        })
+                      },
                       child: const Text(
                         'Crear torneo',
                         style: TextStyle(color: Colors.lightBlue),

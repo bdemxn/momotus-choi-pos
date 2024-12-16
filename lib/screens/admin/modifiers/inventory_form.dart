@@ -1,3 +1,4 @@
+import 'package:choi_pos/services/category/get_categories.dart';
 import 'package:choi_pos/services/inventory/create_inventory_item.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -18,39 +19,41 @@ class _InventoryFormWidgetState extends State<InventoryFormWidget> {
 
   final TextEditingController _categoryController = TextEditingController();
 
-  // String? _selectedCategory;
+  String? _selectedCategory;
   bool _isLoading = false;
 
-  //bool _isFetchingCategories = false;
-  // List<String> _categories = [];
+  bool _isFetchingCategories = false;
+  List<String> _categories = [];
 
   @override
   void initState() {
     super.initState();
-    // _fetchCategories();
+    _fetchCategories();
   }
 
-  // Future<void> _fetchCategories() async {
-  //   setState(() {
-  //     _isFetchingCategories = true;
-  //   });
+  Future<void> _fetchCategories() async {
+    setState(() {
+      _isFetchingCategories = true;
+    });
 
-  //   try {
-  //     final categories = await fetchCategories();
-  //     setState(() {
-  //       _categories = categories;
-  //       _selectedCategory = categories.isNotEmpty ? categories.first : null;
-  //     });
-  //   } catch (e) {
-  //     ScaffoldMessenger.of(context).showSnackBar(
-  //       SnackBar(content: Text('Error al cargar las categorías: $e')),
-  //     );
-  //   } finally {
-  //     setState(() {
-  //       _isFetchingCategories = false;
-  //     });
-  //   }
-  // }
+    try {
+      final categories = await fetchCategories();
+      setState(() {
+        _categories = categories;
+        _selectedCategory = categories.isNotEmpty ? categories.first : null;
+
+        print(_categories);
+      });
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error al cargar las categorías: $e')),
+      );
+    } finally {
+      setState(() {
+        _isFetchingCategories = false;
+      });
+    }
+  }
 
   Future<void> _submitForm() async {
     if (_formKey.currentState!.validate()) {
@@ -136,42 +139,42 @@ class _InventoryFormWidgetState extends State<InventoryFormWidget> {
                       },
                     ),
                     const SizedBox(height: 16),
-                    TextFormField(
-                      controller: _categoryController,
-                      decoration:
-                          const InputDecoration(labelText: 'Categoría'),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'La categoría no puede estar vacía';
-                        }
-                        return null;
-                      },
-                    ),
+                    // TextFormField(
+                    //   controller: _categoryController,
+                    //   decoration:
+                    //       const InputDecoration(labelText: 'Categoría'),
+                    //   validator: (value) {
+                    //     if (value == null || value.isEmpty) {
+                    //       return 'La categoría no puede estar vacía';
+                    //     }
+                    //     return null;
+                    //   },
+                    // ),
 
-                    // _isFetchingCategories
-                    //     ? const CircularProgressIndicator()
-                    //     : DropdownButtonFormField<String>(
-                    //         value: _selectedCategory,
-                    //         decoration: const InputDecoration(
-                    //             labelText: '...Categoría'),
-                    //         items: _categories
-                    //             .map((category) => DropdownMenuItem(
-                    //                   value: category,
-                    //                   child: Text(category),
-                    //                 ))
-                    //             .toList(),
-                    //         onChanged: (value) {
-                    //           setState(() {
-                    //             _selectedCategory = value;
-                    //           });
-                    //         },
-                    //         validator: (value) {
-                    //           if (value == null || value.isEmpty) {
-                    //             return 'Debe seleccionar una categoría';
-                    //           }
-                    //           return null;
-                    //         },
-                    //       ),
+                    _isFetchingCategories
+                        ? const CircularProgressIndicator()
+                        : DropdownButtonFormField<String>(
+                            value: _selectedCategory,
+                            decoration: const InputDecoration(
+                                labelText: '...Categoría'),
+                            items: _categories
+                                .map((category) => DropdownMenuItem(
+                                      value: category,
+                                      child: Text(category),
+                                    ))
+                                .toList(),
+                            onChanged: (value) {
+                              setState(() {
+                                _selectedCategory = value;
+                              });
+                            },
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Debe seleccionar una categoría';
+                              }
+                              return null;
+                            },
+                          ),
                     const SizedBox(height: 16),
                     TextFormField(
                       controller: _quantityController,

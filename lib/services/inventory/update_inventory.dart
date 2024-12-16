@@ -35,6 +35,20 @@ class UpdateInventory {
     if (response.statusCode != 200) {
       throw Exception('Error al enviar los datos de venta: ${response.body}');
     }
+
+    // Realización de post a facturas
+    final otherResponse = await http.post(
+      Uri.parse('$baseUrl/cashier/receipt'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': basicAuth,
+      },
+      body: jsonEncode(salesData),
+    );
+
+    if (otherResponse.statusCode == 200 ) {
+      throw Exception('Error al enviar los datos de venta: ${response.body}');
+    }
   }
 
   // Método para actualizar el inventario

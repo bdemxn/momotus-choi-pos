@@ -68,25 +68,25 @@ class InventoryScreen extends StatelessWidget {
                               ),
                             ),
                           ),
-                          // Padding(
-                          //   padding: const EdgeInsets.only(right: 20),
-                          //   child: ElevatedButton(
-                          //     onPressed: () => context
-                          //         .go('/admin/inventory/create-category'),
-                          //     child: const Row(
-                          //       children: [
-                          //         Icon(
-                          //           Icons.add,
-                          //           color: Colors.lightBlue,
-                          //         ),
-                          //         Text(
-                          //           'Crear categoría',
-                          //           style: TextStyle(color: Colors.lightBlue),
-                          //         )
-                          //       ],
-                          //     ),
-                          //   ),
-                          // ),
+                          Padding(
+                            padding: const EdgeInsets.only(right: 20),
+                            child: ElevatedButton(
+                              onPressed: () => context
+                                  .go('/admin/inventory/create-category'),
+                              child: const Row(
+                                children: [
+                                  Icon(
+                                    Icons.add,
+                                    color: Colors.lightBlue,
+                                  ),
+                                  Text(
+                                    'Crear categoría',
+                                    style: TextStyle(color: Colors.lightBlue),
+                                  )
+                                ],
+                              ),
+                            ),
+                          ),
                           ElevatedButton(
                             onPressed: () =>
                                 context.go('/admin/inventory/create-promo'),
