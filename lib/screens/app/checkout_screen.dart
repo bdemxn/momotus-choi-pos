@@ -310,12 +310,12 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                   const Spacer(),
 
                   Text(
-                    "Total: \$${((cartProvider.totalPrice - discount) * (currency == 'Cordobas' ? exchangeRate : 1.0)).toStringAsFixed(2)}",
+                    "Total: ${currency == 'Cordobas' ? "C\$" : "\$"}${((cartProvider.totalPrice - discount) * (currency == 'Cordobas' ? exchangeRate : 1.0)).toStringAsFixed(2)}",
                     style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                   if (changeValue != null)
                     Text(
-                      'Cambio: \$${changeValue!.toStringAsFixed(2)}',
+                      'Cambio: ${currency == 'Cordobas' ? "C\$" : "\$"}${changeValue!.toStringAsFixed(2)}',
                       style: const TextStyle(fontSize: 14, color: Colors.grey),
                     ),
 
