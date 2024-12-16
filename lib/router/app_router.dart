@@ -9,6 +9,7 @@ import 'package:choi_pos/screens/admin/modifiers/tournament_form.dart';
 import 'package:choi_pos/screens/admin/modifiers/user_form.dart';
 import 'package:choi_pos/screens/admin/overview_screen.dart';
 import 'package:choi_pos/screens/admin/reports_screen.dart';
+import 'package:choi_pos/screens/admin/support_screen.dart';
 import 'package:choi_pos/screens/admin/tournamets_screen.dart';
 import 'package:choi_pos/screens/admin/users_screen.dart';
 import 'package:choi_pos/screens/app/cashier_customer_registration.dart';
@@ -47,6 +48,10 @@ final GoRouter appRouter = GoRouter(
       path: '/admin',
       builder: (context, state) => const OverviewScreen(),
       routes: [
+        GoRoute(
+          path: 'support',
+          builder: (context, state) => const TechnicalSupportForm(),
+        ),
         GoRoute(
             path: 'customers',
             builder: (context, state) => const CustomersScreen(),

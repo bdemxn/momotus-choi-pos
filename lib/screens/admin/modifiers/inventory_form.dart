@@ -17,7 +17,7 @@ class _InventoryFormWidgetState extends State<InventoryFormWidget> {
   final TextEditingController _barcodeController = TextEditingController();
   final TextEditingController _quantityController = TextEditingController();
 
-  final TextEditingController _categoryController = TextEditingController();
+  // final TextEditingController _categoryController = TextEditingController();
 
   String? _selectedCategory;
   bool _isLoading = false;
