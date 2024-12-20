@@ -1,19 +1,23 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 Future<List<String>> fetchCategories() async {
   const String apiUrl = 'http://45.79.205.216:8000/admin/inventory/categories';
-  const String username = 'larry.davila';
-  const String password = 'Prueba1#';
+
+  final prefs = await SharedPreferences.getInstance();
+  final String? token = prefs.getString('authToken');
+
+  if (token == null) {
+    throw Exception('No se encontró un token de autenticación.');
+  }
 
   try {
-    final String basicAuth =
-        'Basic ${base64Encode(utf8.encode('$username:$password'))}';
 
     final response = await http.get(
       Uri.parse(apiUrl),
       headers: {
-        'Authorization': basicAuth,
+        'Authorization': 'Bearer $token',
         'Content-Type': 'application/json',
       },
     );
