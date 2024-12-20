@@ -1,14 +1,13 @@
+import 'package:choi_pos/auth/auth_services.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 class SidebarAdmin extends StatelessWidget {
-  const SidebarAdmin({super.key});
+  SidebarAdmin({super.key});
+  final AuthService _authService = AuthService();
 
   // Colors constants:
-
-  final TextStyle _myStyle = const TextStyle(
-      color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold);
-
+  final TextStyle _myStyle = const TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold);
   final Color _iconColor = Colors.white;
 
   @override
@@ -115,11 +114,19 @@ class SidebarAdmin extends StatelessWidget {
 
           // Go to LoginForm:
           TextButton(
-            onPressed: () => context.go('/'),
+            onPressed: () async {
+              await _authService.logoutAuthService();
+
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('Sesión cerrada exitosamente')),
+              );
+
+              context.go('/');
+            },
             child: Row(
               children: [
                 Icon(
-                  Icons.reset_tv_rounded,
+                  Icons.logout,
                   color: _iconColor,
                 ),
                 const SizedBox(width: 8),

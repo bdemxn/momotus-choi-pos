@@ -10,10 +10,10 @@ class InventoryScreen extends StatelessWidget {
     return Scaffold(
       body: Row(
         children: [
-          const Expanded(
+          Expanded(
             flex: 1,
             child: Padding(
-              padding: EdgeInsets.only(top: 30),
+              padding: const EdgeInsets.only(top: 30),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [SidebarAdmin()],

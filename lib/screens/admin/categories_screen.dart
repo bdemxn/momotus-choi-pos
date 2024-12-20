@@ -7,20 +7,20 @@ class CategoriesScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
+    return Scaffold(
       body: Row(
         children: [
           Expanded(
             flex: 1,
             child: Padding(
-              padding: EdgeInsets.only(top: 30),
+              padding: const EdgeInsets.only(top: 30),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [SidebarAdmin()],
               ),
             ),
           ),
-          Expanded(
+          const Expanded(
             flex: 5,
             child: Padding(
                 padding:

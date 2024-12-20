@@ -1,3 +1,4 @@
+import 'package:choi_pos/auth/auth_services.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -9,80 +10,97 @@ class LoginForm extends StatefulWidget {
 }
 
 class _LoginFormState extends State<LoginForm> {
-  // Form controllers:
   final _formKey = GlobalKey<FormState>();
   TextEditingController userController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
+  bool isLoading = false;
+
+  final AuthService _authService = AuthService();
+
+  void _handleLogin() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    setState(() {
+      isLoading = true;
+    });
+
+    try {
+      final user = await _authService.login(
+        userController.text,
+        passwordController.text,
+      );
+
+      if (user != null) {
+        if (user.role == 'admin') {
+          context.go('/admin');
+        } else if (user.role == 'user') {
+          context.go('/app');
+        } else {
+          _showErrorDialog('Rol desconocido. Contacte con soporte.');
+        }
+      } else {
+        _showErrorDialog('Usuario o contraseña incorrectos.');
+      }
+    } catch (e) {
+      _showErrorDialog('Error: ${e.toString()}');
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
+
+  void _showErrorDialog(String message) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Error'),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Aceptar'),
+          ),
+        ],
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return Form(
       key: _formKey,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _inputField("Usuario", userController),
-            const SizedBox(height: 10),
-            _inputField("Contraseña", passwordController, isPassword: true),
-            // Buttons:
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 0, vertical: 10),
-                  child: ElevatedButton(
-                    onPressed: () {
-                      if (userController.text == "allan.arguello" && passwordController.text == "Prueba1#") {
-                        context.go('/admin');
-                      }
-                    },
-                    child: const Text(
-                      'Admin Center',
-                      style: TextStyle(color: Colors.blueAccent),
-                    ),
-                  ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _inputField("Usuario", userController),
+          const SizedBox(height: 10),
+          _inputField("Contraseña", passwordController, isPassword: true),
+          const SizedBox(height: 10),
+          isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : ElevatedButton(
+                  onPressed: _handleLogin,
+                  child: const Text('Iniciar Sesión'),
                 ),
-                Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-                  child: ElevatedButton(
-                    onPressed: () {
-                      if (userController.text == "allan.arguello" && passwordController.text == "Prueba1#" || userController.text == 'cajero1' && passwordController.text == 'Testing123@') {
-                        context.go('/app');
-                      }
-                    },
-                    child: const Text(
-                      'POS App',
-                      style: TextStyle(color: Colors.blueAccent),
-                    ),
-                  ),
-                )
-              ],
-            )
-          ],
-        ),
+        ],
       ),
     );
   }
 
   Widget _inputField(String hintText, TextEditingController controller,
       {isPassword = false}) {
-    var border = OutlineInputBorder(
-        borderRadius: BorderRadius.circular(10),
-        borderSide: const BorderSide(color: Colors.white));
-
-    return TextField(
+    return TextFormField(
       style: const TextStyle(color: Colors.white),
       controller: controller,
       decoration: InputDecoration(
-          hintText: hintText,
-          hintStyle: const TextStyle(color: Colors.grey),
-          enabledBorder: border,
-          focusedBorder: border,
-          fillColor: Colors.black26),
+        hintText: hintText,
+        hintStyle: const TextStyle(color: Colors.grey),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: const BorderSide(color: Colors.white),
+        ),
+      ),
       obscureText: isPassword,
     );
   }

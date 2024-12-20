@@ -12,8 +12,8 @@ class UsersScreen extends StatelessWidget {
     return Scaffold(
       body: Row(
         children: [
-          const Padding(
-            padding: EdgeInsets.only(top: 30),
+          Padding(
+            padding: const EdgeInsets.only(top: 30),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
