@@ -1,4 +1,5 @@
 class User {
+  final String id;
   final String fullname;
   final String roles;
   final String username;
@@ -6,6 +7,7 @@ class User {
   final String branch;
 
   User({
+    required this.id,
     required this.fullname, 
     required this.roles, 
     required this.username, 
@@ -15,6 +17,7 @@ class User {
 
   factory User.fromJson(Map<String, dynamic> json) {
     return User(
+      id: json['id'],
       fullname: json['fullname'],
       roles: json['roles'],
       username: json['username'],

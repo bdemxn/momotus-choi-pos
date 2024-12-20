@@ -5,6 +5,7 @@ import 'package:choi_pos/store/cart_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class CheckoutScreen extends StatefulWidget {
   const CheckoutScreen({super.key});
@@ -110,6 +111,10 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
             .toList(),
       );
 
+      final prefs = await SharedPreferences.getInstance();
+      final String? currentUser = prefs.getString('fullname');
+      print(currentUser);
+
       // Crear los datos para el reporte de ventas
       final List<Map<String, dynamic>> cartData = cartItems.map((cartItem) {
         return {
@@ -120,7 +125,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
       // Enviar reporte de ventas
       await UpdateInventory.postSalesReport(
-          cashier: 'nombre_cajero',
+          cashier: currentUser!,
           customer: _customer ?? '',
           paymentRef: selectedPaymentMethod == 'Mixto'
               ? mixReference.join(', ')

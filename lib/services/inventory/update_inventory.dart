@@ -83,15 +83,14 @@ class UpdateInventory {
       final num updatedQuantity = currentQuantity - item.quantity;
 
       if (updatedQuantity < 0) {
-        throw Exception('Stock insuficiente: ${item.name} (Disponible: $currentQuantity, Requerido: ${item.quantity})');
+        throw Exception(
+            'Stock insuficiente: ${item.name} (Disponible: $currentQuantity, Requerido: ${item.quantity})');
       }
 
       // Hacer PUT para actualizar cantidad
       final updateResponse = await http.put(
         Uri.parse('$baseUrl/cashier/inventory/${item.id}'),
-        body: jsonEncode({
-          'quantity': updatedQuantity
-        }),
+        body: jsonEncode({'quantity': updatedQuantity}),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token'
@@ -105,7 +104,16 @@ class UpdateInventory {
   }
 
   // Método para enviar reporte de ventas
-  static Future<void> postSalesReport({required String cashier, required String? customer, required String? type, required String? currency, required String paymentRef, required List<Map<String, dynamic>> cart, required String promoCode, required double totalPaid, required num change}) async {
+  static Future<void> postSalesReport(
+      {required String cashier,
+      required String? customer,
+      required String? type,
+      required String? currency,
+      required String paymentRef,
+      required List<Map<String, dynamic>> cart,
+      required String promoCode,
+      required double totalPaid,
+      required num change}) async {
     final prefs = await SharedPreferences.getInstance();
     final String? token = prefs.getString('authToken');
 
@@ -115,10 +123,7 @@ class UpdateInventory {
 
     // Serializar los productos del carrito
     final products = cart
-        .map((item) => {
-              'id': item['id'],
-              'quantity': item['quantity']
-            })
+        .map((item) => {'id': item['id'], 'quantity': item['quantity']})
         .toList();
 
     final saleReport = {

@@ -56,6 +56,8 @@ class GetUsersService {
         },
       );
 
+      print(response.body);
+      
       if (response.statusCode != 200) {
         throw Exception('Error al eliminar usuario: ${response.body}');
       }

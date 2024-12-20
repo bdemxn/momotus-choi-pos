@@ -48,7 +48,7 @@ class _CustomerTableState extends State<CustomerTable> {
 
     if (confirm == true) {
       await _customerService.deleteCustomer(id);
-      _fetchCustomers(); // Refrescar la lista tras eliminar
+      _fetchCustomers();
     }
   }
 

@@ -2,11 +2,13 @@ class UserModel {
   final String token;
   final String tokenType;
   final String role;
+  final String fullname;
 
   UserModel({
     required this.token,
     required this.tokenType,
     required this.role,
+    required this.fullname
   });
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
@@ -18,6 +20,7 @@ class UserModel {
       token: json['access_token'],
       tokenType: json['token_type'] ?? 'unknown',
       role: json['role'] ?? 'user',
+      fullname: json['fullname']
     );
   }
 }

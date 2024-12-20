@@ -47,6 +47,7 @@ class _UsersTableState extends State<UsersTable> {
 
     if (confirm == true) {
       await _getUsersService.deleteUser(id);
+      print(id);
       _fetchUsers(); // Refresca la lista tras eliminar
     }
   }
@@ -91,7 +92,7 @@ class _UsersTableState extends State<UsersTable> {
                       DataCell(
                         IconButton(
                           icon: const Icon(Icons.delete, color: Colors.red),
-                          onPressed: () => {} // _deleteUser(item.id),
+                          onPressed: () =>  _deleteUser(item.id),
                         ),
                       ),
                     ]),
