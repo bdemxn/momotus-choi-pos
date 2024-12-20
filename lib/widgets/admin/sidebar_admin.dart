@@ -32,6 +32,24 @@ class SidebarAdmin extends StatelessWidget {
 
           const SizedBox(height: 30),
 
+          // Go to cashier app
+          TextButton(
+            onPressed: () => context.go('/app'),
+            child: Row(
+              children: [
+                Icon(
+                  Icons.touch_app_rounded,
+                  color: _iconColor,
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  'POS',
+                  style: _myStyle,
+                )
+              ],
+            ),
+          ),
+
           // Overview:
           TextButton(
             onPressed: () => context.go('/admin'),

@@ -1,20 +1,24 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 class CustomerService {
   static const String apiUrl = 'http://45.79.205.216:8000/admin/clients';
-  static const String username = 'larry.davila';
-  static const String password = 'Prueba1#';
-  final String basicAuth =
-      'Basic ${base64Encode(utf8.encode('$username:$password'))}';
 
   Future<void> registerCustomer(Map<String, dynamic> customerData) async {
     try {
+      final prefs = await SharedPreferences.getInstance();
+      final String? token = prefs.getString('authToken');
+
+      if (token == null) {
+        throw Exception('No se encontró un token de autenticación.');
+      }
+
       final response = await http.post(
         Uri.parse(apiUrl),
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': basicAuth
+          'Authorization': 'Bearer $token'
         },
         body: json.encode(customerData),
       );
@@ -30,9 +34,16 @@ class CustomerService {
 
   Future<List<Map<String, dynamic>>> fetchCustomers() async {
     try {
+      final prefs = await SharedPreferences.getInstance();
+      final String? token = prefs.getString('authToken');
+
+      if (token == null) {
+        throw Exception('No se encontró un token de autenticación.');
+      }
+
       final response = await http.get(Uri.parse(apiUrl), headers: {
         'Content-Type': 'application/json',
-        'Authorization': basicAuth
+        'Authorization': 'Bearer $token'
       });
 
       if (response.statusCode == 200) {
@@ -41,18 +52,24 @@ class CustomerService {
         throw Exception('Error al obtener clientes: ${response.body}');
       }
     } catch (e) {
-      print('Error al obtener clientes: $e');
       rethrow;
     }
   }
 
   Future<void> deleteCustomer(String id) async {
     try {
+      final prefs = await SharedPreferences.getInstance();
+      final String? token = prefs.getString('authToken');
+
+      if (token == null) {
+        throw Exception('No se encontró un token de autenticación.');
+      }
+
       final response = await http.delete(
         Uri.parse('$apiUrl/$id'),
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': basicAuth,
+          'Authorization': 'Bearer $token',
         },
       );
 

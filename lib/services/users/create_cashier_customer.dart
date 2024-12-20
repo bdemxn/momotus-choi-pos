@@ -1,20 +1,24 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 class CashierCustomerService {
   static const String apiUrl = 'http://45.79.205.216:8000/cashier/clients';
-  static const String username = 'larry.davila';
-  static const String password = 'Prueba1#';
-  final String basicAuth =
-      'Basic ${base64Encode(utf8.encode('$username:$password'))}';
 
   Future<void> registerCustomer(Map<String, dynamic> customerData) async {
+    final prefs = await SharedPreferences.getInstance();
+    final String? token = prefs.getString('authToken');
+
+    if (token == null) {
+      throw Exception('No se encontró un token de autenticación.');
+    }
+
     try {
       final response = await http.post(
         Uri.parse(apiUrl),
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': basicAuth
+          'Authorization': 'Bearer $token'
         },
         body: json.encode(customerData),
       );
@@ -29,10 +33,17 @@ class CashierCustomerService {
   }
 
   Future<List<Map<String, dynamic>>> fetchCustomers() async {
+    final prefs = await SharedPreferences.getInstance();
+    final String? token = prefs.getString('authToken');
+
+    if (token == null) {
+      throw Exception('No se encontró un token de autenticación.');
+    }
+
     try {
       final response = await http.get(Uri.parse(apiUrl), headers: {
         'Content-Type': 'application/json',
-        'Authorization': basicAuth
+        'Authorization': 'Bearer $token'
       });
 
       if (response.statusCode == 200) {

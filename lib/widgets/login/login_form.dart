@@ -33,7 +33,7 @@ class _LoginFormState extends State<LoginForm> {
       if (user != null) {
         if (user.role == 'admin') {
           context.go('/admin');
-        } else if (user.role == 'user') {
+        } else if (user.role == 'usuario') {
           context.go('/app');
         } else {
           _showErrorDialog('Rol desconocido. Contacte con soporte.');

@@ -1,19 +1,21 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 // Post an user
 Future<void> createInventoryItem(Map<String, dynamic> inventoryData) async {
-  const String username = 'larry.davila';
-  const String password = 'Prueba1#';
-  const String apiUrl = 'http://45.79.205.216:8000/admin/inventory';
+  final prefs = await SharedPreferences.getInstance();
+  final String? token = prefs.getString('authToken');
 
-  final String basicAuth =
-      'Basic ${base64Encode(utf8.encode('$username:$password'))}';
+  if (token == null) {
+    throw Exception('No se encontró un token de autenticación.');
+  }
+  const String apiUrl = 'http://45.79.205.216:8000/admin/inventory';
 
   final response = await http.post(
     Uri.parse(apiUrl),
     headers: {
-      'Authorization': basicAuth,
+      'Authorization': 'Bearer $token',
       'Content-Type': 'application/json',
     },
     body: json.encode(inventoryData),

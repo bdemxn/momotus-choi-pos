@@ -22,8 +22,6 @@ class AuthService {
         body: body,
       );
 
-      print('Respuesta del servidor: ${response.body}');
-
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
 
@@ -35,7 +33,8 @@ class AuthService {
 
         final prefs = await SharedPreferences.getInstance();
         await prefs.setString('authToken', user.token);
-        await prefs.setString('userRole', user.role); // Guarda también el rol del usuario
+        await prefs.setString('userRole', user.role);
+        await prefs.setString('username', username);
 
         return user;
       } else {

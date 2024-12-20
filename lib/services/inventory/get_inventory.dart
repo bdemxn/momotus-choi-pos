@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:choi_pos/models/inventory_item.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class InventoryService {
   final List<InventoryItem> _inventory = [];
@@ -9,32 +10,35 @@ class InventoryService {
 
   // Obtener categorías únicas
   List<String> get categories {
-    final Set<String> categorySet =
-        _inventory.map((item) => item.category).toSet();
-    return ["Todas", ...categorySet]; // Añadimos "Todas" como opción inicial.
+    final Set<String> categorySet = _inventory.map((item) => item.category).toSet();
+    return [
+      "Todas",
+      ...categorySet
+    ]; // Añadimos "Todas" como opción inicial.
   }
 
   // Filtrar inventario por texto y categoría
   List<InventoryItem> filteredInventory(String search, [String? category]) {
     return _inventory.where((item) {
       final matchesSearch = search.isEmpty || item.barCode.contains(search);
-      final matchesCategory =
-          category == null || category == "Todas" || item.category == category;
+      final matchesCategory = category == null || category == "Todas" || item.category == category;
       return matchesSearch && matchesCategory;
     }).toList();
   }
 
   Future<void> fetchInventory() async {
-    const String username = 'larry.davila';
-    const String password = 'Prueba1#';
     const String apiUrl = 'http://45.79.205.216:8000/admin/inventory';
 
     try {
-      final String basicAuth =
-          'Basic ${base64Encode(utf8.encode('$username:$password'))}';
+      final prefs = await SharedPreferences.getInstance();
+      final String? token = prefs.getString('authToken');
+
+      if (token == null) {
+        throw Exception('No se encontró un token de autenticación.');
+      }
 
       final response = await http.get(Uri.parse(apiUrl), headers: {
-        'Authorization': basicAuth,
+        'Authorization': 'Bearer $token',
         'Content-Type': 'application/json',
       });
 
@@ -52,18 +56,20 @@ class InventoryService {
   }
 
   Future<void> deleteInventoryItem(String id) async {
-    const String username = 'larry.davila';
-    const String password = 'Prueba1#';
+    final prefs = await SharedPreferences.getInstance();
+    final String? token = prefs.getString('authToken');
+
+    if (token == null) {
+      throw Exception('No se encontró un token de autenticación.');
+    }
     const String apiUrl = 'http://45.79.205.216:8000/admin/inventory';
 
     try {
-      final String basicAuth =
-          'Basic ${base64Encode(utf8.encode('$username:$password'))}';
 
       final response = await http.delete(
         Uri.parse('$apiUrl/$id'),
         headers: {
-          'Authorization': basicAuth,
+          'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
         },
       );
@@ -72,8 +78,7 @@ class InventoryService {
         // Eliminar localmente el elemento del inventario
         _inventory.removeWhere((item) => item.id == id);
       } else {
-        throw Exception(
-            'Error al eliminar el artículo: ${response.statusCode}');
+        throw Exception('Error al eliminar el artículo: ${response.statusCode}');
       }
     } catch (e) {
       print('Error al eliminar el artículo: $e');
