@@ -103,7 +103,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
             .map((cartItem) => InventoryItem(
                   barCode: "",
                   category: "",
-                  name: "",
+                  name: cartItem.item.name,
                   price: 0,
                   id: cartItem.item.id,
                   quantity: cartItem.quantity,
@@ -113,7 +113,6 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
       final prefs = await SharedPreferences.getInstance();
       final String? currentUser = prefs.getString('fullname');
-      print(currentUser);
 
       // Crear los datos para el reporte de ventas
       final List<Map<String, dynamic>> cartData = cartItems.map((cartItem) {

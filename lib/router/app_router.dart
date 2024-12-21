@@ -14,6 +14,8 @@ import 'package:choi_pos/screens/admin/tournamets_screen.dart';
 import 'package:choi_pos/screens/admin/users_screen.dart';
 import 'package:choi_pos/screens/app/cashier_customer_registration.dart';
 import 'package:choi_pos/screens/app/checkout_screen.dart';
+import 'package:choi_pos/screens/app/modifiers/customers_cashier.dart';
+import 'package:choi_pos/screens/app/modifiers/receipts_cashier.dart';
 import 'package:choi_pos/screens/app_screen.dart';
 import 'package:choi_pos/screens/forgot_screen.dart';
 import 'package:choi_pos/screens/login_screen.dart';
@@ -43,6 +45,14 @@ final GoRouter appRouter = GoRouter(
             path: 'create-customer',
             builder: (context, state) => const CashierCustomerRegistration(),
           ),
+          GoRoute(
+            path: 'sales',
+            builder: (context, state) => const ReportsScreenCashier(),
+          ),
+          GoRoute(
+            path: 'customers',
+            builder: (context, state) => const CustomerScreenCashier(),
+          )
         ]),
     GoRoute(
       path: '/admin',

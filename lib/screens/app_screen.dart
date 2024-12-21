@@ -1,3 +1,4 @@
+import 'package:choi_pos/auth/auth_services.dart';
 import 'package:choi_pos/services/inventory/get_inventory.dart';
 import 'package:choi_pos/store/cart_provider.dart';
 import 'package:flutter/material.dart';
@@ -13,6 +14,7 @@ class AppScreen extends StatefulWidget {
 
 class _AppScreenState extends State<AppScreen> {
   late TextEditingController _searchController;
+  final AuthService _authService = AuthService();
 
   @override
   void initState() {
@@ -39,7 +41,13 @@ class _AppScreenState extends State<AppScreen> {
           height: 40,
         ),
         leading: IconButton(
-            onPressed: () {
+            onPressed: () async {
+              await _authService.logoutAuthService();
+
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Sesión cerrada exitosamente')),
+              );
+
               context.go('/');
               cartProvider.clearCart();
             },
@@ -136,10 +144,32 @@ class _AppScreenState extends State<AppScreen> {
                   children: [
                     const Text('Carrito'),
                     Padding(
-                      padding: const EdgeInsets.only(left: 20),
+                      padding: const EdgeInsets.only(left: 0),
                       child: IconButton(
                           onPressed: () => context.go('/app/create-customer'),
                           icon: const Icon(Icons.add_reaction_sharp)),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 0),
+                      child: IconButton(
+                          onPressed: () => context.go('/app/sales'),
+                          icon: const Icon(Icons.insert_chart_outlined_outlined)),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 0),
+                      child: IconButton(
+                          onPressed: () => context.go('/app/customers'),
+                          icon: const Icon(Icons.supervised_user_circle_rounded)),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 0),
+                      child: IconButton(
+                          onPressed: () {
+                            setState(() {
+                              fetchInventory();
+                            });
+                          },
+                          icon: const Icon(Icons.refresh)),
                     )
                   ],
                 ),

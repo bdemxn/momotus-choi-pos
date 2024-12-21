@@ -22,6 +22,13 @@ class UpdateInventory {
       };
     }).toList();
 
+    final List<Map<String, dynamic>> printData = cart.map((item) {
+      return {
+        'name': item.name,
+        'qnt': item.quantity,
+      };
+    }).toList();
+
     // Realizar el POST
     final response = await http.post(
       Uri.parse('$baseUrl/cashier/update_inventory'),
@@ -44,8 +51,10 @@ class UpdateInventory {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer $token',
       },
-      body: jsonEncode(salesData),
+      body: jsonEncode(printData),
     );
+
+    print(printData);
 
     if (otherResponse.statusCode == 200) {
       throw Exception('Error al enviar los datos de venta: ${response.body}');
@@ -72,7 +81,7 @@ class UpdateInventory {
       );
 
       if (response.statusCode != 200) {
-        print(item.name);
+        print('item: ${item.name}');
         throw Exception('Error obteniendo inventario para ${item.name}');
       }
 
@@ -146,8 +155,6 @@ class UpdateInventory {
         'Authorization': 'Bearer $token'
       },
     );
-
-    print(jsonEncode(saleReport));
 
     if (response.statusCode != 201) {
       throw Exception('Error enviando el reporte de ventas.');
