@@ -55,9 +55,7 @@ class GetUsersService {
           'Content-Type': 'application/json',
         },
       );
-
-      print(response.body);
-      
+      print(response.request);
       if (response.statusCode != 200) {
         throw Exception('Error al eliminar usuario: ${response.body}');
       }

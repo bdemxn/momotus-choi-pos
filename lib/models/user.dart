@@ -21,7 +21,7 @@ class User {
       fullname: json['fullname'],
       roles: json['roles'],
       username: json['username'],
-      password: json['password'],
+      password: json['password'] ?? '',
       branch: json['branch']  
     );
   }
