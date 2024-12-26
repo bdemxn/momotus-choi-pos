@@ -24,7 +24,8 @@ class CustomersScreen extends StatelessWidget {
           Expanded(
             flex: 5,
             child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 40),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 40),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -42,7 +43,7 @@ class CustomersScreen extends StatelessWidget {
                         fontWeight: FontWeight.normal,
                       ),
                     ),
-            
+
                     Padding(
                       padding: const EdgeInsets.only(top: 10, bottom: 10),
                       child: Row(
@@ -67,9 +68,9 @@ class CustomersScreen extends StatelessWidget {
                         ],
                       ),
                     ),
-            
+
                     // DataTable:
-                    const CustomerTable()
+                    const Expanded(flex: 1, child: CustomerTable())
                   ],
                 )),
           )

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
+import 'package:shared_preferences/shared_preferences.dart';
+
 class PromoForm extends StatefulWidget {
   const PromoForm({super.key});
 
@@ -16,27 +18,30 @@ class _PromoFormState extends State<PromoForm> {
   String _type = "porcentaje";
 
   Future<void> _createPromoCode() async {
-    const String username = 'larry.davila';
-    const String password = 'Prueba1#';
-    final String basicAuth = 'Basic ${base64Encode(utf8.encode('$username:$password'))}';
+    const String apiUrl = 'http://45.79.205.216:8000/admin/promos';
 
     if (_formKey.currentState!.validate()) {
       final promoCode = {
         "code": _codeController.text,
-        "type": _type,
-        "value": double.parse(_valueController.text),
-        "isActive": true,
+        "discount_type": _type,
+        "discount_value": double.parse(_valueController.text),
+        "active": true,
       };
 
       try {
+        final prefs = await SharedPreferences.getInstance();
+        final String? token = prefs.getString('authToken');
+        
         final response = await http.post(
-          Uri.parse("http://45.79.205.216:8000/admin/promos"),
+          Uri.parse(apiUrl),
           headers: {
             "Content-Type": "application/json",
-            "Authorization": basicAuth
+            "Authorization": "Bearer $token"
           },
           body: json.encode(promoCode),
         );
+
+        print(promoCode);
 
         if (response.statusCode == 200 || response.statusCode == 201) {
           ScaffoldMessenger.of(context).showSnackBar(

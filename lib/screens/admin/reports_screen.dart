@@ -43,15 +43,17 @@ class ReportsScreen extends StatelessWidget {
                       fontWeight: FontWeight.normal,
                     ),
                   ),
-                  Padding(
-                    padding: EdgeInsets.only(top: 20, left: 40),
-                    child: ReportCards(),
+                  Expanded(
+                    flex: 1,
+                    child: Padding(
+                      padding: EdgeInsets.only(top: 20, left: 40),
+                      child: ReportCards(),
+                    ),
                   )
                 ]
               ),
             ),
           )
-
         ],
       ),
     );

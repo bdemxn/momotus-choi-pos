@@ -19,14 +19,14 @@ class CustomerScreenCashier extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Reportería',
+                      'Clientes',
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                     Text(
-                      'Toda tu data de ventas aquí',
+                      'Todos los clientes registrados',
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.normal,
