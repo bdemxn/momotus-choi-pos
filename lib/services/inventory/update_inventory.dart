@@ -22,13 +22,6 @@ class UpdateInventory {
       };
     }).toList();
 
-    final List<Map<String, dynamic>> printData = cart.map((item) {
-      return {
-        'name': item.name,
-        'qnt': item.quantity,
-      };
-    }).toList();
-
     // Realizar el POST
     final response = await http.post(
       Uri.parse('$baseUrl/cashier/update_inventory'),

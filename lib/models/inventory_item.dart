@@ -25,4 +25,15 @@ class InventoryItem {
       category: json['category'],
     );
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'name': name,
+      'price': price,
+      'barCode': barCode,
+      'quantity': quantity,
+      'category': category,
+    };
+  }
 }

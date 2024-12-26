@@ -10,18 +10,17 @@ class InventoryService {
 
   // Obtener categorías únicas
   List<String> get categories {
-    final Set<String> categorySet = _inventory.map((item) => item.category).toSet();
-    return [
-      "Todas",
-      ...categorySet
-    ]; // Añadimos "Todas" como opción inicial.
+    final Set<String> categorySet =
+        _inventory.map((item) => item.category).toSet();
+    return ["Todas", ...categorySet]; // Añadimos "Todas" como opción inicial.
   }
 
   // Filtrar inventario por texto y categoría
   List<InventoryItem> filteredInventory(String search, [String? category]) {
     return _inventory.where((item) {
       final matchesSearch = search.isEmpty || item.barCode.contains(search);
-      final matchesCategory = category == null || category == "Todas" || item.category == category;
+      final matchesCategory =
+          category == null || category == "Todas" || item.category == category;
       return matchesSearch && matchesCategory;
     }).toList();
   }
@@ -55,6 +54,32 @@ class InventoryService {
     }
   }
 
+  Future<void> updateInventoryItem(InventoryItem item) async {
+    final prefs = await SharedPreferences.getInstance();
+    final String? token = prefs.getString('authToken');
+    const String apiUrl = 'http://45.79.205.216:8000/admin/inventory';
+
+    if (token == null) throw Exception('No se encontró un token de autenticación.');
+
+    try {
+      final response = await http.put(
+        Uri.parse('$apiUrl/${item.id}'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+        body: json.encode(item.toJson()),
+      );
+
+      if (response.statusCode != 200) {
+        throw Exception(
+            'Error al actualizar el artículo: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Error al actualizar el artículo: $e');
+    }
+  }
+
   Future<void> deleteInventoryItem(String id) async {
     final prefs = await SharedPreferences.getInstance();
     final String? token = prefs.getString('authToken');
@@ -65,7 +90,6 @@ class InventoryService {
     const String apiUrl = 'http://45.79.205.216:8000/admin/inventory';
 
     try {
-
       final response = await http.delete(
         Uri.parse('$apiUrl/$id'),
         headers: {
@@ -78,7 +102,8 @@ class InventoryService {
         // Eliminar localmente el elemento del inventario
         _inventory.removeWhere((item) => item.id == id);
       } else {
-        throw Exception('Error al eliminar el artículo: ${response.statusCode}');
+        throw Exception(
+            'Error al eliminar el artículo: ${response.statusCode}');
       }
     } catch (e) {
       print('Error al eliminar el artículo: $e');

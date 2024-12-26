@@ -41,8 +41,6 @@ class _InventoryFormWidgetState extends State<InventoryFormWidget> {
       setState(() {
         _categories = categories;
         _selectedCategory = categories.isNotEmpty ? categories.first : null;
-
-        print(_categories);
       });
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
