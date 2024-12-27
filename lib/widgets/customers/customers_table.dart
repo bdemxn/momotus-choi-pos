@@ -1,5 +1,6 @@
 import 'package:choi_pos/services/users/customer_service.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class CustomerTable extends StatefulWidget {
   const CustomerTable({super.key});
@@ -98,12 +99,21 @@ class _CustomerTableState extends State<CustomerTable> {
                       DataCell(Text(customer['email'] ?? 'N/A')),
                       DataCell(Text(customer['is_minor'] ? 'Sí' : 'No')),
                       DataCell(Text(customer['is_preferred'] ? 'Sí' : 'No')),
-                      DataCell(
-                        IconButton(
-                          icon: const Icon(Icons.delete, color: Colors.red),
-                          onPressed: () => _deleteCustomer(customer['id']),
-                        ),
-                      ),
+                      DataCell(Row(
+                        children: [
+                          IconButton(
+                            icon: const Icon(Icons.edit, color: Colors.blue),
+                            onPressed: () {
+                              context.push('/admin/edit-customer',
+                                  extra: customer);
+                            },
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.delete, color: Colors.red),
+                            onPressed: () => _deleteCustomer(customer['id']),
+                          ),
+                        ],
+                      )),
                     ],
                   );
                 }).toList(),

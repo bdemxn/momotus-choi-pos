@@ -19,6 +19,7 @@ import 'package:choi_pos/screens/app/modifiers/receipts_cashier.dart';
 import 'package:choi_pos/screens/app_screen.dart';
 import 'package:choi_pos/screens/forgot_screen.dart';
 import 'package:choi_pos/screens/login_screen.dart';
+import 'package:choi_pos/widgets/customers/customer_update_form.dart';
 import 'package:go_router/go_router.dart';
 
 // Router setup
@@ -58,6 +59,13 @@ final GoRouter appRouter = GoRouter(
       path: '/admin',
       builder: (context, state) => const OverviewScreen(),
       routes: [
+        GoRoute(
+          path: 'edit-customer',
+          builder: (context, state) {
+            final customer = state.extra as Map<String, dynamic>;
+            return CustomerUpdateForm(customerData: customer);
+          },
+        ),
         GoRoute(
           path: 'support',
           builder: (context, state) => const TechnicalSupportForm(),
@@ -104,15 +112,13 @@ final GoRouter appRouter = GoRouter(
               )
             ]),
         GoRoute(
-          path: 'tournaments',
-          builder: (context, state) => const TournamentsScreen(),
-          routes: [
-            GoRoute(
-              path: 'create-tournament',
-              builder: (context, state) => const TournamentForm()
-            )
-          ]
-        )
+            path: 'tournaments',
+            builder: (context, state) => const TournamentsScreen(),
+            routes: [
+              GoRoute(
+                  path: 'create-tournament',
+                  builder: (context, state) => const TournamentForm())
+            ])
       ],
     ),
   ],

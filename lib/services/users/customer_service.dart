@@ -32,6 +32,42 @@ class CustomerService {
     }
   }
 
+  Future<void> updatedCustomer(Map<String, dynamic> customerData) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final String? token = prefs.getString('authToken');
+
+      if (token == null) {
+        throw Exception('No se encontró un token de autenticación.');
+      }
+
+      final Map<String, dynamic> updatedCustomerData = {
+        "id": customerData['id'],
+        "fullname": customerData['fullname'],
+        "is_minor": customerData['is_minor'],
+        "phone": customerData['phone'],
+        "email": customerData['email'],
+        "is_preferred": customerData['is_preferred'],
+        "monthly_pay_ref": customerData['monthly_pay_ref']
+      };
+
+      final response = await http.put(
+        Uri.parse("$apiUrl/${customerData['id'].substring(8)}"),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token'
+        },
+        body: json.encode(updatedCustomerData),
+      );
+
+      if (response.statusCode != 200) {
+        throw Exception('Error al actualizar el cliente: ${response.body}');
+      }
+    } catch (e) {
+      throw Error();
+    }
+  }
+
   Future<List<Map<String, dynamic>>> fetchCustomers() async {
     try {
       final prefs = await SharedPreferences.getInstance();
