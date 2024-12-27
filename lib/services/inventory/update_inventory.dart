@@ -112,11 +112,27 @@ class UpdateInventory {
         .map((item) => {'id': item['id'], 'quantity': item['quantity']})
         .toList();
 
+    final printingProducts = cart
+        .map((item) => {'id': item['id'], 'qnt': item['quantity']})
+        .toList();
+
     final saleReport = {
       'cashier': cashier,
       'customer': customer,
       'payment_ref': paymentRef,
       'products': products,
+      'promocode': promoCode,
+      'total_paid': totalPaid,
+      'type_': type,
+      'currency': currency,
+      'change': change
+    };
+
+    final printingSales = {
+      'cashier': cashier,
+      'customer': customer,
+      'payment_ref': paymentRef,
+      'products': printingProducts,
       'promocode': promoCode,
       'total_paid': totalPaid,
       'type_': type,
@@ -133,17 +149,21 @@ class UpdateInventory {
       },
     );
 
-    await http.post(
+    if (response.statusCode != 201) {
+      throw Exception('Error enviando el reporte de ventas.');
+    }
+
+    final otherResponse = await http.post(
       Uri.parse('$baseUrl/cashier/receipt'),
-      body: jsonEncode(saleReport),
+      body: jsonEncode(printingSales),
       headers: {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer $token'
       },
     );
 
-    if (response.statusCode != 201) {
-      throw Exception('Error enviando el reporte de ventas.');
+    if (otherResponse.statusCode != 201) {
+      print("error printing: ${otherResponse.body}");
     }
   }
 }
