@@ -1,4 +1,5 @@
 import 'package:choi_pos/screens/admin/categories_screen.dart';
+import 'package:choi_pos/screens/admin/discount_codes_screen.dart';
 import 'package:choi_pos/screens/admin/modifiers/customer_registration_screen.dart';
 import 'package:choi_pos/screens/admin/customers_screen.dart';
 import 'package:choi_pos/screens/admin/inventory_screen.dart';
@@ -109,6 +110,10 @@ final GoRouter appRouter = GoRouter(
               GoRoute(
                 path: 'categories',
                 builder: (context, state) => const CategoriesScreen(),
+              ),
+              GoRoute(
+                path: 'discount-codes',
+                builder: (context, state) => const DiscountCodesScreen(),
               )
             ]),
         GoRoute(

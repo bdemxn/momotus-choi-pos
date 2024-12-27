@@ -106,17 +106,36 @@ class InventoryScreen extends StatelessWidget {
                               ),
                             ),
                           ),
+                          Padding(
+                            padding: const EdgeInsets.only(right: 20),
+                            child: ElevatedButton(
+                              onPressed: () =>
+                                  context.go('/admin/inventory/create-promo'),
+                              child: const Row(
+                                children: [
+                                  Icon(
+                                    Icons.add,
+                                    color: Colors.lightBlue,
+                                  ),
+                                  Text(
+                                    'Crear promoción',
+                                    style: TextStyle(color: Colors.lightBlue),
+                                  )
+                                ],
+                              ),
+                            ),
+                          ),
                           ElevatedButton(
                             onPressed: () =>
-                                context.go('/admin/inventory/create-promo'),
+                                context.go('/admin/inventory/discount-codes'),
                             child: const Row(
                               children: [
                                 Icon(
-                                  Icons.add,
+                                  Icons.production_quantity_limits,
                                   color: Colors.lightBlue,
                                 ),
                                 Text(
-                                  'Crear promoción',
+                                  'Promociones',
                                   style: TextStyle(color: Colors.lightBlue),
                                 )
                               ],

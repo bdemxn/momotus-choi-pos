@@ -1,15 +1,24 @@
 class PromoCode {
   final String code;
-  final String type; // "porcentaje" o "fijo"
-  final double value;
-  bool isActive;
+  final String discountType;
+  final double discountValue;
+  final bool active;
 
   PromoCode({
     required this.code,
-    required this.type,
-    required this.value,
-    this.isActive = true, // <== active by default
+    required this.discountType,
+    required this.discountValue,
+    required this.active,
   });
+
+  factory PromoCode.fromJson(Map<String, dynamic> json) {
+    return PromoCode(
+      code: json['code'],
+      discountType: json['discount_type'],
+      discountValue: (json['discount_value'] as num).toDouble(),
+      active: json['active'],
+    );
+  }
 
   // Validate if the code is valid
   static bool validatePromoCode(String code) {
@@ -18,15 +27,15 @@ class PromoCode {
 
   // Validate if the code is active
   static bool isPromoCodeActive(PromoCode promoCode) {
-    return promoCode.isActive;
+    return promoCode.active;
   }
 
   // Apply discount to cart total
   static double applyPromoCode(PromoCode promoCode, double cartTotal) {
-    if (promoCode.type == "porcentaje") {
-      return cartTotal - (cartTotal * promoCode.value / 100);
-    } else if (promoCode.type == "fijo") {
-      return cartTotal - promoCode.value;
+    if (promoCode.discountType == "porcentaje") {
+      return cartTotal - (cartTotal * promoCode.discountValue / 100);
+    } else if (promoCode.discountType == "fijo") {
+      return cartTotal - promoCode.discountValue;
     }
     return cartTotal;
   }

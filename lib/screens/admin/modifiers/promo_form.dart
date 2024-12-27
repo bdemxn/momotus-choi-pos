@@ -31,7 +31,7 @@ class _PromoFormState extends State<PromoForm> {
       try {
         final prefs = await SharedPreferences.getInstance();
         final String? token = prefs.getString('authToken');
-        
+
         final response = await http.post(
           Uri.parse(apiUrl),
           headers: {
@@ -52,6 +52,7 @@ class _PromoFormState extends State<PromoForm> {
           setState(() {
             _type = "porcentaje";
           });
+          Navigator.pop(context);
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(

@@ -16,10 +16,10 @@ class ShoppingCart {
   }
 
   void applyPromoCode(PromoCode promoCode) {
-    if (promoCode.type == 'fixed') {
-      total -= promoCode.value;
-    } else if (promoCode.type == 'percentage') {
-      total -= total * (promoCode.value / 100);
+    if (promoCode.discountType == 'fijo') {
+      total -= promoCode.discountValue;
+    } else if (promoCode.discountType == 'porcentaje') {
+      total -= total * (promoCode.discountValue / 100);
     }
     if (total < 0) total = 0; // Asegurar que no haya totales negativos
   }

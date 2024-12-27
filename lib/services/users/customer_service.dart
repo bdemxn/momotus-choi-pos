@@ -83,7 +83,7 @@ class CustomerService {
       });
 
       if (response.statusCode == 200) {
-        return List<Map<String, dynamic>>.from(json.decode(response.body));
+        return List<Map<String, dynamic>>.from(json.decode(utf8.decode(response.bodyBytes)));
       } else {
         throw Exception('Error al obtener clientes: ${response.body}');
       }
