@@ -1,4 +1,5 @@
 import 'package:choi_pos/services/users/get_users.dart';
+import 'package:choi_pos/widgets/users/users_update_form.dart';
 import 'package:flutter/material.dart';
 
 class UsersTable extends StatefulWidget {
@@ -14,42 +15,7 @@ class _UsersTableState extends State<UsersTable> {
   @override
   void initState() {
     super.initState();
-    _fetchUsers();
-  }
-
-  void _fetchUsers() {
-    setState(() {
-      _getUsersService.fetchUsers();
-    });
-  }
-
-  Future<void> _deleteUser(String id) async {
-    final confirm = await showDialog<bool>(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text('Confirmar Eliminación'),
-          content:
-              const Text('¿Estás seguro de que deseas eliminar este usuario?'),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(false),
-              child: const Text('Cancelar'),
-            ),
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(true),
-              child: const Text('Eliminar'),
-            ),
-          ],
-        );
-      },
-    );
-
-    if (confirm == true) {
-      await _getUsersService.deleteUser(id);
-      print(id);
-      _fetchUsers(); // Refresca la lista tras eliminar
-    }
+    _getUsersService.fetchUsers();
   }
 
   @override
@@ -65,39 +31,91 @@ class _UsersTableState extends State<UsersTable> {
 
         final usersList = _getUsersService.userList;
 
-        return SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
+        return Flexible(
+          fit: FlexFit.tight,
+          flex: 5,
           child: SingleChildScrollView(
             scrollDirection: Axis.vertical,
-            child: DataTable(
-              columns: const [
-                DataColumn(label: Text('Imagen')),
-                DataColumn(label: Text('Nombre Completo')),
-                DataColumn(label: Text('Rol')),
-                DataColumn(label: Text('Nombre de Usuario')),
-                DataColumn(label: Text('Sucursal')),
-                DataColumn(label: Text('Acciones')), // Nueva columna
-              ],
-              rows: usersList
-                  .map(
-                    (item) => DataRow(cells: [
-                      const DataCell(Image(
-                        image: AssetImage('assets/choi-user.png'),
-                        height: 40,
-                      )),
-                      DataCell(Text(item.fullname)),
-                      DataCell(Text(item.roles)),
-                      DataCell(Text(item.username)),
-                      DataCell(Text(item.branch)),
-                      DataCell(
-                        IconButton(
-                          icon: const Icon(Icons.delete, color: Colors.red),
-                          onPressed: () =>  _deleteUser(item.id),
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: DataTable(
+                columns: const [
+                  DataColumn(label: Text('Imagen')),
+                  DataColumn(label: Text('Nombre Completo')),
+                  DataColumn(label: Text('Rol')),
+                  DataColumn(label: Text('Nombre de Usuario')),
+                  DataColumn(label: Text('Sucursal')),
+                  DataColumn(label: Text('Acciones')),
+                ],
+                rows: usersList
+                    .map(
+                      (item) => DataRow(cells: [
+                        const DataCell(Image(
+                          image: AssetImage('assets/choi-user.png'),
+                          height: 40,
+                        )),
+                        DataCell(Text(item.fullname)),
+                        DataCell(Text(item.roles)),
+                        DataCell(Text(item.username)),
+                        DataCell(Text(item.branch)),
+                        DataCell(
+                          Row(
+                            children: [
+                              IconButton(
+                                icon:
+                                    const Icon(Icons.edit, color: Colors.blue),
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          EditUserFormWidget(user: item),
+                                    ),
+                                  );
+                                },
+                              ),
+                              IconButton(
+                                icon:
+                                    const Icon(Icons.delete, color: Colors.red),
+                                onPressed: () async {
+                                  final confirm = await showDialog<bool>(
+                                    context: context,
+                                    builder: (context) {
+                                      return AlertDialog(
+                                        title:
+                                            const Text('Confirmar Eliminación'),
+                                        content: Text(
+                                            '¿Estás seguro de que quieres eliminar "${item.fullname}"?'),
+                                        actions: [
+                                          TextButton(
+                                            onPressed: () =>
+                                                Navigator.of(context)
+                                                    .pop(false),
+                                            child: const Text('Cancelar'),
+                                          ),
+                                          TextButton(
+                                            onPressed: () =>
+                                                Navigator.of(context).pop(true),
+                                            child: const Text('Eliminar'),
+                                          ),
+                                        ],
+                                      );
+                                    },
+                                  );
+
+                                  if (confirm ?? false) {
+                                    await _getUsersService.deleteUser(item.id);
+                                    setState(() {});
+                                  }
+                                },
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
-                    ]),
-                  )
-                  .toList(),
+                      ]),
+                    )
+                    .toList(),
+              ),
             ),
           ),
         );

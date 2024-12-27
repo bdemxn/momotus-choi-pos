@@ -13,6 +13,8 @@ Future<void> createUser(Map<String, dynamic> userData) async {
     throw Exception('No se encontró un token de autenticación.');
   }
 
+  print(userData);
+
   final response = await http.post(
     Uri.parse(apiUrl),
     headers: {

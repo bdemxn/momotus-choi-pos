@@ -25,4 +25,15 @@ class User {
       branch: json['branch']  
     );
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'fullname': fullname,
+      'roles': roles,
+      'username': username,
+      'password': password,
+      'branch': branch
+    };
+  }
 }

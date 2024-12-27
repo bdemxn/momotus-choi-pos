@@ -1,46 +1,53 @@
-import 'package:choi_pos/services/users/create_user.dart';
+import 'package:choi_pos/models/user.dart';
+import 'package:choi_pos/services/users/update_user.dart';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 
-class UserFormWidget extends StatefulWidget {
-  const UserFormWidget({super.key});
+class EditUserFormWidget extends StatefulWidget {
+  final User user;
+
+  const EditUserFormWidget({super.key, required this.user});
 
   @override
-  State<UserFormWidget> createState() => _UserFormWidgetState();
+  State<EditUserFormWidget> createState() => _EditUserFormWidgetState();
 }
 
-class _UserFormWidgetState extends State<UserFormWidget> {
+class _EditUserFormWidgetState extends State<EditUserFormWidget> {
   final _formKey = GlobalKey<FormState>();
-  final TextEditingController _fullnameController = TextEditingController();
-  final TextEditingController _usernameController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _branchController = TextEditingController();
+  late TextEditingController _fullnameController;
+  late TextEditingController _usernameController;
+  late TextEditingController _branchController;
   String _selectedRole = 'usuario';
 
   bool _isLoading = false;
 
+  @override
+  void initState() {
+    super.initState();
+    _fullnameController = TextEditingController(text: widget.user.fullname);
+    _usernameController = TextEditingController(text: widget.user.username);
+    _branchController = TextEditingController(text: widget.user.branch);
+    _selectedRole = widget.user.roles;
+  }
+
   Future<void> _submitForm() async {
     if (_formKey.currentState!.validate()) {
-      final Map<String, dynamic> userData = {
+      final Map<String, dynamic> updatedUserData = {
         'fullname': _fullnameController.text,
         'username': _usernameController.text,
-        'password': _passwordController.text,
         'branch': _branchController.text,
         'roles': _selectedRole,
       };
 
       try {
         setState(() => _isLoading = true);
-        await createUser(userData);
+        await UpdateUserService.updateUser(widget.user.id, updatedUserData);
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Usuario creado exitosamente')),
+          const SnackBar(content: Text('Usuario actualizado exitosamente')),
         );
-        _formKey.currentState!.reset();
-        setState(() => _selectedRole = 'usuario');
-        Navigator.pop(context);
+        Navigator.of(context).pop(); // Vuelve a la pantalla anterior
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(e.toString())),
+          SnackBar(content: Text('Error: $e')),
         );
       } finally {
         setState(() => _isLoading = false);
@@ -52,10 +59,12 @@ class _UserFormWidgetState extends State<UserFormWidget> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-          title: const Text('Crea usuarios'),
-          leading: IconButton(
-              onPressed: () => context.go('/admin/users'),
-              icon: const Icon(Icons.arrow_back))),
+        title: const Text('Editar Usuario'),
+        leading: IconButton(
+          onPressed: () => Navigator.pop(context),
+          icon: const Icon(Icons.arrow_back),
+        ),
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(
@@ -64,7 +73,10 @@ class _UserFormWidgetState extends State<UserFormWidget> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Center(
-                child: Image(image: AssetImage('assets/choi-user.png'), height: 100,),
+                child: Image(
+                  image: AssetImage('assets/choi-user.png'),
+                  height: 100,
+                ),
               ),
               TextFormField(
                 controller: _fullnameController,
@@ -80,24 +92,12 @@ class _UserFormWidgetState extends State<UserFormWidget> {
               const SizedBox(height: 16),
               TextFormField(
                 controller: _usernameController,
-                decoration: const InputDecoration(labelText: 'Usuario (ej. juan.sanchez)'),
+                decoration: const InputDecoration(
+                    labelText: 'Usuario (ej. juan.sanchez)'),
                 keyboardType: TextInputType.text,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'El usuario no puede estar vacío';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 16),
-              TextFormField(
-                obscureText: true,
-                controller: _passwordController,
-                decoration:
-                    const InputDecoration(labelText: 'Contraseña'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'La contraseña no puede estar vacía';
                   }
                   return null;
                 },
@@ -120,7 +120,8 @@ class _UserFormWidgetState extends State<UserFormWidget> {
                 decoration: const InputDecoration(labelText: 'Rol'),
                 items: const [
                   DropdownMenuItem(value: 'usuario', child: Text('Usuario')),
-                  DropdownMenuItem(value: 'admin', child: Text('Administrador')),
+                  DropdownMenuItem(
+                      value: 'admin', child: Text('Administrador')),
                 ],
                 onChanged: (value) {
                   setState(() {
@@ -129,15 +130,11 @@ class _UserFormWidgetState extends State<UserFormWidget> {
                 },
               ),
               const SizedBox(height: 24),
-
               _isLoading
                   ? const Center(child: CircularProgressIndicator())
                   : ElevatedButton(
                       onPressed: _submitForm,
-                      child: const Text(
-                        'Crear Objeto',
-                        style: TextStyle(color: Colors.lightBlue),
-                      ),
+                      child: const Text('Actualizar Usuario'),
                     ),
             ],
           ),
