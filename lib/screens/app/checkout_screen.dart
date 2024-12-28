@@ -6,6 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class CheckoutScreen extends StatefulWidget {
   const CheckoutScreen({super.key});
@@ -27,22 +29,82 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   double exchangeRate = 1.0;
 
   List<String> mixReference = [];
+  List<dynamic> availablePromoCodes = [];
+
+  Future<void> fetchPromoCodes() async {
+    const String apiUrl = 'http://45.79.205.216:8000/cashier/promos';
+
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final String? token = prefs.getString('authToken');
+
+      final response = await http.get(
+        Uri.parse(apiUrl),
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer $token"
+        },
+      );
+
+      print(response.body);
+
+      if (response.statusCode == 200) {
+        setState(() {
+          availablePromoCodes = json.decode(response.body);
+        });
+      } else {
+        throw Exception('Failed to fetch promo codes');
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error al cargar códigos promocionales: $e')),
+      );
+      print(e);
+    }
+  }
 
   void applyPromoCode(CartProvider cartProvider) {
-    if (promoCode == 'DESCUENTO10') {
+  if (promoCode != null) {
+    // Buscar el código promocional en la lista
+    final promoDetails = availablePromoCodes.firstWhere(
+      (promo) => promo['code'] == promoCode,
+      orElse: () => null, // Retorna null si no se encuentra el código
+    );
+
+    if (promoDetails != null) {
       setState(() {
-        discount = cartProvider.totalPrice * 0.10;
+        discount = promoDetails['discount_type'] == 'porcentaje'
+            ? cartProvider.totalPrice * (promoDetails['discount_value'] / 100)
+            : promoDetails['discount_value'].toDouble();
       });
+
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text('Código promocional aplicado: 10% de descuento.')),
+        SnackBar(
+          content: Text(
+            'Código promocional aplicado: ${promoDetails['discount_type'] == 'porcentaje' ? '${promoDetails['discount_value']}% de descuento' : '\$${promoDetails['discount_value']} de descuento'}.',
+          ),
+        ),
       );
     } else {
+      // Código promocional inválido
+      setState(() {
+        discount = 0.0;
+      });
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Código promocional inválido.')),
       );
     }
+  } else {
+    // Si no hay código ingresado
+    setState(() {
+      discount = 0.0;
+    });
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Por favor ingresa un código promocional.')),
+    );
   }
+}
+
 
   // update the new exchange
   Future<void> updateExchangeRate() async {
@@ -152,6 +214,12 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         SnackBar(content: Text('Error: ${e.toString()}')),
       );
     }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    fetchPromoCodes();
   }
 
   @override
