@@ -164,6 +164,12 @@ class _AppScreenState extends State<AppScreen> {
                     Padding(
                       padding: const EdgeInsets.only(left: 0),
                       child: IconButton(
+                          onPressed: () => context.go('/app/create-inventory'),
+                          icon: const Icon(Icons.inventory)),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 0),
+                      child: IconButton(
                           onPressed: () {
                             setState(() {
                               fetchInventory();

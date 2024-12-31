@@ -3,14 +3,14 @@ import 'package:choi_pos/services/inventory/create_inventory_item.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-class InventoryFormWidget extends StatefulWidget {
-  const InventoryFormWidget({super.key});
+class CreateInventoryCashierScreen extends StatefulWidget {
+  const CreateInventoryCashierScreen({super.key});
 
   @override
-  State<InventoryFormWidget> createState() => _InventoryFormWidgetState();
+  State<CreateInventoryCashierScreen> createState() => _CreateInventoryCashierScreenState();
 }
 
-class _InventoryFormWidgetState extends State<InventoryFormWidget> {
+class _CreateInventoryCashierScreenState extends State<CreateInventoryCashierScreen> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _priceController = TextEditingController();
@@ -37,7 +37,7 @@ class _InventoryFormWidgetState extends State<InventoryFormWidget> {
     });
 
     try {
-      final categories = await fetchCategories();
+      final categories = await fetchCategoriesFromCashier();
       setState(() {
         _categories = categories;
         _selectedCategory = categories.isNotEmpty ? categories.first : null;
@@ -87,7 +87,7 @@ class _InventoryFormWidgetState extends State<InventoryFormWidget> {
       appBar: AppBar(
         title: const Text('Crea un item para el inventario'),
         leading: IconButton(
-          onPressed: () => context.go('/admin/inventory'),
+          onPressed: () => Navigator.pop(context),
           icon: const Icon(Icons.arrow_back),
         ),
       ),

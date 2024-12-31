@@ -13,7 +13,8 @@ import 'package:choi_pos/screens/admin/reports_screen.dart';
 import 'package:choi_pos/screens/admin/support_screen.dart';
 import 'package:choi_pos/screens/admin/tournamets_screen.dart';
 import 'package:choi_pos/screens/admin/users_screen.dart';
-import 'package:choi_pos/screens/app/cashier_customer_registration.dart';
+import 'package:choi_pos/screens/app/create_inventory_screen.dart';
+import 'package:choi_pos/screens/app/modifiers/cashier_customer_registration.dart';
 import 'package:choi_pos/screens/app/checkout_screen.dart';
 import 'package:choi_pos/screens/app/modifiers/customers_cashier.dart';
 import 'package:choi_pos/screens/app/modifiers/receipts_cashier.dart';
@@ -42,6 +43,10 @@ final GoRouter appRouter = GoRouter(
           GoRoute(
             path: 'checkout',
             builder: (context, state) => const CheckoutScreen(),
+          ),
+          GoRoute(
+            path: 'create-inventory',
+            builder: (context, state) => const CreateInventoryCashierScreen(),
           ),
           GoRoute(
             path: 'create-customer',
