@@ -20,16 +20,48 @@ class _CashierCustomerRegistrationState
   String email = '';
   bool isMinor = false;
   bool isPreferred = false;
-
-  // Variable para almacenar la opción seleccionada
   String? selectedPlan;
 
-  // Lista de opciones para el Dropdown
+  String? selectedSchedule;
+  String? selectedTime;
+  List<String> availableTimes = [];
+
   final List<String> plans = [
     'Mensualidad Standard',
     'Mensualidad Niños 2-4',
     'Mensualidad Sabatina Standard',
     'Mensualidad Sabatina 2-4'
+  ];
+
+  final List<Map<String, dynamic>> schedules = [
+    {
+      "days": ['Martes', 'Jueves'],
+      "id": "schedules:9yjffzdtsvlh7my13d8m",
+      "name": 'Standard 2',
+      "times": ['3:00 PM - 4:30 PM', '4:30 PM - 6:00 PM', '6:00 PM - 7:30 PM']
+    },
+    {
+      "days": ['Sabado'],
+      "id": "schedules:e9dfske3l73xifstsbsa",
+      "name": 'Sabatino',
+      "times": [
+        '9:00 AM - 10:00 AM',
+        '10:00 AM - 12:00 PM',
+        '2:00 PM - 3:00 PM',
+        '3:00 PM - 5:00 PM'
+      ]
+    },
+    {
+      "days": ['Lunes', 'Miércoles', 'Viernes'],
+      "id": "schedules:f1iavfymp4w7s4egjp7w",
+      "name": 'Standard 1',
+      "times": [
+        '3:00 PM - 4:00 PM',
+        '4:00 PM - 5:00 PM',
+        '5:00 PM - 6:00 PM',
+        '6:00 PM - 7:00 PM'
+      ]
+    }
   ];
 
   Future<void> _submitForm() async {
@@ -42,7 +74,9 @@ class _CashierCustomerRegistrationState
         "phone": phone,
         "email": email,
         "is_preferred": isPreferred,
-        "monthly_pay_ref": selectedPlan,  // Agregamos el plan seleccionado
+        "monthly_pay_ref": selectedPlan,
+        "schedule": selectedSchedule,
+        "times": selectedTime
       };
 
       try {
@@ -99,14 +133,8 @@ class _CashierCustomerRegistrationState
                 validator: (value) =>
                     value?.isEmpty == true ? 'El correo es obligatorio' : null,
               ),
-              SwitchListTile(
-                title: const Text('¿Es menor de edad?'),
-                value: isMinor,
-                onChanged: (value) => setState(() => isMinor = value),
-              ),
-              const SizedBox(height: 20),
               
-              // DropdownButtonFormField para seleccionar un plan
+              const SizedBox(height: 20),
               DropdownButtonFormField<String>(
                 value: selectedPlan,
                 decoration: const InputDecoration(
@@ -126,7 +154,59 @@ class _CashierCustomerRegistrationState
                 validator: (value) =>
                     value == null ? 'Por favor selecciona un plan' : null,
               ),
+              DropdownButtonFormField<String>(
+                value: selectedSchedule,
+                decoration: const InputDecoration(
+                  labelText: 'Selecciona un plan',
+                ),
+                items: schedules.map((plan) {
+                  return DropdownMenuItem<String>(
+                    value: plan["name"],
+                    child: Text(plan["name"]),
+                  );
+                }).toList(),
+                onChanged: (newValue) {
+                  setState(() {
+                    selectedSchedule = newValue;
+                    // Actualizar los horarios disponibles según el plan seleccionado
+                    availableTimes = schedules
+                        .firstWhere(
+                            (plan) => plan["name"] == selectedSchedule)["times"]
+                        .cast<String>();
+                    selectedTime = null; // Reiniciar el horario seleccionado
+                  });
+                },
+                validator: (value) =>
+                    value == null ? 'Por favor selecciona un plan' : null,
+              ),
               const SizedBox(height: 20),
+              if (selectedSchedule !=
+                  null) // Mostrar el segundo dropdown si hay un plan seleccionado
+                DropdownButtonFormField<String>(
+                  value: selectedTime,
+                  decoration: const InputDecoration(
+                    labelText: 'Selecciona un horario',
+                  ),
+                  items: availableTimes.map((time) {
+                    return DropdownMenuItem<String>(
+                      value: time,
+                      child: Text(time),
+                    );
+                  }).toList(),
+                  onChanged: (newValue) {
+                    setState(() {
+                      selectedTime = newValue;
+                    });
+                  },
+                  validator: (value) =>
+                      value == null ? 'Por favor selecciona un horario' : null,
+                ),
+              const SizedBox(height: 20),
+              SwitchListTile(
+                title: const Text('¿Es menor de edad?'),
+                value: isMinor,
+                onChanged: (value) => setState(() => isMinor = value),
+              ),
               ElevatedButton(
                 onPressed: _submitForm,
                 child: const Text('Registrar Cliente'),

@@ -48,7 +48,9 @@ class CustomerService {
         "phone": customerData['phone'],
         "email": customerData['email'],
         "is_preferred": customerData['is_preferred'],
-        "monthly_pay_ref": customerData['monthly_pay_ref']
+        "monthly_pay_ref": customerData['monthly_pay_ref'],
+        "schedule": customerData['schedule'],
+        "times": customerData['times']
       };
 
       final response = await http.put(
