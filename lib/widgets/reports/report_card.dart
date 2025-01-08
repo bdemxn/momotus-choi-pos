@@ -65,8 +65,8 @@ class _ReportCardsState extends State<ReportCards> {
 
       csvData.addAll(reports.map((report) {
         final productsNames =
-            (report['products'] != null && report['products'] is List<dynamic>)
-                ? (report['products'] as List<dynamic>)
+            (report['products_names'] != null && report['products_names'] is List<dynamic>)
+                ? (report['products_names'] as List<dynamic>)
                     .map((product) => product.toString())
                     .join(', ')
                 : 'Sin productos';
