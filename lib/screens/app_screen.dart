@@ -158,6 +158,12 @@ class _AppScreenState extends State<AppScreen> {
                     Padding(
                       padding: const EdgeInsets.only(left: 0),
                       child: IconButton(
+                          onPressed: () => context.go('/app/payments'),
+                          icon: const Icon(Icons.payments_outlined)),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 0),
+                      child: IconButton(
                           onPressed: () => context.go('/app/customers'),
                           icon: const Icon(Icons.supervised_user_circle_rounded)),
                     ),
