@@ -119,6 +119,17 @@ class SidebarAdmin extends StatelessWidget {
             ),
           ),
 
+          TextButton(
+            onPressed: () => context.go('/admin/payments'),
+            child: Row(
+              children: [
+                Icon(Icons.payments_outlined, size: 20, color: _iconColor),
+                const SizedBox(width: 8),
+                Text('Pagos', style: _myStyle)
+              ],
+            ),
+          ),
+
           // TextButton(
           //   onPressed: () => context.go('/admin/tournaments'),
           //   child: Row(

@@ -9,6 +9,7 @@ import 'package:choi_pos/screens/admin/modifiers/promo_form.dart';
 import 'package:choi_pos/screens/admin/modifiers/tournament_form.dart';
 import 'package:choi_pos/screens/admin/modifiers/user_form.dart';
 import 'package:choi_pos/screens/admin/overview_screen.dart';
+import 'package:choi_pos/screens/admin/payments_screens.dart';
 import 'package:choi_pos/screens/admin/reports_screen.dart';
 import 'package:choi_pos/screens/admin/support_screen.dart';
 import 'package:choi_pos/screens/admin/tournamets_screen.dart';
@@ -65,6 +66,10 @@ final GoRouter appRouter = GoRouter(
       path: '/admin',
       builder: (context, state) => const OverviewScreen(),
       routes: [
+        GoRoute(
+          path: 'payments',
+          builder: (context, state) => const PaymentsScreen()
+        ),
         GoRoute(
           path: 'edit-customer',
           builder: (context, state) {
