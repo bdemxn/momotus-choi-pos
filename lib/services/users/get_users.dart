@@ -37,6 +37,30 @@ class GetUsersService {
     }
   }
 
+  Future<void> updateUserPassword(String password, String id) async {
+    const String apiUrl = 'http://45.79.205.216:8000/admin/users';
+
+    final newSettings = {"password": password};
+
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final String? token = prefs.getString('authToken');
+
+      if (token == null) {
+        throw Exception('No se encontró un token de autenticación.');
+      }
+
+      await http.put(Uri.parse("$apiUrl/$id"),
+          headers: {
+            'Authorization': 'Bearer $token',
+            'Content-Type': 'application/json',
+          },
+          body: json.encode(newSettings));
+    } catch (e) {
+      throw Exception(e);
+    }
+  }
+
   Future<void> deleteUser(String id) async {
     const String apiUrl = 'http://45.79.205.216:8000/admin/users';
 

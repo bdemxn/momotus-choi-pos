@@ -11,6 +11,9 @@ class UsersTable extends StatefulWidget {
 
 class _UsersTableState extends State<UsersTable> {
   final GetUsersService _getUsersService = GetUsersService();
+  final TextEditingController _newPasswordController = TextEditingController();
+  final TextEditingController _repeatPasswordController =
+      TextEditingController();
 
   @override
   void initState() {
@@ -109,6 +112,13 @@ class _UsersTableState extends State<UsersTable> {
                                   }
                                 },
                               ),
+                              IconButton(
+                                  icon: const Icon(Icons.update,
+                                      color: Colors.blueAccent),
+                                  onPressed: () async => {
+                                        await _showChangePasswordDialog(
+                                            context, item.fullname, item.id)
+                                      }),
                             ],
                           ),
                         ),
@@ -121,5 +131,85 @@ class _UsersTableState extends State<UsersTable> {
         );
       },
     );
+  }
+
+  Future<void> _showChangePasswordDialog(
+      BuildContext context, String fullname, String userId) async {
+    final _formKey = GlobalKey<FormState>(); // Llave local del formulario
+
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Confirmar cambio de contraseña'),
+          content: Form(
+            key: _formKey,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text('¿Estás seguro de cambiar la contraseña de "$fullname"?'),
+                TextFormField(
+                  controller: _newPasswordController,
+                  decoration: const InputDecoration(
+                    labelText: 'Nueva contraseña',
+                  ),
+                  keyboardType: TextInputType.text,
+                  obscureText: true,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Pon una contraseña';
+                    }
+                    return null;
+                  },
+                ),
+                TextFormField(
+                  controller: _repeatPasswordController,
+                  decoration: const InputDecoration(
+                    labelText: 'Repite la contraseña',
+                  ),
+                  keyboardType: TextInputType.text,
+                  obscureText: true,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Digite nuevamente la contraseña';
+                    }
+                    if (value != _newPasswordController.text) {
+                      return 'Las contraseñas no coinciden';
+                    }
+                    return null;
+                  },
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: const Text('Cancelar'),
+            ),
+            TextButton(
+              onPressed: () {
+                if (_formKey.currentState?.validate() ?? false) {
+                  Navigator.of(context).pop(true);
+                }
+              },
+              child: const Text('Cambiar contraseña'),
+            ),
+          ],
+        );
+      },
+    );
+
+    // Limpieza después de cerrar el diálogo
+    _newPasswordController.clear();
+    _repeatPasswordController.clear();
+
+    if (confirm ?? false) {
+      await _getUsersService.updateUserPassword(
+        _newPasswordController.text,
+        userId,
+      );
+      setState(() {});
+    }
   }
 }

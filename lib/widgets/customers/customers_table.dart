@@ -112,10 +112,6 @@ class _CustomerTableState extends State<CustomerTable> {
                             icon: const Icon(Icons.delete, color: Colors.red),
                             onPressed: () => _deleteCustomer(customer['id']),
                           ),
-                          IconButton(
-                            icon: const Icon(Icons.delete, color: Colors.red),
-                            onPressed: () => _deleteCustomer(customer['id']),
-                          ),
                         ],
                       )),
                     ],
