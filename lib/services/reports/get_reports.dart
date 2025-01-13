@@ -32,4 +32,30 @@ class ReportService {
       throw Exception('Error: $e');
     }
   }
+
+  Future<void> deleteReport(String id) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final String? token = prefs.getString('authToken');
+
+      if (token == null) {
+        throw Exception('No se encontró un token de autenticación.');
+      }
+
+      final response = await http.delete(
+        Uri.parse('$apiUrl/$id'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (response.statusCode != 200) {
+        throw Exception('Error al eliminar el reporte: ${response.body}');
+      }
+    } catch (e) {
+      print('Error al eliminar cliente: $e');
+      rethrow;
+    }
+  }
 }

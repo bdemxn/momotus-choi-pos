@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:choi_pos/services/reports/get_reports.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:choi_pos/services/reports/get_reports_cashier.dart';
@@ -14,6 +15,7 @@ class ReportCards extends StatefulWidget {
 
 class _ReportCardsState extends State<ReportCards> {
   Future<List<dynamic>> reports = ReportServiceCashier.fetchReports();
+  final ReportService _reportService = ReportService();
   List<dynamic> filteredReports = [];
   String selectedFilter = 'Hoy';
   String searchQuery = '';
@@ -64,12 +66,12 @@ class _ReportCardsState extends State<ReportCards> {
       ];
 
       csvData.addAll(reports.map((report) {
-        final productsNames =
-            (report['products_names'] != null && report['products_names'] is List<dynamic>)
-                ? (report['products_names'] as List<dynamic>)
-                    .map((product) => product.toString())
-                    .join(', ')
-                : 'Sin productos';
+        final productsNames = (report['products_names'] != null &&
+                report['products_names'] is List<dynamic>)
+            ? (report['products_names'] as List<dynamic>)
+                .map((product) => product.toString())
+                .join(', ')
+            : 'Sin productos';
 
         return [
           (report['cashier'] ?? 'N/A').toString(),
@@ -118,6 +120,34 @@ class _ReportCardsState extends State<ReportCards> {
         return false;
       }
     }).toList();
+  }
+
+  Future<void> _deleteReport(String id) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Confirmar Eliminación'),
+          content:
+              const Text('¿Estás seguro de que deseas eliminar este cliente?'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: const Text('Cancelar'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              child: const Text('Eliminar'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirm == true) {
+      await _reportService.deleteReport(id);
+      ReportServiceCashier.fetchReports();
+    }
   }
 
   @override
@@ -198,6 +228,7 @@ class _ReportCardsState extends State<ReportCards> {
                       DataColumn(label: Text('Productos')),
                       DataColumn(label: Text('Promoción')),
                       DataColumn(label: Text('Total Pagado')),
+                      DataColumn(label: Text('Acciones')),
                     ],
                     rows: filteredReports.map((report) {
                       final id = report['id']?['id']?['String'] ?? 'N/A';
@@ -218,6 +249,16 @@ class _ReportCardsState extends State<ReportCards> {
                           DataCell(Text(productsNames)),
                           DataCell(Text(report['promocode'] ?? 'Ninguno')),
                           DataCell(Text('\$${report['total_paid']}')),
+                          DataCell(Row(
+                            children: [
+                              IconButton(
+                                icon:
+                                    const Icon(Icons.delete, color: Colors.red),
+                                onPressed: () => _deleteReport(
+                                    report['id']?['id']?['String']),
+                              ),
+                            ],
+                          ))
                         ],
                       );
                     }).toList(),

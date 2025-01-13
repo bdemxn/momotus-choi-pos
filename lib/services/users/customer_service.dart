@@ -48,6 +48,7 @@ class CustomerService {
         "phone": customerData['phone'],
         "email": customerData['email'],
         "is_preferred": customerData['is_preferred'],
+        "is_active": customerData['is_active'],
         "monthly_pay_ref": customerData['monthly_pay_ref'],
         "schedule": customerData['schedule'],
         "times": customerData['times']

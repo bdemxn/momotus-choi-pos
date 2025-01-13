@@ -20,6 +20,7 @@ class _CustomerRegistrationScreenState
   String email = '';
   bool isMinor = false;
   bool isPreferred = false;
+  bool isActive = false;
   String? selectedPlan;
 
   String? selectedSchedule;
@@ -76,7 +77,8 @@ class _CustomerRegistrationScreenState
         "is_preferred": isPreferred,
         "monthly_pay_ref": selectedPlan,
         "schedule": selectedSchedule,
-        "times": selectedTime
+        "times": selectedTime,
+        "is_active": isActive
       };
 
       try {
@@ -103,120 +105,126 @@ class _CustomerRegistrationScreenState
         padding: const EdgeInsets.all(16.0),
         child: Form(
           key: _formKey,
-          child: Column(
-            children: [
-              const Center(
-                child: Image(
-                  image: AssetImage('assets/choi-client.png'),
-                  height: 100,
-                ),
-              ),
-              TextFormField(
-                decoration: const InputDecoration(labelText: 'Nombre completo'),
-                onSaved: (value) => fullname = value ?? '',
-                validator: (value) =>
-                    value?.isEmpty == true ? 'El nombre es obligatorio' : null,
-              ),
-              TextFormField(
-                decoration: const InputDecoration(labelText: 'Teléfono'),
-                keyboardType: TextInputType.phone,
-                onSaved: (value) => phone = value ?? '',
-                validator: (value) => value?.isEmpty == true
-                    ? 'El teléfono es obligatorio'
-                    : null,
-              ),
-              TextFormField(
-                decoration:
-                    const InputDecoration(labelText: 'Correo electrónico'),
-                keyboardType: TextInputType.emailAddress,
-                onSaved: (value) => email = value ?? '',
-                validator: (value) =>
-                    value?.isEmpty == true ? 'El correo es obligatorio' : null,
-              ),
-
-              DropdownButtonFormField<String>(
-                value: selectedPlan,
-                decoration: const InputDecoration(
-                  labelText: 'Selecciona una mensualidad',
-                ),
-                items: plans.map((plan) {
-                  return DropdownMenuItem<String>(
-                    value: plan,
-                    child: Text(plan),
-                  );
-                }).toList(),
-                onChanged: (newValue) {
-                  setState(() {
-                    selectedPlan = newValue;
-                  });
-                },
-                validator: (value) =>
-                    value == null ? 'Por favor selecciona un plan' : null,
-              ),
-
-              DropdownButtonFormField<String>(
-                value: selectedSchedule,
-                decoration: const InputDecoration(
-                  labelText: 'Selecciona un plan',
-                ),
-                items: schedules.map((plan) {
-                  return DropdownMenuItem<String>(
-                    value: plan["name"],
-                    child: Text(plan["name"]),
-                  );
-                }).toList(),
-                onChanged: (newValue) {
-                  setState(() {
-                    selectedSchedule = newValue;
-                    // Actualizar los horarios disponibles según el plan seleccionado
-                    availableTimes = schedules
-                        .firstWhere(
-                            (plan) => plan["name"] == selectedSchedule)["times"]
-                        .cast<String>();
-                    selectedTime = null; // Reiniciar el horario seleccionado
-                  });
-                },
-                validator: (value) =>
-                    value == null ? 'Por favor selecciona un plan' : null,
-              ),
-              const SizedBox(height: 20),
-              if (selectedSchedule !=
-                  null) // Mostrar el segundo dropdown si hay un plan seleccionado
-                DropdownButtonFormField<String>(
-                  value: selectedTime,
-                  decoration: const InputDecoration(
-                    labelText: 'Selecciona un horario',
+          child: SingleChildScrollView(
+            scrollDirection: Axis.vertical,
+            child: Column(
+              children: [
+                const Center(
+                  child: Image(
+                    image: AssetImage('assets/choi-client.png'),
+                    height: 100,
                   ),
-                  items: availableTimes.map((time) {
+                ),
+                TextFormField(
+                  decoration: const InputDecoration(labelText: 'Nombre completo'),
+                  onSaved: (value) => fullname = value ?? '',
+                  validator: (value) =>
+                      value?.isEmpty == true ? 'El nombre es obligatorio' : null,
+                ),
+                TextFormField(
+                  decoration: const InputDecoration(labelText: 'Teléfono'),
+                  keyboardType: TextInputType.phone,
+                  onSaved: (value) => phone = value ?? '',
+                  validator: (value) => value?.isEmpty == true
+                      ? 'El teléfono es obligatorio'
+                      : null,
+                ),
+                TextFormField(
+                  decoration:
+                      const InputDecoration(labelText: 'Correo electrónico'),
+                  keyboardType: TextInputType.emailAddress,
+                  onSaved: (value) => email = value ?? '',
+                  validator: (value) =>
+                      value?.isEmpty == true ? 'El correo es obligatorio' : null,
+                ),
+                DropdownButtonFormField<String>(
+                  value: selectedPlan,
+                  decoration: const InputDecoration(
+                    labelText: 'Selecciona una mensualidad',
+                  ),
+                  items: plans.map((plan) {
                     return DropdownMenuItem<String>(
-                      value: time,
-                      child: Text(time),
+                      value: plan,
+                      child: Text(plan),
                     );
                   }).toList(),
                   onChanged: (newValue) {
                     setState(() {
-                      selectedTime = newValue;
+                      selectedPlan = newValue;
                     });
                   },
                   validator: (value) =>
-                      value == null ? 'Por favor selecciona un horario' : null,
+                      value == null ? 'Por favor selecciona un plan' : null,
                 ),
-              SwitchListTile(
-                title: const Text('¿Es menor de edad?'),
-                value: isMinor,
-                onChanged: (value) => setState(() => isMinor = value),
-              ),
-              SwitchListTile(
-                title: const Text('¿Es cliente preferido?'),
-                value: isPreferred,
-                onChanged: (value) => setState(() => isPreferred = value),
-              ),
-              const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: _submitForm,
-                child: const Text('Registrar Cliente'),
-              ),
-            ],
+                DropdownButtonFormField<String>(
+                  value: selectedSchedule,
+                  decoration: const InputDecoration(
+                    labelText: 'Selecciona un plan',
+                  ),
+                  items: schedules.map((plan) {
+                    return DropdownMenuItem<String>(
+                      value: plan["name"],
+                      child: Text(plan["name"]),
+                    );
+                  }).toList(),
+                  onChanged: (newValue) {
+                    setState(() {
+                      selectedSchedule = newValue;
+                      // Actualizar los horarios disponibles según el plan seleccionado
+                      availableTimes = schedules
+                          .firstWhere(
+                              (plan) => plan["name"] == selectedSchedule)["times"]
+                          .cast<String>();
+                      selectedTime = null; // Reiniciar el horario seleccionado
+                    });
+                  },
+                  validator: (value) =>
+                      value == null ? 'Por favor selecciona un plan' : null,
+                ),
+                const SizedBox(height: 20),
+                if (selectedSchedule !=
+                    null) // Mostrar el segundo dropdown si hay un plan seleccionado
+                  DropdownButtonFormField<String>(
+                    value: selectedTime,
+                    decoration: const InputDecoration(
+                      labelText: 'Selecciona un horario',
+                    ),
+                    items: availableTimes.map((time) {
+                      return DropdownMenuItem<String>(
+                        value: time,
+                        child: Text(time),
+                      );
+                    }).toList(),
+                    onChanged: (newValue) {
+                      setState(() {
+                        selectedTime = newValue;
+                      });
+                    },
+                    validator: (value) =>
+                        value == null ? 'Por favor selecciona un horario' : null,
+                  ),
+                SwitchListTile(
+                  title: const Text('¿Es menor de edad?'),
+                  value: isMinor,
+                  onChanged: (value) => setState(() => isMinor = value),
+                ),
+                SwitchListTile(
+                  title: const Text('¿Es cliente preferido?'),
+                  value: isPreferred,
+                  onChanged: (value) => setState(() => isPreferred = value),
+                ),
+                SwitchListTile(
+                  title: const Text('¿Es cliente activo?'),
+                  value: isActive,
+                  onChanged: (value) => setState(() => isActive = value),
+                ),
+                const SizedBox(height: 20),
+                ElevatedButton(
+                  onPressed: _submitForm,
+                  child: const Text('Registrar Cliente'),
+                ),
+              ],
+            ),
           ),
         ),
       ),
