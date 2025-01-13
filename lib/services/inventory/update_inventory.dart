@@ -162,8 +162,16 @@ class UpdateInventory {
       },
     );
 
-    if (otherResponse.statusCode != 201) {
-      print("error printing: ${otherResponse.body}");
-    }
+    final printingResponse = otherResponse.body;
+    print("Printing: $printingResponse");
+
+    await http.post(
+      Uri.parse('http:localhost/printing_services'),
+      body: jsonDecode(printingResponse),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token'
+      }
+    );
   }
 }
