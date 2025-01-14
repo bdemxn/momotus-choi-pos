@@ -20,6 +20,9 @@ class _ReportCardsState extends State<ReportCards> {
   String selectedFilter = 'Hoy';
   String searchQuery = '';
 
+  DateTime? filterStartDate;
+  DateTime? filterEndDate;
+
   @override
   void initState() {
     super.initState();
@@ -35,6 +38,55 @@ class _ReportCardsState extends State<ReportCards> {
     } catch (e) {
       setState(() {
         filteredReports = [];
+      });
+    }
+  }
+
+  void applyDateFilter() {
+    setState(() {
+      if (filterStartDate != null && filterEndDate != null) {
+        final dateFormat =
+            DateFormat("dd-MM-yy HH:mm"); // Ajusta el formato según tus datos
+
+        filteredReports = filteredReports.where((report) {
+          try {
+            // Convierte la fecha del reporte al formato DateTime
+            DateTime reportDate = dateFormat.parse(report['date']);
+
+            // Verifica si la fecha está dentro del rango seleccionado
+            return reportDate.isAfter(filterStartDate!) &&
+                reportDate
+                    .isBefore(filterEndDate!.add(const Duration(days: 1)));
+          } catch (e) {
+            // Si la fecha no se puede convertir, ignora este reporte
+            return false;
+          }
+        }).toList();
+      } else {
+        // Si no hay rango seleccionado, muestra todos los reportes
+        filteredReports = List.from(filteredReports);
+      }
+    });
+  }
+
+  Future<void> onDateRangeSelected(BuildContext context) async {
+    final dateRange = await showDateRangePicker(
+      context: context,
+      firstDate: DateTime(2020), // Fecha mínima del calendario
+      lastDate: DateTime.now().add(const Duration(days: 365)), // Fecha máxima
+      initialDateRange: filterStartDate != null && filterEndDate != null
+          ? DateTimeRange(
+              start: filterStartDate!,
+              end: filterEndDate!,
+            )
+          : null, // Configuración inicial opcional
+    );
+
+    if (dateRange != null) {
+      setState(() {
+        filterStartDate = dateRange.start;
+        filterEndDate = dateRange.end;
+        applyDateFilter();
       });
     }
   }
@@ -164,27 +216,59 @@ class _ReportCardsState extends State<ReportCards> {
           label: const Text('Exportar CSV'),
         ),
         const SizedBox(width: 16),
-        Padding(
-          padding: const EdgeInsets.only(top: 8.0, bottom: 10.0),
-          child: DropdownButtonFormField<String>(
-            value: selectedFilter,
-            decoration: const InputDecoration(
-              labelText: 'Filtrar por',
-              border: OutlineInputBorder(),
+        Row(
+          children: [
+            // Dropdown "Filtrar por"
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.only(top: 8.0, bottom: 10.0),
+                child: DropdownButtonFormField<String>(
+                  value: selectedFilter,
+                  decoration: const InputDecoration(
+                    labelText: 'Filtrar por',
+                    border: OutlineInputBorder(),
+                  ),
+                  items: ['Hoy', 'Últimos 7 días', 'Último mes'].map((filter) {
+                    return DropdownMenuItem<String>(
+                      value: filter,
+                      child: Text(filter),
+                    );
+                  }).toList(),
+                  onChanged: (newValue) {
+                    setState(() {
+                      selectedFilter = newValue!;
+                      fetchAndFilterReports();
+                    });
+                  },
+                ),
+              ),
             ),
-            items: ['Hoy', 'Últimos 7 días', 'Último mes'].map((filter) {
-              return DropdownMenuItem<String>(
-                value: filter,
-                child: Text(filter),
-              );
-            }).toList(),
-            onChanged: (newValue) {
-              setState(() {
-                selectedFilter = newValue!;
-                fetchAndFilterReports();
-              });
-            },
-          ),
+            const SizedBox(width: 8),
+            // Botón para el selector de fecha
+            ElevatedButton(
+              onPressed: () async {
+                final dateRange = await showDateRangePicker(
+                  context: context,
+                  firstDate: DateTime(2020), // Fecha inicial del rango
+                  lastDate: DateTime.now()
+                      .add(const Duration(days: 365)), // Fecha máxima
+                  initialDateRange: DateTimeRange(
+                    start: DateTime.now(),
+                    end: DateTime.now().add(const Duration(days: 7)),
+                  ),
+                );
+                if (dateRange != null) {
+                  setState(() {
+                    // Aquí puedes manejar el rango de fechas seleccionado
+                    filterStartDate = dateRange.start;
+                    filterEndDate = dateRange.end;
+                    applyDateFilter();
+                  });
+                }
+              },
+              child: const Text('Filtrar por fecha'),
+            ),
+          ],
         ),
         Expanded(
           child: FutureBuilder<List<dynamic>>(
@@ -216,52 +300,58 @@ class _ReportCardsState extends State<ReportCards> {
                     });
                   },
                 ),
-                SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: DataTable(
-                    columns: const [
-                      DataColumn(label: Text('Cajero')),
-                      DataColumn(label: Text('Cliente')),
-                      DataColumn(label: Text('Fecha')),
-                      DataColumn(label: Text('ID Venta')),
-                      DataColumn(label: Text('Referencia de Pago')),
-                      DataColumn(label: Text('Productos')),
-                      DataColumn(label: Text('Promoción')),
-                      DataColumn(label: Text('Total Pagado')),
-                      DataColumn(label: Text('Acciones')),
-                    ],
-                    rows: filteredReports.map((report) {
-                      final id = report['id']?['id']?['String'] ?? 'N/A';
-                      final productsNames = (report['products_names'] != null &&
-                              report['products_names'] is List<dynamic>)
-                          ? (report['products_names'] as List<dynamic>)
-                              .map((product) => product.toString())
-                              .join(', ')
-                          : 'Sin productos';
-
-                      return DataRow(
-                        cells: [
-                          DataCell(Text(report['cashier'] ?? 'N/A')),
-                          DataCell(Text(report['customer'] ?? 'N/A')),
-                          DataCell(Text(report['date'] ?? 'N/A')),
-                          DataCell(Text(id)),
-                          DataCell(Text(report['payment_ref'] ?? 'N/A')),
-                          DataCell(Text(productsNames)),
-                          DataCell(Text(report['promocode'] ?? 'Ninguno')),
-                          DataCell(Text('\$${report['total_paid']}')),
-                          DataCell(Row(
-                            children: [
-                              IconButton(
-                                icon:
-                                    const Icon(Icons.delete, color: Colors.red),
-                                onPressed: () => _deleteReport(
-                                    report['id']?['id']?['String']),
-                              ),
-                            ],
-                          ))
+                Expanded(
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.vertical,
+                      child: DataTable(
+                        columns: const [
+                          DataColumn(label: Text('Cajero')),
+                          DataColumn(label: Text('Cliente')),
+                          DataColumn(label: Text('Fecha')),
+                          DataColumn(label: Text('ID Venta')),
+                          DataColumn(label: Text('Referencia de Pago')),
+                          DataColumn(label: Text('Productos')),
+                          DataColumn(label: Text('Promoción')),
+                          DataColumn(label: Text('Total Pagado')),
+                          DataColumn(label: Text('Acciones')),
                         ],
-                      );
-                    }).toList(),
+                        rows: filteredReports.map((report) {
+                          final id = report['id']?['id']?['String'] ?? 'N/A';
+                          final productsNames =
+                              (report['products_names'] != null &&
+                                      report['products_names'] is List<dynamic>)
+                                  ? (report['products_names'] as List<dynamic>)
+                                      .map((product) => product.toString())
+                                      .join(', ')
+                                  : 'Sin productos';
+
+                          return DataRow(
+                            cells: [
+                              DataCell(Text(report['cashier'] ?? 'N/A')),
+                              DataCell(Text(report['customer'] ?? 'N/A')),
+                              DataCell(Text(report['date'] ?? 'N/A')),
+                              DataCell(Text(id)),
+                              DataCell(Text(report['payment_ref'] ?? 'N/A')),
+                              DataCell(Text(productsNames)),
+                              DataCell(Text(report['promocode'] ?? 'Ninguno')),
+                              DataCell(Text('\$${report['total_paid']}')),
+                              DataCell(Row(
+                                children: [
+                                  IconButton(
+                                    icon: const Icon(Icons.delete,
+                                        color: Colors.red),
+                                    onPressed: () => _deleteReport(
+                                        report['id']?['id']?['String']),
+                                  ),
+                                ],
+                              ))
+                            ],
+                          );
+                        }).toList(),
+                      ),
+                    ),
                   ),
                 ),
               ]);

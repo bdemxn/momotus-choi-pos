@@ -139,7 +139,7 @@ class _CustomerTableState extends State<CustomerTable> {
                           DataCell(Text(customer['is_minor'] ? 'Sí' : 'No')),
                           DataCell(
                               Text(customer['is_preferred'] ? 'Sí' : 'No')),
-                          DataCell(Text(customer['is_active'] ? 'Sí' : 'No')),
+                          DataCell(Text((customer['is_active'] ?? false) ? 'Sí' : 'No')),
 
                           DataCell(Row(
                             children: [
