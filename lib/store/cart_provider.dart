@@ -13,14 +13,27 @@ class CartItem {
 class CartProvider with ChangeNotifier {
   final List<CartItem> _cartItems = [];
   String _selectedCategory = "Todas";
+  String _currency = "Dolares";
+  double _exchangeRate = 1.0;
 
   List<CartItem> get cartItems => _cartItems;
+  String get currency => _currency;
+  double get exchangeRate => _exchangeRate;
 
   String get selectedCategory => _selectedCategory;
 
   void setCategory(String category) {
     _selectedCategory = category;
     notifyListeners();
+  }
+
+  void updateItemPrice(String itemId, double newPrice) {
+    final index =
+        _cartItems.indexWhere((cartItem) => cartItem.item.id == itemId);
+    if (index != -1) {
+      _cartItems[index].item.price = newPrice;
+      notifyListeners();
+    }
   }
 
   void addToCart(InventoryItem item) {
@@ -54,6 +67,19 @@ class CartProvider with ChangeNotifier {
 
   void clearCart() {
     _cartItems.clear();
+    notifyListeners();
+  }
+
+  void updateCurrency(String newCurrency, double rate) {
+    if (_currency == newCurrency) return;
+    _currency = newCurrency;
+    for (var cartItem in _cartItems) {
+      if (newCurrency == 'Cordobas') {
+        cartItem.item.price = cartItem.item.originalPrice * rate;
+      } else {
+        cartItem.item.price = cartItem.item.originalPrice;
+      }
+    }
     notifyListeners();
   }
 

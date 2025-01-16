@@ -64,47 +64,47 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   }
 
   void applyPromoCode(CartProvider cartProvider) {
-  if (promoCode != null) {
-    // Buscar el código promocional en la lista
-    final promoDetails = availablePromoCodes.firstWhere(
-      (promo) => promo['code'] == promoCode,
-      orElse: () => null, // Retorna null si no se encuentra el código
-    );
-
-    if (promoDetails != null) {
-      setState(() {
-        discount = promoDetails['discount_type'] == 'porcentaje'
-            ? cartProvider.totalPrice * (promoDetails['discount_value'] / 100)
-            : promoDetails['discount_value'].toDouble();
-      });
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            'Código promocional aplicado: ${promoDetails['discount_type'] == 'porcentaje' ? '${promoDetails['discount_value']}% de descuento' : '\$${promoDetails['discount_value']} de descuento'}.',
-          ),
-        ),
+    if (promoCode != null) {
+      // Buscar el código promocional en la lista
+      final promoDetails = availablePromoCodes.firstWhere(
+        (promo) => promo['code'] == promoCode,
+        orElse: () => null, // Retorna null si no se encuentra el código
       );
+
+      if (promoDetails != null) {
+        setState(() {
+          discount = promoDetails['discount_type'] == 'porcentaje'
+              ? cartProvider.totalPrice * (promoDetails['discount_value'] / 100)
+              : promoDetails['discount_value'].toDouble();
+        });
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Código promocional aplicado: ${promoDetails['discount_type'] == 'porcentaje' ? '${promoDetails['discount_value']}% de descuento' : '\$${promoDetails['discount_value']} de descuento'}.',
+            ),
+          ),
+        );
+      } else {
+        // Código promocional inválido
+        setState(() {
+          discount = 0.0;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Código promocional inválido.')),
+        );
+      }
     } else {
-      // Código promocional inválido
+      // Si no hay código ingresado
       setState(() {
         discount = 0.0;
       });
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Código promocional inválido.')),
+        const SnackBar(
+            content: Text('Por favor ingresa un código promocional.')),
       );
     }
-  } else {
-    // Si no hay código ingresado
-    setState(() {
-      discount = 0.0;
-    });
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Por favor ingresa un código promocional.')),
-    );
   }
-}
-
 
   // update the new exchange
   Future<void> updateExchangeRate() async {
@@ -274,9 +274,23 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                                       fontSize: 16,
                                       fontWeight: FontWeight.w500)),
                               Text(
-                                  'Precio: \$${cartItem.item.price.toStringAsFixed(2)} x Cantidad: ${cartItem.quantity}'),
+                                'Precio: ${cartProvider.currency == "Dolares" ? "\$" : "C\$"}${cartItem.item.price.toStringAsFixed(2)} x Cantidad: ${cartItem.quantity}',
+                              ),
                               Text(
-                                  'Total: \$${cartItem.totalPrice.toStringAsFixed(2)}'),
+                                'Total: ${cartProvider.currency == "Dolares" ? "\$" : "C\$"}${cartItem.totalPrice.toStringAsFixed(2)}',
+                              ),
+                              const SizedBox(height: 8),
+                              ElevatedButton(
+                                onPressed: () async {
+                                  final newPrice = await _showEditPriceDialog(
+                                      context, cartItem.item.price);
+                                  if (newPrice != null) {
+                                    cartProvider.updateItemPrice(
+                                        cartItem.item.id, newPrice);
+                                  }
+                                },
+                                child: const Text('Editar Precio'),
+                              ),
                             ],
                           ),
                         );
@@ -286,6 +300,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                 ],
               ),
             ),
+
             const SizedBox(width: 16),
 
             // Opciones de pago y confirmación (Derecha)
@@ -329,6 +344,10 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                     onChanged: (value) async {
                       if (value == 'Cordobas') {
                         await updateExchangeRate();
+                        cartProvider.updateCurrency('Cordobas', exchangeRate);
+                      } else if (value == 'Dolares') {
+                        cartProvider.updateCurrency(
+                            'Dolares', 1); // Restaurar precios a dólares
                       }
                       setState(() {
                         currency = value!;
@@ -425,7 +444,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                   const Spacer(),
 
                   Text(
-                    "Total: ${currency == 'Cordobas' ? "C\$" : "\$"} ${((cartProvider.totalPrice - discount) * (currency == 'Cordobas' ? exchangeRate : 1.0)).toStringAsFixed(2)}",
+                    "Total: ${currency == 'Cordobas' ? "C\$" : "\$"} ${((cartProvider.totalPrice - discount).toStringAsFixed(2))}",
                     style: const TextStyle(
                         fontSize: 18, fontWeight: FontWeight.bold),
                   ),
@@ -446,6 +465,53 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
           ],
         ),
       ),
+    );
+  }
+
+  Future<double?> _showEditPriceDialog(
+      BuildContext context, double currentPrice) async {
+    final TextEditingController controller =
+        TextEditingController(text: '0'); // Valor inicial para el descuento
+    return showDialog<double>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Aplicar descuento'),
+          content: TextField(
+            controller: controller,
+            keyboardType: TextInputType.number,
+            decoration: const InputDecoration(
+                labelText: 'Descuento a aplicar', hintText: 'Ejemplo: 5'),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Cancelar'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                final double? discount = double.tryParse(controller.text);
+                if (discount != null) {
+                  final double newPrice = currentPrice - discount;
+                  if (newPrice >= 0) {
+                    Navigator.of(context).pop(newPrice);
+                  } else {
+                    // Mostrar mensaje si el descuento es mayor que el precio actual
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text(
+                          'El descuento no puede ser mayor que el precio actual.',
+                        ),
+                      ),
+                    );
+                  }
+                }
+              },
+              child: const Text('Guardar'),
+            ),
+          ],
+        );
+      },
     );
   }
 }
