@@ -4,7 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 // Post an inventory's item
 Future<void> createUser(Map<String, dynamic> userData) async {
-  const String apiUrl = 'http://45.79.205.216:8000/admin/users';
+  const String apiUrl = 'http://216.238.86.5:8000/admin/users';
 
   final prefs = await SharedPreferences.getInstance();
   final String? token = prefs.getString('authToken');

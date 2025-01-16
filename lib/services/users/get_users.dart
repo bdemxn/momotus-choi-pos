@@ -9,7 +9,7 @@ class GetUsersService {
   List<User> get userList => _userList;
 
   Future<void> fetchUsers() async {
-    const String apiUrl = 'http://45.79.205.216:8000/admin/users';
+    const String apiUrl = 'http://216.238.86.5:8000/admin/users';
 
     try {
       final prefs = await SharedPreferences.getInstance();
@@ -38,7 +38,7 @@ class GetUsersService {
   }
 
   Future<void> updateUserPassword(String password, String id) async {
-    const String apiUrl = 'http://45.79.205.216:8000/admin/users';
+    const String apiUrl = 'http://216.238.86.5:8000/admin/users';
 
     final newSettings = {"password": password};
 
@@ -62,7 +62,7 @@ class GetUsersService {
   }
 
   Future<void> deleteUser(String id) async {
-    const String apiUrl = 'http://45.79.205.216:8000/admin/users';
+    const String apiUrl = 'http://216.238.86.5:8000/admin/users';
 
     try {
       final prefs = await SharedPreferences.getInstance();

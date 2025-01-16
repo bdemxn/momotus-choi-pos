@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class UpdateUserService {
-  static const String apiUrl = 'http://45.79.205.216:8000/admin/users';
+  static const String apiUrl = 'http://216.238.86.5:8000/admin/users';
 
   /// Actualiza un usuario con el ID y los datos proporcionados.
   ///

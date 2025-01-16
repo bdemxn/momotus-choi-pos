@@ -4,7 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthService {
-  final String _baseUrl = 'http://45.79.205.216:9000';
+  final String _baseUrl = 'http://216.238.86.5:9000';
 
   Future<UserModel?> login(String username, String password) async {
     final url = Uri.parse('$_baseUrl/token');

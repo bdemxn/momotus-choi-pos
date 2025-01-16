@@ -4,7 +4,7 @@ import 'package:choi_pos/models/inventory_item.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class UpdateInventory {
-  static const String baseUrl = 'http://45.79.205.216:8000';
+  static const String baseUrl = 'http://216.238.86.5:8000';
 
   static Future<void> postSales(List<InventoryItem> cart) async {
     final prefs = await SharedPreferences.getInstance();

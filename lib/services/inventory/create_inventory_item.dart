@@ -10,7 +10,7 @@ Future<void> createInventoryItemCashier(Map<String, dynamic> inventoryData) asyn
   if (token == null) {
     throw Exception('No se encontró un token de autenticación.');
   }
-  const String apiUrl = 'http://45.79.205.216:8000/admin/inventory';
+  const String apiUrl = 'http://216.238.86.5:8000/admin/inventory';
 
   final response = await http.post(
     Uri.parse(apiUrl),

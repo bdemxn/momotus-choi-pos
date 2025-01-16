@@ -8,14 +8,12 @@ class InventoryService {
 
   List<InventoryItem> get inventory => _inventory;
 
-  // Obtener categorías únicas
   List<String> get categories {
     final Set<String> categorySet =
         _inventory.map((item) => item.category).toSet();
-    return ["Todas", ...categorySet]; // Añadimos "Todas" como opción inicial.
+    return ["Todas", ...categorySet]; 
   }
 
-  // Filtrar inventario por texto y categoría
   List<InventoryItem> filteredInventory(String search, [String? category]) {
     return _inventory.where((item) {
       final matchesSearch = search.isEmpty || item.barCode.contains(search);
@@ -26,7 +24,7 @@ class InventoryService {
   }
 
   Future<void> fetchInventory() async {
-    const String apiUrl = 'http://45.79.205.216:8000/admin/inventory';
+    const String apiUrl = 'http://216.238.86.5:8000/admin/inventory';
 
     try {
       final prefs = await SharedPreferences.getInstance();
@@ -57,7 +55,7 @@ class InventoryService {
   Future<void> updateInventoryItem(InventoryItem item) async {
     final prefs = await SharedPreferences.getInstance();
     final String? token = prefs.getString('authToken');
-    const String apiUrl = 'http://45.79.205.216:8000/admin/inventory';
+    const String apiUrl = 'http://216.238.86.5:8000/admin/inventory';
 
     if (token == null) throw Exception('No se encontró un token de autenticación.');
 
@@ -87,7 +85,7 @@ class InventoryService {
     if (token == null) {
       throw Exception('No se encontró un token de autenticación.');
     }
-    const String apiUrl = 'http://45.79.205.216:8000/admin/inventory';
+    const String apiUrl = 'http://216.238.86.5:8000/admin/inventory';
 
     try {
       final response = await http.delete(

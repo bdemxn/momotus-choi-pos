@@ -4,7 +4,7 @@ import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ReportServiceCashier {
-  static const String apiUrl = 'http://45.79.205.216:8000/cashier/sales';
+  static const String apiUrl = 'http://216.238.86.5:8000/cashier/sales';
 
   static Future<List<dynamic>> fetchReports() async {
     final prefs = await SharedPreferences.getInstance();

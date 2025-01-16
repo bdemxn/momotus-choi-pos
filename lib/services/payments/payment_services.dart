@@ -6,7 +6,7 @@ class PaymentServices {
   final List<Map<dynamic, dynamic>> _paymentList = [];
   List<Map<dynamic, dynamic>> get paymentList => _paymentList;
 
-  static const String apiUrl = 'http://45.79.205.216:8000/cashier/payments';
+  static const String apiUrl = 'http://216.238.86.5:8000/cashier/payments';
 
   Future<void> getPayments() async {
     try {
