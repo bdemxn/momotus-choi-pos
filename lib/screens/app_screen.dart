@@ -1,5 +1,7 @@
 import 'package:choi_pos/auth/auth_services.dart';
+import 'package:choi_pos/models/inventory_item.dart';
 import 'package:choi_pos/services/inventory/get_inventory.dart';
+import 'package:choi_pos/services/tournaments/tournament_services.dart';
 import 'package:choi_pos/store/cart_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -15,6 +17,9 @@ class AppScreen extends StatefulWidget {
 class _AppScreenState extends State<AppScreen> {
   late TextEditingController _searchController;
   final AuthService _authService = AuthService();
+  String selectedView = 'Inventario';
+
+  late InventoryItem examItem;
 
   @override
   void initState() {
@@ -29,10 +34,17 @@ class _AppScreenState extends State<AppScreen> {
     await inventoryService.fetchInventory();
   }
 
+  Future<void> fetchTournaments() async {
+    final tournamentService =
+        Provider.of<TournamentServices>(context, listen: false);
+    await tournamentService.getTournaments();
+  }
+
   @override
   Widget build(BuildContext context) {
     final inventoryService = Provider.of<InventoryService>(context);
     final cartProvider = Provider.of<CartProvider>(context);
+    final tournamentService = Provider.of<TournamentServices>(context);
 
     return Scaffold(
       appBar: AppBar(
@@ -61,7 +73,7 @@ class _AppScreenState extends State<AppScreen> {
       ),
       body: Row(
         children: [
-          // Inventory List
+          // Inventory or Tournament List
           Expanded(
             flex: 2,
             child: Column(
@@ -97,35 +109,84 @@ class _AppScreenState extends State<AppScreen> {
                             cartProvider.setCategory(value!);
                           });
                         },
+                      ),
+                      const SizedBox(width: 10),
+                      // Dropdown for selecting "Examenes" or "Inventario"
+                      DropdownButton<String>(
+                        value: selectedView,
+                        items: const [
+                          DropdownMenuItem(
+                            value: 'Inventario',
+                            child: Text('Inventario'),
+                          ),
+                          DropdownMenuItem(
+                            value: 'Examenes',
+                            child: Text('Examenes'),
+                          ),
+                        ],
+                        onChanged: (value) {
+                          setState(() {
+                            selectedView = value!;
+                          });
+                          if (selectedView == 'Examenes') {
+                            fetchTournaments(); // Fetch tournaments when selected.
+                          }
+                        },
                       )
                     ],
                   ),
                 ),
 
                 Expanded(
-                  child: ListView.builder(
-                    itemCount: inventoryService
-                        .filteredInventory(
-                          _searchController.text,
-                          cartProvider.selectedCategory,
+                  child: selectedView == 'Inventario'
+                      ? ListView.builder(
+                          itemCount: inventoryService
+                              .filteredInventory(
+                                _searchController.text,
+                                cartProvider.selectedCategory,
+                              )
+                              .length,
+                          itemBuilder: (context, index) {
+                            final item = inventoryService.filteredInventory(
+                              _searchController.text,
+                              cartProvider.selectedCategory,
+                            )[index];
+                            return ListTile(
+                              title: Text(item.name),
+                              subtitle: Text(
+                                'Precio: \$${item.price.toStringAsFixed(2)}\nStock: ${item.quantity}',
+                              ),
+                              trailing: IconButton(
+                                  icon: const Icon(Icons.add_shopping_cart),
+                                  onPressed: () =>
+                                      cartProvider.addToCart(item)),
+                            );
+                          },
                         )
-                        .length,
-                    itemBuilder: (context, index) {
-                      final item = inventoryService.filteredInventory(
-                        _searchController.text,
-                        cartProvider.selectedCategory,
-                      )[index];
-                      return ListTile(
-                        title: Text(item.name),
-                        subtitle: Text(
-                          'Precio: \$${item.price.toStringAsFixed(2)}\nStock: ${item.quantity}',
+                      : ListView.builder(
+                          itemCount: tournamentService.tournamentList.length,
+                          itemBuilder: (context, index) {
+                            final tournament =
+                                tournamentService.tournamentList[index];
+                            return ListTile(
+                              title: Text(tournament['name']),
+                              subtitle:
+                                  Text('Precio: \$${tournament['price']}'),
+                              trailing: IconButton(
+                                  icon: const Icon(Icons.play_arrow),
+                                  onPressed: () => {
+                                        examItem = InventoryItem(
+                                            id: tournament['id'],
+                                            name: tournament['name'],
+                                            price: tournament['price'],
+                                            barCode: '',
+                                            quantity: 1,
+                                            category: 'Exámen'),
+                                        cartProvider.addToCart(examItem)
+                                      }),
+                            );
+                          },
                         ),
-                        trailing: IconButton(
-                            icon: const Icon(Icons.add_shopping_cart),
-                            onPressed: () => cartProvider.addToCart(item)),
-                      );
-                    },
-                  ),
                 ),
               ],
             ),
@@ -153,7 +214,8 @@ class _AppScreenState extends State<AppScreen> {
                       padding: const EdgeInsets.only(left: 0),
                       child: IconButton(
                           onPressed: () => context.go('/app/sales'),
-                          icon: const Icon(Icons.insert_chart_outlined_outlined)),
+                          icon:
+                              const Icon(Icons.insert_chart_outlined_outlined)),
                     ),
                     Padding(
                       padding: const EdgeInsets.only(left: 0),
@@ -165,7 +227,8 @@ class _AppScreenState extends State<AppScreen> {
                       padding: const EdgeInsets.only(left: 0),
                       child: IconButton(
                           onPressed: () => context.go('/app/customers'),
-                          icon: const Icon(Icons.supervised_user_circle_rounded)),
+                          icon:
+                              const Icon(Icons.supervised_user_circle_rounded)),
                     ),
                     Padding(
                       padding: const EdgeInsets.only(left: 0),
@@ -232,7 +295,7 @@ class _AppScreenState extends State<AppScreen> {
                                     listen: false);
 
                                 if (cartProvider.cartItems.isNotEmpty) {
-                                  context.go('/app/checkout');
+                                  context.go('/app/checkout', extra: selectedView);
                                 } else {
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     const SnackBar(
@@ -249,13 +312,13 @@ class _AppScreenState extends State<AppScreen> {
                                   Icon(Icons.add),
                                   Text('Confirmar Compra')
                                 ],
-                              )))
+                              ))),
                     ],
                   ),
-                )
+                ),
               ],
             ),
-          )
+          ),
         ],
       ),
     );

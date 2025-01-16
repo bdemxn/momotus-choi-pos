@@ -39,13 +39,15 @@ class UpdateInventory {
   }
 
   // Método para actualizar el inventario
-  static Future<void> updateInventory(List<InventoryItem> cart) async {
+  static Future<void> updateInventory(List<InventoryItem> cart, {required String selectedView}) async {
     final prefs = await SharedPreferences.getInstance();
     final String? token = prefs.getString('authToken');
 
     if (token == null) {
       throw Exception('No se encontró un token de autenticación.');
     }
+
+    if (selectedView == "Examenes") return;
 
     for (var item in cart) {
       // Obtener cantidad actual del inventario
@@ -155,7 +157,7 @@ class UpdateInventory {
 
     final otherResponse = await http.post(
       Uri.parse('$baseUrl/cashier/receipt'),
-      body: jsonEncode(printingSales),
+      body: json.encode(printingSales),
       headers: {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer $token'
@@ -166,8 +168,8 @@ class UpdateInventory {
     print("Printing: $printingResponse");
 
     await http.post(
-      Uri.parse('http:localhost/printing_services'),
-      body: jsonDecode(printingResponse),
+      Uri.parse('http://localhost/printing_services'),
+      body: json.encode(printingResponse),
       headers: {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer $token'

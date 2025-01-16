@@ -158,20 +158,20 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     try {
       // Obtener el carrito actual desde el CartProvider
       final cartItems = cartProvider.cartItems;
+      final String kindOfArticle = GoRouterState.of(context).extra! as String;
 
       // Actualizar inventario
       await UpdateInventory.updateInventory(
-        cartItems
-            .map((cartItem) => InventoryItem(
-                  barCode: "",
-                  category: "",
-                  name: cartItem.item.name,
-                  price: 0,
-                  id: cartItem.item.id,
-                  quantity: cartItem.quantity,
-                ))
-            .toList(),
-      );
+          cartItems
+              .map((cartItem) => InventoryItem(
+                    barCode: "",
+                    category: "",
+                    name: cartItem.item.name,
+                    price: 0,
+                    id: cartItem.item.id,
+                    quantity: cartItem.quantity,
+                  ))
+              .toList(), selectedView: kindOfArticle);
 
       final prefs = await SharedPreferences.getInstance();
       final String? currentUser = prefs.getString('fullname');

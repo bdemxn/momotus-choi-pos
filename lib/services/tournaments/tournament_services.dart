@@ -27,9 +27,10 @@ class TournamentServices {
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(utf8.decode(response.bodyBytes));
         _tournamentList.clear();
-        _tournamentList.addAll(data.map((item) => item as Map<String, dynamic>));
+        _tournamentList
+            .addAll(data.map((item) => item as Map<String, dynamic>));
       }
-      
+
       print(response.body);
     } catch (e) {
       throw Exception(e);
@@ -60,6 +61,42 @@ class TournamentServices {
       print(response.body);
     } catch (e) {
       throw Exception(e);
+    }
+  }
+
+  Future<void> updateTournament(String id, String name, double price) async {
+    final Map<String, dynamic> updatedTournament = {
+      "name": name,
+      "price": price,
+    };
+
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final String? token = prefs.getString('authToken');
+
+      if (token == null) {
+        throw Exception('No se encontró un token de autenticación.');
+      }
+
+      final response = await http.put(
+        Uri.parse("$apiUrl/$id"),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+        body: json.encode(updatedTournament),
+      );
+
+      if (response.statusCode == 200) {
+        print(
+            "Torneo actualizado con éxito: ${json.encode(updatedTournament)}");
+      } else {
+        print("Error al actualizar el torneo: ${response.body}");
+        throw Exception('Error al actualizar el torneo.');
+      }
+    } catch (e) {
+      print("Error en updateTournament: $e");
+      throw Exception(e.toString());
     }
   }
 

@@ -1,5 +1,6 @@
 import 'package:choi_pos/router/app_router.dart';
 import 'package:choi_pos/services/inventory/get_inventory.dart';
+import 'package:choi_pos/services/tournaments/tournament_services.dart';
 import 'package:choi_pos/store/cart_provider.dart';
 import 'package:choi_pos/store/user_provider.dart';
 import 'package:choi_pos/theme/dark_theme.dart';// Importa CartProvider
@@ -13,6 +14,7 @@ void main() {
         ChangeNotifierProvider(create: (_) => UserProvider()),
         ChangeNotifierProvider(create: (_) => CartProvider()), // Añade CartProvider aquí
         Provider(create: (_) => InventoryService()), // Añade el InventoryService aquí
+        Provider(create: (_) => TournamentServices()), 
 
       ],
       child: const MainApp(),

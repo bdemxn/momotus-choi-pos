@@ -20,6 +20,59 @@ class _TournamentTableState extends State<TournamentTable> {
     _tournamentServices.getTournaments();
   }
 
+  Future<void> _editTournament(
+      BuildContext context, Map<String, dynamic> tournament) async {
+    _newTournamentNameController.text = tournament['name'];
+    _newPriceController.text = tournament['price'].toString();
+
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Editar Torneo'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: _newTournamentNameController,
+                decoration:
+                    const InputDecoration(labelText: 'Nombre del Torneo'),
+              ),
+              TextField(
+                controller: _newPriceController,
+                decoration: const InputDecoration(labelText: 'Precio'),
+                keyboardType: TextInputType.number,
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: const Text('Cancelar'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              child: const Text('Guardar'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirm ?? false) {
+      final updatedName = _newTournamentNameController.text;
+      final updatedPrice = double.tryParse(_newPriceController.text) ?? 0.0;
+
+      await _tournamentServices.updateTournament(
+        tournament['id'],
+        updatedName,
+        updatedPrice,
+      );
+
+      setState(() {});
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
@@ -59,7 +112,6 @@ class _TournamentTableState extends State<TournamentTable> {
                         DataCell(
                           Row(
                             children: [
-                              
                               IconButton(
                                 icon:
                                     const Icon(Icons.delete, color: Colors.red),
@@ -97,12 +149,11 @@ class _TournamentTableState extends State<TournamentTable> {
                                 },
                               ),
                               IconButton(
-                                  icon: const Icon(Icons.update,
-                                      color: Colors.blueAccent),
-                                  onPressed: () async => {
-                                        await _showChangePasswordDialog(
-                                            context, tournament['name'], tournament['id'])
-                                      }),
+                                icon: const Icon(Icons.update,
+                                    color: Colors.blueAccent),
+                                onPressed: () =>
+                                    _editTournament(context, tournament),
+                              ),
                             ],
                           ),
                         ),
@@ -115,84 +166,5 @@ class _TournamentTableState extends State<TournamentTable> {
         );
       },
     );
-  }
-
-  Future<void> _showChangePasswordDialog(
-      BuildContext context, String fullname, String userId) async {
-    final _formKey = GlobalKey<FormState>(); // Llave local del formulario
-
-    final confirm = await showDialog<bool>(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text('Confirmar cambio de contraseña'),
-          content: Form(
-            key: _formKey,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text('¿Estás seguro de cambiar la contraseña de "$fullname"?'),
-                TextFormField(
-                  controller: _newTournamentNameController,
-                  decoration: const InputDecoration(
-                    labelText: 'Nueva contraseña',
-                  ),
-                  keyboardType: TextInputType.text,
-                  obscureText: true,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Pon una contraseña';
-                    }
-                    return null;
-                  },
-                ),
-                TextFormField(
-                  controller: _newPriceController,
-                  decoration: const InputDecoration(
-                    labelText: 'Repite la contraseña',
-                  ),
-                  keyboardType: TextInputType.text,
-                  obscureText: true,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Digite nuevamente la contraseña';
-                    }
-                    if (value != _newTournamentNameController.text) {
-                      return 'Las contraseñas no coinciden';
-                    }
-                    return null;
-                  },
-                ),
-              ],
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(false),
-              child: const Text('Cancelar'),
-            ),
-            TextButton(
-              onPressed: () {
-                if (_formKey.currentState?.validate() ?? false) {
-                  Navigator.of(context).pop(true);
-                }
-              },
-              child: const Text('Cambiar contraseña'),
-            ),
-          ],
-        );
-      },
-    );
-
-    _newTournamentNameController.clear();
-    _newPriceController.clear();
-
-    if (confirm ?? false) {
-      //  await _tournamentServices.updateUserPassword(
-      //   _newTournamentNameController.text,
-      //   userId,
-      // );
-      setState(() {});
-    }
   }
 }

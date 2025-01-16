@@ -23,6 +23,8 @@ class ReportService {
         },
       );
 
+      print(response.body);
+
       if (response.statusCode == 200) {
         return json.decode(utf8.decode(response.bodyBytes)) as List<dynamic>;
       } else {
