@@ -18,7 +18,7 @@ class _PromoFormState extends State<PromoForm> {
   String _type = "porcentaje";
 
   Future<void> _createPromoCode() async {
-    const String apiUrl = 'http://45.79.205.216:8000/admin/promos';
+    const String apiUrl = 'http://216.238.86.5:8000/admin/promos';
 
     if (_formKey.currentState!.validate()) {
       final promoCode = {
