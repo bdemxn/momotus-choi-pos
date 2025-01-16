@@ -3,7 +3,6 @@
 #
 
 list(APPEND FLUTTER_PLUGIN_LIST
-  charset_converter
   flutter_thermal_printer
 )
 

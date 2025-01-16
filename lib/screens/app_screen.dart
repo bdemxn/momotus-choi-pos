@@ -1,5 +1,6 @@
 import 'package:choi_pos/auth/auth_services.dart';
 import 'package:choi_pos/models/inventory_item.dart';
+import 'package:choi_pos/screens/printing/printing_view.dart';
 import 'package:choi_pos/services/inventory/get_inventory.dart';
 import 'package:choi_pos/services/tournaments/tournament_services.dart';
 import 'package:choi_pos/store/cart_provider.dart';
@@ -222,6 +223,17 @@ class _AppScreenState extends State<AppScreen> {
                       child: IconButton(
                           onPressed: () => context.go('/app/payments'),
                           icon: const Icon(Icons.payments_outlined)),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 0),
+                      child: IconButton(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => const PrintingView()),
+                            );
+                          },
+                          icon: const Icon(Icons.print)),
                     ),
                     Padding(
                       padding: const EdgeInsets.only(left: 0),
