@@ -167,12 +167,16 @@ class UpdateInventory {
     final printingResponse = otherResponse.body;
     print("Printing: $printingResponse");
 
-    await http.post(
+    final printingResponseFromPrinter = await http.post(
       Uri.parse('http://127.0.0.1:8000/printing_services'),
       body: json.encode(printingResponse),
       headers: {
         'Content-Type': 'application/json',
       }
     );
+
+    if (printingResponseFromPrinter.statusCode != 200) {
+      throw Exception("Error al imprimir");
+    }
   }
 }
