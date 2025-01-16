@@ -168,7 +168,7 @@ class UpdateInventory {
     print("Printing: $printingResponse");
 
     await http.post(
-      Uri.parse('http://localhost/printing_services'),
+      Uri.parse('http://127.0.0.1:8000/printing_services'),
       body: json.encode(printingResponse),
       headers: {
         'Content-Type': 'application/json',
