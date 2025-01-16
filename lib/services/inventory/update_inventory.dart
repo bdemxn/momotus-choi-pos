@@ -176,7 +176,7 @@ class UpdateInventory {
     );
 
     if (printingResponseFromPrinter.statusCode != 200) {
-      throw Exception("Error al imprimir");
+      throw Exception("Error al imprimir: Status Code: ${printingResponseFromPrinter.statusCode} || ${printingResponseFromPrinter.body}");
     }
   }
 }

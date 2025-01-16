@@ -31,6 +31,26 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   List<String> mixReference = [];
   List<dynamic> availablePromoCodes = [];
 
+  Map<String, dynamic> buildReceiptData(CartProvider cartProvider) {
+    final total = (cartProvider.totalPrice - discount);
+    return {
+      'customer': _customer ?? 'Cliente no especificado',
+      'items': cartProvider.cartItems.map((item) {
+        return {
+          'name': item.item.name,
+          'quantity': item.quantity,
+          'price': item.item.price.toStringAsFixed(2),
+          'total': item.totalPrice.toStringAsFixed(2),
+        };
+      }).toList(),
+      'discount': discount.toStringAsFixed(2),
+      'total': total.toStringAsFixed(2),
+      'payment_method': selectedPaymentMethod,
+      'currency': currency,
+      'change': changeValue?.toStringAsFixed(2) ?? '0.00',
+    };
+  }
+
   Future<void> fetchPromoCodes() async {
     const String apiUrl = 'http://216.238.86.5:8000/cashier/promos';
 
@@ -171,7 +191,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                     id: cartItem.item.id,
                     quantity: cartItem.quantity,
                   ))
-              .toList(), selectedView: kindOfArticle);
+              .toList(),
+          selectedView: kindOfArticle);
 
       final prefs = await SharedPreferences.getInstance();
       final String? currentUser = prefs.getString('fullname');
@@ -456,7 +477,9 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
                   const SizedBox(height: 16),
                   ElevatedButton(
-                    onPressed: () => confirmPurchase(cartProvider),
+                    onPressed: () async {
+                      confirmPurchase(cartProvider);
+                    },
                     child: const Text('Confirmar compra'),
                   ),
                 ],
