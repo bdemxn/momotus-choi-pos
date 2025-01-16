@@ -1,9 +1,24 @@
+import 'package:choi_pos/services/tournaments/tournament_services.dart';
 import 'package:choi_pos/widgets/admin/sidebar_admin.dart';
+import 'package:choi_pos/widgets/tournament/tournament_table.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-class TournamentsScreen extends StatelessWidget {
+class TournamentsScreen extends StatefulWidget {
   const TournamentsScreen({super.key});
+
+  @override
+  State<TournamentsScreen> createState() => _TournamentsScreenState();
+}
+
+class _TournamentsScreenState extends State<TournamentsScreen> {
+  final TournamentServices _tournamentServices = TournamentServices();
+
+  @override
+  void initState() {
+    super.initState();
+    _tournamentServices.getTournaments();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -51,8 +66,8 @@ class TournamentsScreen extends StatelessWidget {
                           Padding(
                             padding: const EdgeInsets.only(right: 20),
                             child: ElevatedButton(
-                              onPressed: () =>
-                                  context.go('/admin/tournaments/create-tournament'),
+                              onPressed: () => context
+                                  .go('/admin/tournaments/create-tournament'),
                               child: const Row(
                                 children: [
                                   Icon(
@@ -72,6 +87,9 @@ class TournamentsScreen extends StatelessWidget {
                     ),
 
                     // DataTable:
+                    const Expanded(
+                      child: TournamentTable(),
+                    )
                   ],
                 )),
           )

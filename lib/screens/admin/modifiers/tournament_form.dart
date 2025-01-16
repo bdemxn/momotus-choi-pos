@@ -1,3 +1,5 @@
+// import 'package:choi_pos/services/tournaments/tournament_services.dart';
+import 'package:choi_pos/services/tournaments/tournament_services.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -11,12 +13,15 @@ class TournamentForm extends StatefulWidget {
 class _TournamentFormState extends State<TournamentForm> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _nameController = TextEditingController();
-  final TextEditingController _beginningDateController =
-      TextEditingController();
-  final TextEditingController _endingDateController = TextEditingController();
-  // final TextEditingController _branchController = TextEditingController();
+  final TextEditingController _priceController = TextEditingController();
+  final TournamentServices _tournamentServices = TournamentServices();
 
   final bool _isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -42,31 +47,21 @@ class _TournamentFormState extends State<TournamentForm> {
               TextFormField(
                 controller: _nameController,
                 decoration:
-                    const InputDecoration(labelText: 'Nombre del torneo'),
+                    const InputDecoration(labelText: 'Nombre del exámen'),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'El nombre del torneo no puede estar vacío';
+                    return 'El nombre del exámen no puede estar vacío';
                   }
                   return null;
                 },
               ),
               TextFormField(
-                controller: _beginningDateController,
-                decoration: const InputDecoration(labelText: 'Fecha de inicio'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'La fecha de inicio no puede estar vacía';
-                  }
-                  return null;
-                },
-              ),
-              TextFormField(
-                controller: _endingDateController,
+                controller: _priceController,
                 decoration:
-                    const InputDecoration(labelText: 'Fecha de finalización'),
+                    const InputDecoration(labelText: 'Valor del exámen'),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'La fecha de finalización no puede estar vacía';
+                    return 'El valor del exámen no puede estar vacío';
                   }
                   return null;
                 },
@@ -75,13 +70,8 @@ class _TournamentFormState extends State<TournamentForm> {
               _isLoading
                   ? const Center(child: CircularProgressIndicator())
                   : ElevatedButton(
-                      onPressed: () => {
-                        print({
-                          _nameController.text,
-                          _beginningDateController.text,
-                          _endingDateController.text
-                        })
-                      },
+                      onPressed: () => _tournamentServices.createTournament(
+                          _nameController.text, _priceController.text),
                       child: const Text(
                         'Crear torneo',
                         style: TextStyle(color: Colors.lightBlue),

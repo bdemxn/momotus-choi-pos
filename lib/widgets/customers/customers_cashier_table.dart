@@ -107,7 +107,7 @@ class _CustomerCashierTableState extends State<CustomerCashierTable> {
                           DataCell(Text(customer['phone'] ?? 'N/A')),
                           DataCell(Text(customer['email'] ?? 'N/A')),
                           DataCell(Text(customer['is_minor'] ? 'Sí' : 'No')),
-                          DataCell(Text(customer['is_active'] ? 'Sí' : 'No')),
+                          DataCell(Text((customer['is_active'] ?? true) ? 'Sí' : 'No')),
                           DataCell(
                               Text(customer['is_preferred'] ? 'Sí' : 'No')),
                         ],
