@@ -172,7 +172,6 @@ class UpdateInventory {
       body: json.encode(printingResponse),
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer $token'
       }
     );
   }
