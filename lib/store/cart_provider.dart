@@ -14,7 +14,7 @@ class CartProvider with ChangeNotifier {
   final List<CartItem> _cartItems = [];
   String _selectedCategory = "Todas";
   String _currency = "Dolares";
-  double _exchangeRate = 1.0;
+  final double _exchangeRate = 1.0;
 
   List<CartItem> get cartItems => _cartItems;
   String get currency => _currency;

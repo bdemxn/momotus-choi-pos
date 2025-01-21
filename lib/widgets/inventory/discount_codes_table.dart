@@ -66,7 +66,7 @@ class PromoCodeTable extends StatelessWidget {
 
 // Main Screen
 class PromoCodeScreen extends StatefulWidget {
-  const PromoCodeScreen({Key? key}) : super(key: key);
+  const PromoCodeScreen({super.key});
 
   @override
   State<PromoCodeScreen> createState() => _PromoCodeScreenState();

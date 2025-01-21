@@ -82,7 +82,17 @@ class SidebarAdmin extends StatelessWidget {
               ],
             ),
           ),
-
+          // Customers
+          TextButton(
+            onPressed: () => context.go('/admin/bundles'),
+            child: Row(
+              children: [
+                Icon(Icons.account_circle, size: 20, color: _iconColor),
+                const SizedBox(width: 8),
+                Text('Combos', style: _myStyle)
+              ],
+            ),
+          ),
           // Users
           TextButton(
             onPressed: () => context.go('/admin/users'),
@@ -140,14 +150,14 @@ class SidebarAdmin extends StatelessWidget {
               ],
             ),
           ),
-
+          
           // Go to LoginForm:
           TextButton(
             onPressed: () async {
               await _authService.logoutAuthService();
 
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('Sesión cerrada exitosamente')),
+                const SnackBar(content: Text('Sesión cerrada exitosamente')),
               );
 
               context.go('/');

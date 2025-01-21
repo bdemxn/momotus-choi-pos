@@ -1,7 +1,9 @@
 import 'dart:convert';
+import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:choi_pos/models/inventory_item.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:choi_pos/screens/printing/printer_controller.dart';
 
 class UpdateInventory {
   static const String baseUrl = 'http://216.238.86.5:8000';
@@ -101,7 +103,9 @@ class UpdateInventory {
       required List<Map<String, dynamic>> cart,
       required String promoCode,
       required double totalPaid,
-      required num change}) async {
+      required num change,
+      required PrinterController printerController,
+      required BuildContext context,}) async {
     final prefs = await SharedPreferences.getInstance();
     final String? token = prefs.getString('authToken');
 
@@ -164,19 +168,9 @@ class UpdateInventory {
       },
     );
 
-    final printingResponse = otherResponse.body;
-    print("Printing: $printingResponse");
+    final printingResponse = jsonDecode(otherResponse.body);
 
-    final printingResponseFromPrinter = await http.post(
-      Uri.parse('http://127.0.0.1:8000/printing_services'),
-      body: json.encode(printingResponse),
-      headers: {
-        'Content-Type': 'application/json',
-      }
-    );
-
-    if (printingResponseFromPrinter.statusCode != 200) {
-      throw Exception("Error al imprimir: Status Code: ${printingResponseFromPrinter.statusCode} || ${printingResponseFromPrinter.body}");
-    }
+    // Llamar directamente a la función de impresión
+    await printerController.printReceiptTwice(printingResponse, context);
   }
 }
