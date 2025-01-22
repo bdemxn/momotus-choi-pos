@@ -8,12 +8,15 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:choi_pos/screens/printing/printer_controller.dart';
 
 class CheckoutScreen extends StatefulWidget {
-  const CheckoutScreen({super.key});
+  final PrinterController printerController;
+
+  const CheckoutScreen({super.key, required this.printerController});
 
   @override
-  _CheckoutScreenState createState() => _CheckoutScreenState();
+  State<CheckoutScreen> createState() => _CheckoutScreenState();
 }
 
 class _CheckoutScreenState extends State<CheckoutScreen> {
@@ -163,8 +166,15 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       );
     }
   }
-
+  
   void confirmPurchase(CartProvider cartProvider) async {
+    if (widget.printerController.connectedPrinter == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('No hay ninguna impresora conectada.')),
+      );
+      widget.printerController.debugPrinterState(); // Para depurar
+      return;
+    }
     if ((selectedPaymentMethod == 'Tarjeta' &&
             selectedPaymentMethod == 'Transferencia') &&
         (referenceCode == null || referenceCode!.isEmpty)) {
@@ -219,7 +229,9 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               : (cartProvider.totalPrice - discount) * 36.79,
           currency: currency == 'Dolares' ? 'USD' : 'NIO',
           type: selectedPaymentMethod,
-          change: changeValue ?? 0);
+          change: changeValue ?? 0,
+          printerController: widget.printerController,
+          context: context,);
 
       // Mostrar mensaje de confirmación
       ScaffoldMessenger.of(context).showSnackBar(
@@ -240,7 +252,13 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   @override
   void initState() {
     super.initState();
-    fetchPromoCodes();
+
+    // Restaurar conexión de impresora al iniciar
+    widget.printerController.restoreConnectedPrinter().then((_) {
+      if (widget.printerController.connectedPrinter != null) {
+        print("Conexión restaurada: ${widget.printerController.connectedPrinter}");
+      }
+    });
   }
 
   @override

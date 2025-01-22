@@ -2,6 +2,7 @@ import 'package:choi_pos/screens/admin/categories_screen.dart';
 import 'package:choi_pos/screens/admin/discount_codes_screen.dart';
 import 'package:choi_pos/screens/admin/modifiers/customer_registration_screen.dart';
 import 'package:choi_pos/screens/admin/customers_screen.dart';
+import 'package:choi_pos/screens/admin/bundles_screen.dart';
 import 'package:choi_pos/screens/admin/inventory_screen.dart';
 import 'package:choi_pos/screens/admin/modifiers/category_form.dart';
 import 'package:choi_pos/screens/admin/modifiers/inventory_form.dart';
@@ -25,6 +26,9 @@ import 'package:choi_pos/screens/forgot_screen.dart';
 import 'package:choi_pos/screens/login_screen.dart';
 import 'package:choi_pos/widgets/customers/customer_update_form.dart';
 import 'package:go_router/go_router.dart';
+import 'package:choi_pos/screens/printing/printer_controller.dart';
+
+final PrinterController printerController = PrinterController();
 
 // Router setup
 final GoRouter appRouter = GoRouter(
@@ -48,7 +52,7 @@ final GoRouter appRouter = GoRouter(
           ),
           GoRoute(
             path: 'checkout',
-            builder: (context, state) => const CheckoutScreen(),
+            builder: (context, state) => CheckoutScreen(printerController: printerController),
           ),
           GoRoute(
             path: 'create-inventory',
@@ -131,6 +135,10 @@ final GoRouter appRouter = GoRouter(
                 builder: (context, state) => const DiscountCodesScreen(),
               )
             ]),
+        GoRoute(
+          path: 'bundles',
+          builder: (context, state) => const BundlesScreen()
+        ),
         GoRoute(
             path: 'tournaments',
             builder: (context, state) => const TournamentsScreen(),
