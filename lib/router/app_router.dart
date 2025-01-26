@@ -24,6 +24,7 @@ import 'package:choi_pos/screens/app/modifiers/receipts_cashier.dart';
 import 'package:choi_pos/screens/app_screen.dart';
 import 'package:choi_pos/screens/forgot_screen.dart';
 import 'package:choi_pos/screens/login_screen.dart';
+import 'package:choi_pos/widgets/bundles/bundles_form.dart';
 import 'package:choi_pos/widgets/customers/customer_update_form.dart';
 import 'package:go_router/go_router.dart';
 import 'package:choi_pos/screens/printing/printer_controller.dart';
@@ -137,7 +138,13 @@ final GoRouter appRouter = GoRouter(
             ]),
         GoRoute(
           path: 'bundles',
-          builder: (context, state) => const BundlesScreen()
+          builder: (context, state) => const BundlesScreen(),
+          routes: [
+            GoRoute(
+              path: 'create-bundle',
+              builder: (context, state) => const BundlesForm()
+            )
+          ]
         ),
         GoRoute(
             path: 'tournaments',

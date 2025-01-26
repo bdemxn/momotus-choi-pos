@@ -53,7 +53,7 @@ class BundlesScreen extends StatelessWidget {
                             padding: const EdgeInsets.only(right: 20),
                             child: ElevatedButton(
                               onPressed: () =>
-                                  context.go('/admin/inventory/create-combos'),
+                                  context.go('/admin/bundles/create-bundle'),
                               child: const Row(
                                 children: [
                                   Icon(
