@@ -12,7 +12,7 @@ import 'package:choi_pos/screens/printing/printer_controller.dart';
 
 class CheckoutScreen extends StatefulWidget {
   final PrinterController printerController;
-
+  
   const CheckoutScreen({super.key, required this.printerController});
 
   @override
@@ -20,6 +20,7 @@ class CheckoutScreen extends StatefulWidget {
 }
 
 class _CheckoutScreenState extends State<CheckoutScreen> {
+  late SharedPreferences prefs;
   String selectedPaymentMethod = 'Efectivo';
   String currency = 'Dolares';
   String? referenceCode;
@@ -147,13 +148,58 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     }
   }
 
-  void calculateChange(CartProvider cartProvider) {
-    double totalInSelectedCurrency = (cartProvider.totalPrice - discount) *
-        (currency == 'Cordobas' ? exchangeRate : 1.0);
+  Future<double> updateExchangeRateIfNeeded() async {
+    final prefs = await SharedPreferences.getInstance();
+    final today = DateTime.now().toIso8601String().split('T').first;
+    final storedDate = prefs.getString('exchangeRateDate');
 
-    if (cashPayment != null && cashPayment! >= totalInSelectedCurrency) {
+    // Si la tasa ya está actualizada hoy, retorna el valor almacenado
+    if (storedDate == today) {
+      return prefs.getDouble('exchangeRate') ?? 36.5;
+    }
+
+    // Realiza un fetch si no está actualizada
+    final rate = await fetchExchangeRate();
+    if (rate != null) {
+      await saveExchangeRate(rate);
+      return rate;
+    }
+
+    // Si no se pudo obtener una tasa nueva, devuelve un valor predeterminado
+    return 36.61;
+    }
+
+    void calculateChange(CartProvider cartProvider) {
+    // Verifica que cashPayment no sea nulo y sea mayor que 0
+    if (cashPayment == null || cashPayment! <= 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Ingresa un monto válido para el pago.')),
+      );
+      return;
+    }
+
+    // Calcula el total en la moneda seleccionada
+    final totalInSelectedCurrency = double.tryParse(
+      ((cartProvider.totalPrice - discount) *
+              (currency == 'Cordobas' ? exchangeRate : 1.0))
+          .toStringAsFixed(2),
+    );
+
+    // Valida que el total en la moneda seleccionada sea válido
+    if (totalInSelectedCurrency == null || totalInSelectedCurrency <= 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+            content: Text('Error en el cálculo del total. Por favor, verifica.')),
+      );
+      return;
+    }
+
+    // Valida si el monto ingresado es suficiente para cubrir el total
+    if (cashPayment! >= totalInSelectedCurrency) {
       setState(() {
-        changeValue = cashPayment! - totalInSelectedCurrency;
+        changeValue = double.parse(
+          (cashPayment! - totalInSelectedCurrency).toStringAsFixed(2),
+        );
       });
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Cambio calculado correctamente.')),
@@ -166,8 +212,14 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       );
     }
   }
+
   
   void confirmPurchase(CartProvider cartProvider) async {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => const Center(child: CircularProgressIndicator()),
+    );
     if (widget.printerController.connectedPrinter == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('No hay ninguna impresora conectada.')),
@@ -175,12 +227,10 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       widget.printerController.debugPrinterState(); // Para depurar
       return;
     }
-    if ((selectedPaymentMethod == 'Tarjeta' &&
-            selectedPaymentMethod == 'Transferencia') &&
+    if ((selectedPaymentMethod == 'Tarjeta' || selectedPaymentMethod == 'Transferencia') &&
         (referenceCode == null || referenceCode!.isEmpty)) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text('Por favor, introduzca el código de referencia.')),
+        const SnackBar(content: Text('Por favor, introduzca el código de referencia.')),
       );
       return;
     }
@@ -246,13 +296,17 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error: ${e.toString()}')),
       );
+    } finally {
+      Navigator.of(context, rootNavigator: true).pop(); // Cierra el indicador
     }
   }
 
   @override
   void initState() {
     super.initState();
-
+    // Llama a _loadSharedPreferences para inicializar las preferencias
+    _loadSharedPreferences();
+    
     // Restaurar conexión de impresora al iniciar
     widget.printerController.restoreConnectedPrinter().then((_) {
       if (widget.printerController.connectedPrinter != null) {
@@ -260,7 +314,9 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       }
     });
   }
-
+  Future<void> _loadSharedPreferences() async {
+    prefs = await SharedPreferences.getInstance();
+  }
   @override
   Widget build(BuildContext context) {
     final cartProvider = Provider.of<CartProvider>(context);
@@ -382,8 +438,10 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                     }).toList(),
                     onChanged: (value) async {
                       if (value == 'Cordobas') {
-                        await updateExchangeRate();
-                        cartProvider.updateCurrency('Cordobas', exchangeRate);
+                        final rate = await updateExchangeRateIfNeeded();
+                        if (rate != null) {
+                          cartProvider.updateCurrency('Cordobas', exchangeRate);
+                        }
                       } else if (value == 'Dolares') {
                         cartProvider.updateCurrency(
                             'Dolares', 1); // Restaurar precios a dólares

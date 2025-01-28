@@ -41,7 +41,8 @@ class _BundlesTableState extends State<BundlesTable> {
                 columns: const [
                   DataColumn(label: Text('ID')),
                   DataColumn(label: Text('Nombre')),
-                  DataColumn(label: Text('Descuento')),
+                  DataColumn(label: Text('Precio Total')),
+                  DataColumn(label: Text('Productos')),
                   DataColumn(label: Text('Acciones')),
                 ],
                 rows: bundles
@@ -49,7 +50,13 @@ class _BundlesTableState extends State<BundlesTable> {
                       (bundle) => DataRow(cells: [
                         DataCell(Text(bundle.id)),
                         DataCell(Text(bundle.name)),
-                        DataCell(Text(bundle.discount.toString())),
+                        DataCell(Text(bundle.totalPrice.toStringAsFixed(2))),
+                        DataCell(Text(
+                          bundle.products
+                              .map((product) =>
+                                  '${product.id} (${product.quantity})')
+                              .join(', '),
+                        )),
                         DataCell(
                           Row(
                             children: [

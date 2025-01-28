@@ -1,3 +1,4 @@
+import 'package:choi_pos/services/exchange/exchange_value.dart';
 import 'package:flutter/material.dart';
 import '../models/inventory_item.dart';
 
@@ -21,6 +22,11 @@ class CartProvider with ChangeNotifier {
   double get exchangeRate => _exchangeRate;
 
   String get selectedCategory => _selectedCategory;
+
+  final Map<String, double> _exchangeRates = {
+    'Dolares': 1.0,
+    'Cordobas': 36.61, // Valor predeterminado inicial
+  };
 
   void setCategory(String category) {
     _selectedCategory = category;
@@ -69,23 +75,32 @@ class CartProvider with ChangeNotifier {
     _cartItems.clear();
     notifyListeners();
   }
-
-  void updateCurrency(String newCurrency, double rate) {
+  void updateCurrency(String newCurrency, double exchangeRate) {
     if (_currency == newCurrency) return;
     _currency = newCurrency;
+
+    final rate = _exchangeRates[newCurrency] ?? 36.5;
+
     for (var cartItem in _cartItems) {
-      if (newCurrency == 'Cordobas') {
-        cartItem.item.price = cartItem.item.originalPrice * rate;
-      } else {
-        cartItem.item.price = cartItem.item.originalPrice;
-      }
+      cartItem.item.price = newCurrency == 'Cordobas'
+          ? double.parse((cartItem.item.originalPrice * rate).toStringAsFixed(2))
+          : cartItem.item.originalPrice;
     }
     notifyListeners();
   }
 
   double get totalPrice =>
-      _cartItems.fold(0, (total, cartItem) => total + cartItem.totalPrice);
-
+    double.parse(_cartItems.fold<double>(0.0, (total, cartItem) => total + cartItem.totalPrice).toStringAsFixed(2));
   int get totalItems =>
       _cartItems.fold(0, (total, cartItem) => total + cartItem.quantity);
+}
+
+Future<double> getExchangeRate() async {
+  final rate = await loadExchangeRate();
+  return rate;
+}
+
+Future<double> getValidExchangeRate() async {
+  final rate = await loadExchangeRate();
+  return rate > 0 ? rate : 36.5; // Fallback a un valor predeterminado
 }

@@ -2,11 +2,17 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:ui' as ui;
 import 'dart:typed_data';
+import 'package:flutter/services.dart';
 import 'package:flutter_thermal_printer/flutter_thermal_printer.dart';
 import 'package:flutter_thermal_printer/utils/printer.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:qr_flutter/qr_flutter.dart';
+
+Future<Uint8List> loadHeaderImage() async {
+  final ByteData data = await rootBundle.load("assets/choi-image.png");
+  return data.buffer.asUint8List();
+}
 
 class PrinterController { 
   Future<void> restoreConnectedPrinter() async {
@@ -62,10 +68,13 @@ class PrinterController {
   }
 
   // Imprime dos recibos basado en un JSON
-  Future<void> printReceiptTwice(Map<String, dynamic> receiptJson, BuildContext context) async {
+Future<void> printReceiptTwice(Map<String, dynamic> receiptJson, BuildContext context) async {
   if (connectedPrinter == null) {
     throw Exception("No hay una impresora conectada.");
   }
+
+  // Cargar el header como imagen
+  final headerImageBytes = await loadHeaderImage();
 
   // Generar los bytes del código QR
   final qrCodeData = receiptJson["footer"]["qr_code_data"] ?? "";
@@ -75,22 +84,27 @@ class PrinterController {
   await _printerPlugin.printWidget(
     context,
     printer: connectedPrinter!,
-    widget: _buildReceiptWidget(receiptJson, qrCodeBytes, copyType: "Cliente"),
+    widget: _buildReceiptWidget(
+      receiptJson,
+      qrCodeBytes,
+      copyType: "Cliente",
+      headerImageBytes: headerImageBytes,
+    ),
   );
 
   // Imprimir recibo para el cajero
   await _printerPlugin.printWidget(
     context,
     printer: connectedPrinter!,
-    widget: _buildReceiptWidget(receiptJson, qrCodeBytes, copyType: "Cajero"),
+    widget: _buildReceiptWidget(
+      receiptJson,
+      qrCodeBytes,
+      copyType: "Cajero",
+      headerImageBytes: headerImageBytes,
+    ),
   );
   }
 
-    // Cierra el StreamController al finalizar
-  void dispose() {
-    _printersController.close(); 
-  }
-}
 
 Future<Uint8List> generateQrCode(String data, {double size = 150.0}) async {
   final qrValidationResult = QrValidator.validate(
@@ -123,22 +137,30 @@ Future<Uint8List> generateQrCode(String data, {double size = 150.0}) async {
 }
 
 // Crea el widget del recibo para la impresión
-Widget _buildReceiptWidget(Map<String, dynamic> receiptJson, Uint8List qrCodeBytes, {String copyType = "Cliente"}) {
+Widget _buildReceiptWidget(
+  Map<String, dynamic> receiptJson,
+  Uint8List qrCodeBytes, {
+  String copyType = "Cliente",
+  Uint8List? headerImageBytes,
+}) {
   return SizedBox(
     width: 380,
     child: Material(
       child: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(0.0),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Center(
-              child: Text(
-                receiptJson["header"]["title"],
-                style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            if (headerImageBytes != null)
+              Center(
+                child: Image.memory(
+                  headerImageBytes,
+                  width: 350,
+                  height: 150,
+                  fit: BoxFit.contain,
+                ),
               ),
-            ),
             Text(
               "Copia: $copyType",
               style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
@@ -176,9 +198,4 @@ Widget _buildReceiptWidget(Map<String, dynamic> receiptJson, Uint8List qrCodeByt
     ),
   );
 }
-
-
-
-
-
-
+}

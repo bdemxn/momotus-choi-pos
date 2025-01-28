@@ -1,6 +1,8 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 Future<double?> fetchExchangeRate() async {
   const String apiUrl = "https://hexarate.paikama.co/api/rates/latest/USD?target=NIO";
@@ -30,4 +32,34 @@ Future<double?> fetchExchangeRate() async {
     print('Error desconocido: $e');
     return null; // O decide si lanzar otra excepción
   }
+}
+
+Future<void> saveExchangeRate(double rate) async {
+  final prefs = await SharedPreferences.getInstance();
+  final today = DateTime.now().toIso8601String().split('T').first; // Solo la fecha (YYYY-MM-DD)
+  await prefs.setDouble('exchangeRate', rate);
+  await prefs.setString('exchangeRateDate', today);
+}
+
+Future<double> loadExchangeRate() async {
+  final prefs = await SharedPreferences.getInstance();
+  final storedDate = prefs.getString('exchangeRateDate');
+  final today = DateTime.now().toIso8601String().split('T').first;
+
+  if (storedDate == today) {
+    // Si la fecha coincide, devolver la tasa almacenada
+    return prefs.getDouble('exchangeRate') ?? 36.5; // Fallback a 36.5 si no está disponible
+  } else {
+    // Si la fecha no coincide, forzar un fetch
+    return await fetchAndSaveExchangeRate();
+  }
+}
+
+Future<double> fetchAndSaveExchangeRate() async {
+  final rate = await fetchExchangeRate();
+  if (rate != null) {
+    await saveExchangeRate(rate);
+    return rate;
+  }
+  return 36.5; // Fallback en caso de fallo
 }

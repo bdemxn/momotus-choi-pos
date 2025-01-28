@@ -1,5 +1,6 @@
 import 'package:choi_pos/screens/admin/categories_screen.dart';
 import 'package:choi_pos/screens/admin/discount_codes_screen.dart';
+import 'package:choi_pos/screens/admin/modifiers/bundles_form.dart';
 import 'package:choi_pos/screens/admin/modifiers/customer_registration_screen.dart';
 import 'package:choi_pos/screens/admin/customers_screen.dart';
 import 'package:choi_pos/screens/admin/bundles_screen.dart';
@@ -140,10 +141,15 @@ final GoRouter appRouter = GoRouter(
           path: 'bundles',
           builder: (context, state) => const BundlesScreen(),
           routes: [
+<<<<<<< HEAD
             GoRoute(
               path: 'create-bundle',
               builder: (context, state) => const BundlesForm()
             )
+=======
+            GoRoute(path: 'create-combos',
+            builder:(context, state) => const BundlesFormWidget())
+>>>>>>> f0d1a76 (Se agregaron bundles)
           ]
         ),
         GoRoute(
