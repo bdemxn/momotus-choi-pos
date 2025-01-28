@@ -11,15 +11,15 @@ import 'dart:convert';
 import 'package:choi_pos/screens/printing/printer_controller.dart';
 
 class CheckoutScreen extends StatefulWidget {
-  final PrinterController printerController;
-  
-  const CheckoutScreen({super.key, required this.printerController});
+  const CheckoutScreen({super.key});
 
   @override
   State<CheckoutScreen> createState() => _CheckoutScreenState();
 }
 
 class _CheckoutScreenState extends State<CheckoutScreen> {
+  final PrinterController printerController = PrinterController();
+
   late SharedPreferences prefs;
   String selectedPaymentMethod = 'Efectivo';
   String currency = 'Dolares';
@@ -169,7 +169,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     return 36.61;
     }
 
-    void calculateChange(CartProvider cartProvider) {
+  void calculateChange(CartProvider cartProvider) {
     // Verifica que cashPayment no sea nulo y sea mayor que 0
     if (cashPayment == null || cashPayment! <= 0) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -189,7 +189,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     if (totalInSelectedCurrency == null || totalInSelectedCurrency <= 0) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-            content: Text('Error en el cálculo del total. Por favor, verifica.')),
+            content:
+                Text('Error en el cálculo del total. Por favor, verifica.')),
       );
       return;
     }
@@ -213,24 +214,25 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     }
   }
 
-  
   void confirmPurchase(CartProvider cartProvider) async {
     showDialog(
       context: context,
       barrierDismissible: false,
       builder: (_) => const Center(child: CircularProgressIndicator()),
     );
-    if (widget.printerController.connectedPrinter == null) {
+    if (printerController.connectedPrinter == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('No hay ninguna impresora conectada.')),
       );
-      widget.printerController.debugPrinterState(); // Para depurar
+      printerController.debugPrinterState(); // Para depurar
       return;
     }
-    if ((selectedPaymentMethod == 'Tarjeta' || selectedPaymentMethod == 'Transferencia') &&
+    if ((selectedPaymentMethod == 'Tarjeta' ||
+            selectedPaymentMethod == 'Transferencia') &&
         (referenceCode == null || referenceCode!.isEmpty)) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Por favor, introduzca el código de referencia.')),
+        const SnackBar(
+            content: Text('Por favor, introduzca el código de referencia.')),
       );
       return;
     }
@@ -267,21 +269,22 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
       // Enviar reporte de ventas
       await UpdateInventory.postSalesReport(
-          cashier: currentUser!,
-          customer: _customer ?? '',
-          paymentRef: selectedPaymentMethod == 'Mixto'
-              ? mixReference.join(', ')
-              : referenceCode ?? '',
-          cart: cartData,
-          promoCode: promoCode ?? '',
-          totalPaid: currency == 'Dolares'
-              ? cartProvider.totalPrice - discount
-              : (cartProvider.totalPrice - discount) * 36.79,
-          currency: currency == 'Dolares' ? 'USD' : 'NIO',
-          type: selectedPaymentMethod,
-          change: changeValue ?? 0,
-          printerController: widget.printerController,
-          context: context,);
+        cashier: currentUser!,
+        customer: _customer ?? '',
+        paymentRef: selectedPaymentMethod == 'Mixto'
+            ? mixReference.join(', ')
+            : referenceCode ?? '',
+        cart: cartData,
+        promoCode: promoCode ?? '',
+        totalPaid: currency == 'Dolares'
+            ? cartProvider.totalPrice - discount
+            : (cartProvider.totalPrice - discount) * 36.79,
+        currency: currency == 'Dolares' ? 'USD' : 'NIO',
+        type: selectedPaymentMethod,
+        change: changeValue ?? 0,
+        printerController: printerController,
+        context: context,
+      );
 
       // Mostrar mensaje de confirmación
       ScaffoldMessenger.of(context).showSnackBar(
@@ -306,17 +309,19 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     super.initState();
     // Llama a _loadSharedPreferences para inicializar las preferencias
     _loadSharedPreferences();
-    
+
     // Restaurar conexión de impresora al iniciar
-    widget.printerController.restoreConnectedPrinter().then((_) {
-      if (widget.printerController.connectedPrinter != null) {
-        print("Conexión restaurada: ${widget.printerController.connectedPrinter}");
-      }
-    });
+    // printerController.restoreConnectedPrinter().then((_) {
+    //   if (printerController.connectedPrinter != null) {
+    //     print("Conexión restaurada: ${printerController.connectedPrinter}");
+    //   }
+    // });
   }
+
   Future<void> _loadSharedPreferences() async {
     prefs = await SharedPreferences.getInstance();
   }
+
   @override
   Widget build(BuildContext context) {
     final cartProvider = Provider.of<CartProvider>(context);
@@ -375,17 +380,6 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                                 'Total: ${cartProvider.currency == "Dolares" ? "\$" : "C\$"}${cartItem.totalPrice.toStringAsFixed(2)}',
                               ),
                               const SizedBox(height: 8),
-                              ElevatedButton(
-                                onPressed: () async {
-                                  final newPrice = await _showEditPriceDialog(
-                                      context, cartItem.item.price);
-                                  if (newPrice != null) {
-                                    cartProvider.updateItemPrice(
-                                        cartItem.item.id, newPrice);
-                                  }
-                                },
-                                child: const Text('Editar Precio'),
-                              ),
                             ],
                           ),
                         );
@@ -438,13 +432,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                     }).toList(),
                     onChanged: (value) async {
                       if (value == 'Cordobas') {
-                        final rate = await updateExchangeRateIfNeeded();
-                        if (rate != null) {
-                          cartProvider.updateCurrency('Cordobas', exchangeRate);
-                        }
-                      } else if (value == 'Dolares') {
-                        cartProvider.updateCurrency(
-                            'Dolares', 1); // Restaurar precios a dólares
+                        await updateExchangeRate();
                       }
                       setState(() {
                         currency = value!;
@@ -541,7 +529,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                   const Spacer(),
 
                   Text(
-                    "Total: ${currency == 'Cordobas' ? "C\$" : "\$"} ${((cartProvider.totalPrice - discount).toStringAsFixed(2))}",
+                    "Total: ${currency == 'Cordobas' ? "C\$" : "\$"} ${((cartProvider.totalPrice - discount) * (currency == 'Cordobas' ? exchangeRate : 1.0)).toStringAsFixed(2)}",
                     style: const TextStyle(
                         fontSize: 18, fontWeight: FontWeight.bold),
                   ),
@@ -553,7 +541,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
                   const SizedBox(height: 16),
                   ElevatedButton(
-                    onPressed: () async {
+                    onPressed: () {
                       confirmPurchase(cartProvider);
                     },
                     child: const Text('Confirmar compra'),
@@ -564,53 +552,6 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
           ],
         ),
       ),
-    );
-  }
-
-  Future<double?> _showEditPriceDialog(
-      BuildContext context, double currentPrice) async {
-    final TextEditingController controller =
-        TextEditingController(text: '0'); // Valor inicial para el descuento
-    return showDialog<double>(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text('Aplicar descuento'),
-          content: TextField(
-            controller: controller,
-            keyboardType: TextInputType.number,
-            decoration: const InputDecoration(
-                labelText: 'Descuento a aplicar', hintText: 'Ejemplo: 5'),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Cancelar'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                final double? discount = double.tryParse(controller.text);
-                if (discount != null) {
-                  final double newPrice = currentPrice - discount;
-                  if (newPrice >= 0) {
-                    Navigator.of(context).pop(newPrice);
-                  } else {
-                    // Mostrar mensaje si el descuento es mayor que el precio actual
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text(
-                          'El descuento no puede ser mayor que el precio actual.',
-                        ),
-                      ),
-                    );
-                  }
-                }
-              },
-              child: const Text('Guardar'),
-            ),
-          ],
-        );
-      },
     );
   }
 }

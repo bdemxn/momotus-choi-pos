@@ -1,11 +1,10 @@
 class InventoryItem {
   final String id;
   final String name;
-  double price;
+  final double price;
   final String barCode;
   final int quantity;
   final String category;
-  final double originalPrice;
 
   InventoryItem({
     required this.id,
@@ -14,7 +13,7 @@ class InventoryItem {
     required this.barCode,
     required this.quantity,
     required this.category,
-  }) : originalPrice = price;
+  });
 
   factory InventoryItem.fromJson(Map<String, dynamic> json) {
     return InventoryItem(

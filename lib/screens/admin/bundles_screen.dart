@@ -51,12 +51,10 @@ class BundlesScreen extends StatelessWidget {
                           Padding(
                             padding: const EdgeInsets.only(right: 20),
                             child: ElevatedButton(
-                              onPressed: () =>
-<<<<<<< HEAD
-                                  context.go('/admin/bundles/create-bundle'),
-=======
-                                  context.go('/admin/bundles/create-combos'),
->>>>>>> f0d1a76 (Se agregaron bundles)
+                              onPressed: () => {
+                                context.go('/admin/bundles/create-bundle'),
+                                context.go('/admin/bundles/create-combos'),
+                              },
                               child: const Row(
                                 children: [
                                   Icon(

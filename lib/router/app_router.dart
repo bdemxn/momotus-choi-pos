@@ -28,9 +28,6 @@ import 'package:choi_pos/screens/login_screen.dart';
 import 'package:choi_pos/widgets/bundles/bundles_form.dart';
 import 'package:choi_pos/widgets/customers/customer_update_form.dart';
 import 'package:go_router/go_router.dart';
-import 'package:choi_pos/screens/printing/printer_controller.dart';
-
-final PrinterController printerController = PrinterController();
 
 // Router setup
 final GoRouter appRouter = GoRouter(
@@ -54,7 +51,7 @@ final GoRouter appRouter = GoRouter(
           ),
           GoRoute(
             path: 'checkout',
-            builder: (context, state) => CheckoutScreen(printerController: printerController),
+            builder: (context, state) => const CheckoutScreen(),
           ),
           GoRoute(
             path: 'create-inventory',
@@ -78,9 +75,8 @@ final GoRouter appRouter = GoRouter(
       builder: (context, state) => const OverviewScreen(),
       routes: [
         GoRoute(
-          path: 'payments',
-          builder: (context, state) => const PaymentsScreen()
-        ),
+            path: 'payments',
+            builder: (context, state) => const PaymentsScreen()),
         GoRoute(
           path: 'edit-customer',
           builder: (context, state) {
@@ -138,20 +134,16 @@ final GoRouter appRouter = GoRouter(
               )
             ]),
         GoRoute(
-          path: 'bundles',
-          builder: (context, state) => const BundlesScreen(),
-          routes: [
-<<<<<<< HEAD
-            GoRoute(
-              path: 'create-bundle',
-              builder: (context, state) => const BundlesForm()
-            )
-=======
-            GoRoute(path: 'create-combos',
-            builder:(context, state) => const BundlesFormWidget())
->>>>>>> f0d1a76 (Se agregaron bundles)
-          ]
-        ),
+            path: 'bundles',
+            builder: (context, state) => const BundlesScreen(),
+            routes: [
+              GoRoute(
+                  path: 'create-bundle',
+                  builder: (context, state) => const BundlesForm()),
+              GoRoute(
+                  path: 'create-combos',
+                  builder: (context, state) => const BundlesFormWidget())
+            ]),
         GoRoute(
             path: 'tournaments',
             builder: (context, state) => const TournamentsScreen(),
