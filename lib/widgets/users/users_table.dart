@@ -135,7 +135,7 @@ class _UsersTableState extends State<UsersTable> {
 
   Future<void> _showChangePasswordDialog(
       BuildContext context, String fullname, String userId) async {
-    final _formKey = GlobalKey<FormState>(); // Llave local del formulario
+    final formKey = GlobalKey<FormState>(); // Llave local del formulario
 
     final confirm = await showDialog<bool>(
       context: context,
@@ -143,7 +143,7 @@ class _UsersTableState extends State<UsersTable> {
         return AlertDialog(
           title: const Text('Confirmar cambio de contraseña'),
           content: Form(
-            key: _formKey,
+            key: formKey,
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -189,7 +189,7 @@ class _UsersTableState extends State<UsersTable> {
             ),
             TextButton(
               onPressed: () {
-                if (_formKey.currentState?.validate() ?? false) {
+                if (formKey.currentState?.validate() ?? false) {
                   Navigator.of(context).pop(true);
                 }
               },
