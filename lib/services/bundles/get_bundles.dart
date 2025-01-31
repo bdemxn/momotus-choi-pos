@@ -3,9 +3,9 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class BundleService {
-  final List<Bundle> _bundles = [];
+  final List<Map<dynamic, dynamic>> _bundles = [];
 
-  List<Bundle> get bundles => _bundles;
+  List<Map<dynamic, dynamic>> get bundles => _bundles;
 
   Future<void> fetchBundles() async {
     const String apiUrl = 'http://216.238.86.5:8000/admin/bundles';
@@ -27,7 +27,7 @@ class BundleService {
         final List<dynamic> data = json.decode(utf8.decode(response.bodyBytes));
 
         _bundles.clear();
-        _bundles.addAll(data.map((item) => Bundle.fromJson(item)));
+        _bundles.addAll(data.map((item) => item as Map<dynamic, dynamic>));
       } else {
         throw Exception('Error al obtener los datos: ${response.statusCode}');
       }

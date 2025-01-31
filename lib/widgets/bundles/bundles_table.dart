@@ -48,14 +48,19 @@ class _BundlesTableState extends State<BundlesTable> {
                 rows: bundles
                     .map(
                       (bundle) => DataRow(cells: [
-                        DataCell(Text(bundle.id)),
-                        DataCell(Text(bundle.name)),
-                        DataCell(Text(bundle.totalPrice.toStringAsFixed(2))),
+                        DataCell(Text((bundle["id"]
+                                    as Map<String, dynamic>?)?["id"]?["String"]
+                                ?.toString() ??
+                            "N/A")),
+                        DataCell(Text(bundle["name"])),
+                        DataCell(
+                            Text(bundle["total_price"].toStringAsFixed(2))),
                         DataCell(Text(
-                          bundle.products
-                              .map((product) =>
-                                  '${product.id} (${product.quantity})')
-                              .join(', '),
+                          (bundle["products"] as List<dynamic>?)
+                                  ?.map((product) =>
+                                      '${product["item"]} (${product["quantity"]})')
+                                  .join(', ') ??
+                              "No products available",
                         )),
                         DataCell(
                           Row(
@@ -78,7 +83,7 @@ class _BundlesTableState extends State<BundlesTable> {
                                         title:
                                             const Text('Confirmar Eliminación'),
                                         content: Text(
-                                            '¿Estás seguro de que quieres eliminar "${bundle.name}"?'),
+                                            '¿Estás seguro de que quieres eliminar "${bundle["name"]}"?'),
                                         actions: [
                                           TextButton(
                                             onPressed: () =>
