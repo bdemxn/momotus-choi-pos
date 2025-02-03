@@ -12,7 +12,7 @@ class PaymentTable extends StatefulWidget {
 class _PaymentTableState extends State<PaymentTable> {
   final PaymentServices _paymentServices = PaymentServices();
   final TextEditingController _searchController = TextEditingController();
-  String _selectedSchedule = 'Todos'; 
+  // String _selectedSchedule = 'Todos'; 
 
   List<dynamic> filteredPayments = [];
 
@@ -36,9 +36,9 @@ class _PaymentTableState extends State<PaymentTable> {
         final clientNameMatches = payment['client_name']
             .toLowerCase()
             .contains(searchQuery);
-        final scheduleMatches = _selectedSchedule == 'Todos' ||
-            payment['schedule'] == _selectedSchedule;
-        return clientNameMatches && scheduleMatches;
+        // final scheduleMatches = _selectedSchedule == 'Todos' ||
+        //     payment['schedule'] == _selectedSchedule;
+        return clientNameMatches; // && scheduleMatches;
       }).toList();
     });
   }
@@ -63,28 +63,28 @@ class _PaymentTableState extends State<PaymentTable> {
                 ),
               ),
               const SizedBox(width: 16),
-              DropdownButton<String>(
-                value: _selectedSchedule,
-                onChanged: (value) {
-                  if (value != null) {
-                    setState(() {
-                      _selectedSchedule = value;
-                      _filterPayments();
-                    });
-                  }
-                },
-                items: const [
-                  'Todos',
-                  'Standard 1',
-                  'Standard 2',
-                  'Sabatino'
-                ].map((schedule) {
-                  return DropdownMenuItem<String>(
-                    value: schedule,
-                    child: Text(schedule),
-                  );
-                }).toList(),
-              ),
+              // DropdownButton<String>(
+              //   value: _selectedSchedule,
+              //   onChanged: (value) {
+              //     if (value != null) {
+              //       setState(() {
+              //         _selectedSchedule = value;
+              //         _filterPayments();
+              //       });
+              //     }
+              //   },
+              //   items: const [
+              //     'Todos',
+              //     'Standard 1',
+              //     'Standard 2',
+              //     'Sabatino'
+              //   ].map((schedule) {
+              //     return DropdownMenuItem<String>(
+              //       value: schedule,
+              //       child: Text(schedule),
+              //     );
+              //   }).toList(),
+              // ),
             ],
           ),
         ),

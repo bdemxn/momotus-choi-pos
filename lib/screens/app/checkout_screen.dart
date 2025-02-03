@@ -1,6 +1,8 @@
 import 'package:choi_pos/models/inventory_item.dart';
+import 'package:choi_pos/screens/admin/modifiers/add_subscription_popup.dart';
 import 'package:choi_pos/services/exchange/exchange_value.dart';
 import 'package:choi_pos/services/inventory/update_inventory.dart';
+import 'package:choi_pos/services/users/create_cashier_customer.dart';
 import 'package:choi_pos/store/cart_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -8,7 +10,7 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'package:choi_pos/screens/printing/printer_controller.dart';
+// import 'package:choi_pos/screens/printing/printer_controller.dart';
 
 class CheckoutScreen extends StatefulWidget {
   const CheckoutScreen({super.key});
@@ -18,7 +20,15 @@ class CheckoutScreen extends StatefulWidget {
 }
 
 class _CheckoutScreenState extends State<CheckoutScreen> {
-  final PrinterController printerController = PrinterController();
+  // final PrinterController printerController = PrinterController();
+
+  // ESPAGUETI:
+  final _customerService = CashierCustomerService();
+  final TextEditingController _searchController = TextEditingController();
+  late Future<List<Map<String, dynamic>>> _customers;
+  List<Map<String, dynamic>> _filteredCustomers = [];
+  String? selectedCustomerId = "";
+  // ESPAGUETI
 
   late SharedPreferences prefs;
   String selectedPaymentMethod = 'Efectivo';
@@ -34,6 +44,85 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
   List<String> mixReference = [];
   List<dynamic> availablePromoCodes = [];
+
+  // Funciones espagueti:
+  void _fetchCustomers() {
+    setState(() {
+      _customers = _customerService.fetchCustomers();
+      _customers.then((data) {
+        setState(() {
+          _filteredCustomers = data;
+        });
+      });
+    });
+  }
+
+  void _filterCustomers(String query) {
+    setState(() {
+      if (query.isEmpty) {
+        _customers.then((data) {
+          _filteredCustomers = data;
+        });
+      } else {
+        _customers.then((data) {
+          _filteredCustomers = data
+              .where((customer) => customer['fullname']
+                  ?.toLowerCase()
+                  .contains(query.toLowerCase()))
+              .toList();
+        });
+      }
+    });
+  }
+
+  Widget showPopup(BuildContext context) {
+    return AlertDialog(
+      title: const Text('Añadir Mensualidad'),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          TextField(
+            controller: _searchController,
+            decoration: const InputDecoration(
+              hintText: 'Buscar estudiante...',
+              prefixIcon: Icon(Icons.search),
+            ),
+            onChanged: _filterCustomers,
+          ),
+          const SizedBox(height: 10),
+          SizedBox(
+            height: 200,
+            child: ListView.builder(
+              itemCount: _filteredCustomers.length,
+              itemBuilder: (context, index) {
+                return ListTile(
+                  title: Text(_filteredCustomers[index]['fullname']),
+                  onTap: () {
+                    Navigator.pop(
+                        context, _filteredCustomers[index]['id'].toString());
+                  },
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('Cancelar'),
+        ),
+      ],
+    );
+  }
+
+  void showAddSubscriptionPopup(BuildContext context) async {
+    selectedCustomerId = await showDialog<String>(
+      context: context,
+      builder: (context) => showPopup(context),
+    );
+  }
+  // espagueti
 
   Map<String, dynamic> buildReceiptData(CartProvider cartProvider) {
     final total = (cartProvider.totalPrice - discount);
@@ -148,6 +237,15 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     }
   }
 
+  void showCustomerPopup(
+      BuildContext context, Function(String) onSelectCustomer) {
+    showDialog(
+      context: context,
+      builder: (context) =>
+          CustomerSelectionPopup(onSelectCustomer: onSelectCustomer),
+    );
+  }
+
   Future<double> updateExchangeRateIfNeeded() async {
     final prefs = await SharedPreferences.getInstance();
     final today = DateTime.now().toIso8601String().split('T').first;
@@ -167,7 +265,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
     // Si no se pudo obtener una tasa nueva, devuelve un valor predeterminado
     return 36.61;
-    }
+  }
 
   void calculateChange(CartProvider cartProvider) {
     // Verifica que cashPayment no sea nulo y sea mayor que 0
@@ -220,13 +318,13 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       barrierDismissible: false,
       builder: (_) => const Center(child: CircularProgressIndicator()),
     );
-    if (printerController.connectedPrinter == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('No hay ninguna impresora conectada.')),
-      );
-      printerController.debugPrinterState(); // Para depurar
-      return;
-    }
+    // if (printerController.connectedPrinter == null) {
+    //   ScaffoldMessenger.of(context).showSnackBar(
+    //     const SnackBar(content: Text('No hay ninguna impresora conectada.')),
+    //   );
+    //   printerController.debugPrinterState(); // Para depurar
+    //   return;
+    // }
     if ((selectedPaymentMethod == 'Tarjeta' ||
             selectedPaymentMethod == 'Transferencia') &&
         (referenceCode == null || referenceCode!.isEmpty)) {
@@ -282,7 +380,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         currency: currency == 'Dolares' ? 'USD' : 'NIO',
         type: selectedPaymentMethod,
         change: changeValue ?? 0,
-        printerController: printerController,
+        // printerController: printerController,
         context: context,
       );
 
@@ -307,8 +405,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   @override
   void initState() {
     super.initState();
-    // Llama a _loadSharedPreferences para inicializar las preferencias
     _loadSharedPreferences();
+    _fetchCustomers();
 
     // Restaurar conexión de impresora al iniciar
     // printerController.restoreConnectedPrinter().then((_) {
@@ -522,9 +620,23 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                       promoCode = value;
                     },
                   ),
-                  ElevatedButton(
-                    onPressed: () => applyPromoCode(cartProvider),
-                    child: const Text('Aplicar código promocional'),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 10),
+                    child: Row(
+                      children: [
+                        ElevatedButton(
+                          onPressed: () => applyPromoCode(cartProvider),
+                          child: const Text('Aplicar código promocional'),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(left: 20),
+                          child: ElevatedButton(
+                            onPressed: () => showAddSubscriptionPopup(context),
+                            child: const Text('Mensualidad'),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                   const Spacer(),
 

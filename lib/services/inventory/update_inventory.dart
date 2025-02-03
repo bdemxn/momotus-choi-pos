@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:choi_pos/models/inventory_item.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:choi_pos/screens/printing/printer_controller.dart';
+// import 'package:choi_pos/screens/printing/printer_controller.dart';
 
 class UpdateInventory {
   static const String baseUrl = 'http://216.238.86.5:8000';
@@ -104,7 +104,7 @@ class UpdateInventory {
       required String promoCode,
       required double totalPaid,
       required num change,
-      required PrinterController printerController,
+      // required PrinterController printerController,
       required BuildContext context,}) async {
     final prefs = await SharedPreferences.getInstance();
     final String? token = prefs.getString('authToken');
@@ -168,9 +168,9 @@ class UpdateInventory {
       },
     );
 
-    final printingResponse = jsonDecode(otherResponse.body);
+    // final printingResponse = jsonDecode(otherResponse.body);
 
     // Llamar directamente a la función de impresión
-    await printerController.printReceiptTwice(printingResponse, context);
+    // await printerController.printReceiptTwice(printingResponse, context);
   }
 }

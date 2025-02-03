@@ -6,7 +6,7 @@ class PaymentServices {
   final List<Map<dynamic, dynamic>> _paymentList = [];
   List<Map<dynamic, dynamic>> get paymentList => _paymentList;
 
-  static const String apiUrl = 'http://216.238.86.5:8000/cashier/payments';
+  static const String apiUrl = 'http://216.238.86.5:8000/cashier/payments/history';
 
   Future<void> getPayments() async {
     try {
@@ -25,8 +25,6 @@ class PaymentServices {
         },
       );
 
-      print(response.statusCode);
-
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(utf8.decode(response.bodyBytes));
 
@@ -34,7 +32,7 @@ class PaymentServices {
         _paymentList.addAll(data.map((item) => item as Map<dynamic, dynamic>));
       }
     } catch (e) {
-      print(e);
+      throw Error();
     }
   }
 
