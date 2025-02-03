@@ -7,9 +7,11 @@ import 'package:choi_pos/screens/admin/bundles_screen.dart';
 import 'package:choi_pos/screens/admin/inventory_screen.dart';
 import 'package:choi_pos/screens/admin/modifiers/category_form.dart';
 import 'package:choi_pos/screens/admin/modifiers/inventory_form.dart';
+import 'package:choi_pos/screens/admin/modifiers/monthly_form.dart';
 import 'package:choi_pos/screens/admin/modifiers/promo_form.dart';
 import 'package:choi_pos/screens/admin/modifiers/tournament_form.dart';
 import 'package:choi_pos/screens/admin/modifiers/user_form.dart';
+import 'package:choi_pos/screens/admin/monthly_screen.dart';
 import 'package:choi_pos/screens/admin/overview_screen.dart';
 import 'package:choi_pos/screens/admin/payments_screens.dart';
 import 'package:choi_pos/screens/admin/reports_screen.dart';
@@ -74,6 +76,16 @@ final GoRouter appRouter = GoRouter(
       path: '/admin',
       builder: (context, state) => const OverviewScreen(),
       routes: [
+        GoRoute(
+            path: 'monthly',
+            builder: (context, state) => const MonthlyScreen(),
+            routes: [
+              GoRoute(
+                path: 'create-monthly',
+                builder: (context, state) => const MonthlyFormWidget(),
+              )
+            ]
+          ),
         GoRoute(
             path: 'payments',
             builder: (context, state) => const PaymentsScreen()),
