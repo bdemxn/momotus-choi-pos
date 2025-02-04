@@ -47,15 +47,16 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
   // Funciones espagueti:
   void _fetchCustomers() {
+  _customerService.fetchCustomers().then((data) {
+    if (!mounted) return; // Previene errores si el widget ya no está en la pantalla
     setState(() {
-      _customers = _customerService.fetchCustomers();
-      _customers.then((data) {
-        setState(() {
-          _filteredCustomers = data;
-        });
-      });
+      _filteredCustomers = data;
     });
+  }).catchError((error) {
+    print("Error al obtener clientes: $error");
+  });
   }
+
 
   void _filterCustomers(String query) {
     setState(() {
@@ -117,10 +118,17 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   }
 
   void showAddSubscriptionPopup(BuildContext context) async {
-    selectedCustomerId = await showDialog<String>(
-      context: context,
-      builder: (context) => showPopup(context),
-    );
+  if (!mounted) return; // Verifica que el widget siga montado
+  final String? result = await showDialog<String>(
+    context: context,
+    builder: (context) => showPopup(context),
+  );
+
+  if (!mounted) return; // Verifica de nuevo después del diálogo
+
+  setState(() {
+    selectedCustomerId = result;
+  });
   }
   // espagueti
 
@@ -313,6 +321,10 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   }
 
   void confirmPurchase(CartProvider cartProvider) async {
+    print("📡 Datos del carrito antes del checkout:");
+    for (var item in cartProvider.cartItems) {
+      print("ID: ${item.item.id}, Nombre: ${item.item.name}, Cantidad: ${item.quantity}, Precio: ${item.item.price}");
+    }
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -361,7 +373,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       final List<Map<String, dynamic>> cartData = cartItems.map((cartItem) {
         return {
           'id': cartItem.item.id,
-          'quantity': cartItem.quantity,
+          'quantity': (cartItem.quantity ?? 1).toInt(),
         };
       }).toList();
 
@@ -401,6 +413,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       Navigator.of(context, rootNavigator: true).pop(); // Cierra el indicador
     }
   }
+
 
   @override
   void initState() {

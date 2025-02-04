@@ -10,106 +10,59 @@ class MonthlyTable extends StatefulWidget {
 
 class _MonthlyTableState extends State<MonthlyTable> {
   final MonthlyServices _monthlyService = MonthlyServices();
+  List<Map<dynamic, dynamic>> monthlyList = [];
 
   @override
   void initState() {
     super.initState();
-    _monthlyService.fetchMonthly();
+    _loadMonthly();
+  }
+
+  void _loadMonthly() async {
+    final data = await _monthlyService.fetchMonthly();
+    setState(() {
+      monthlyList = data;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
-      future: _monthlyService.fetchMonthly(),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
-        } else if (snapshot.hasError) {
-          return Center(child: Text('Error: ${snapshot.error}'));
-        }
-
-        final bundles = _monthlyService.monthlyList;
-
-        return Flexible(
-          fit: FlexFit.tight,
-          flex: 5,
-          child: SingleChildScrollView(
-            scrollDirection: Axis.vertical,
+    return monthlyList.isEmpty
+        ? const Center(child: CircularProgressIndicator())
+        : Flexible(
+            fit: FlexFit.tight,
+            flex: 5,
             child: SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: DataTable(
-                columns: const [
-                  DataColumn(label: Text('ID')),
-                  DataColumn(label: Text('Nombre')),
-                  DataColumn(label: Text('Precio')),
-                  DataColumn(label: Text('Acciones')),
-                ],
-                rows: bundles
-                    .map(
-                      (bundle) => DataRow(cells: [
-                        DataCell(Text((bundle["id"]
-                                    as Map<String, dynamic>?)?["id"]?["String"]
-                                ?.toString() ??
-                            "N/A")),
-                        DataCell(Text(bundle["name"])),
-                        DataCell(
-                            Text(bundle["price"].toStringAsFixed(2))),
-                        DataCell(
-                          Row(
-                            children: [
-                              IconButton(
-                                icon:
-                                    const Icon(Icons.edit, color: Colors.blue),
-                                onPressed: () {
-                                  // Navegación o acción para editar
-                                },
-                              ),
-                              IconButton(
-                                icon:
-                                    const Icon(Icons.delete, color: Colors.red),
-                                onPressed: () async {
-                                  final confirm = await showDialog<bool>(
-                                    context: context,
-                                    builder: (context) {
-                                      return AlertDialog(
-                                        title:
-                                            const Text('Confirmar Eliminación'),
-                                        content: Text(
-                                            '¿Estás seguro de que quieres eliminar "${bundle["name"]}"?'),
-                                        actions: [
-                                          TextButton(
-                                            onPressed: () =>
-                                                Navigator.of(context)
-                                                    .pop(false),
-                                            child: const Text('Cancelar'),
-                                          ),
-                                          TextButton(
-                                            onPressed: () =>
-                                                Navigator.of(context).pop(true),
-                                            child: const Text('Eliminar'),
-                                          ),
-                                        ],
-                                      );
-                                    },
-                                  );
-
-                                  if (confirm ?? false) {
-                                    // Implementar eliminación
-                                    setState(() {});
-                                  }
-                                },
-                              ),
-                            ],
-                          ),
-                        ),
-                      ]),
-                    )
-                    .toList(),
+              scrollDirection: Axis.vertical,
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: DataTable(
+                  columns: const [
+                    DataColumn(label: Text('ID')),
+                    DataColumn(label: Text('Nombre')),
+                    DataColumn(label: Text('Precio')),
+                    DataColumn(label: Text('Descuento Preferencial')), // Nueva columna
+                    DataColumn(label: Text('Acciones')),
+                  ],
+                  rows: monthlyList
+                      .map(
+                        (bundle) => DataRow(cells: [
+                          DataCell(Text(bundle["id"])), // ID
+                          DataCell(Text(bundle["name"])), // Nombre
+                          DataCell(Text("\$${bundle["price"]}")), // Precio
+                          DataCell(Text("${bundle["discount_preferred"]}%")), // Descuento Preferencial
+                          DataCell(IconButton(
+                            icon: const Icon(Icons.edit),
+                            onPressed: () {
+                              // Acción de edición
+                            },
+                          )),
+                        ]),
+                      )
+                      .toList(),
+                ),
               ),
             ),
-          ),
-        );
-      },
-    );
+          );
   }
 }

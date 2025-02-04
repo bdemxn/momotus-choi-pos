@@ -7,6 +7,8 @@ import 'package:choi_pos/store/cart_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:choi_pos/services/monthly/monthly_services.dart';
+import 'package:choi_pos/services/bundles/get_bundles.dart';
 // import 'package:choi_pos/screens/printing/printer_controller.dart';
 
 class AppScreen extends StatefulWidget {
@@ -23,6 +25,7 @@ class _AppScreenState extends State<AppScreen> {
   String selectedView = 'Inventario';
 
   late InventoryItem examItem;
+  late InventoryItem monthlyItem;
 
   @override
   void initState() {
@@ -43,11 +46,23 @@ class _AppScreenState extends State<AppScreen> {
     await tournamentService.getTournaments();
   }
 
+  Future<void> fetchBundles() async {
+  final bundleService = Provider.of<BundleService>(context, listen: false);
+  await bundleService.fetchBundles();  // Usar el nombre correcto de la función
+  }
+
+  Future<void> fetchMonthly() async {
+  final bundleService = Provider.of<MonthlyServices>(context, listen: false);
+  await bundleService.fetchMonthly();  // Usar el nombre correcto de la función
+  }
+
   @override
   Widget build(BuildContext context) {
     final inventoryService = Provider.of<InventoryService>(context);
     final cartProvider = Provider.of<CartProvider>(context);
     final tournamentService = Provider.of<TournamentServices>(context);
+    final monthlyService = Provider.of<MonthlyServices>(context); // 🔥 Agregar esto
+    final bundleService = Provider.of<BundleService>(context); // 🔥 Agregar esto
 
     return Scaffold(
       appBar: AppBar(
@@ -145,13 +160,13 @@ class _AppScreenState extends State<AppScreen> {
                               fetchTournaments(); // Fetch tournaments when selected.
                               break;
                             case 'Mensualidades':
-                              fetchInventory();
+                              fetchMonthly();
                               break;
                             case 'Bundles':
-                              print("Bundles");
+                              fetchBundles();
                               break;
                             default:
-                              print("Inventario");
+                              fetchInventory();
                               break;
                           }
                         },
@@ -215,13 +230,62 @@ class _AppScreenState extends State<AppScreen> {
                               );
                             },
                           );
-
                         case 'Bundles':
-                          return const Center(child: Text('Vista de Bundles'));
-
+                          return ListView.builder(
+                            itemCount: bundleService.bundles.length,
+                            itemBuilder: (context, index) {
+                              final bundle = bundleService.bundles[index];
+                              return ListTile(
+                                title: Text(bundle["name"]),
+                                subtitle: Text('Precio: \$${bundle["totalPrice"]}'),
+                                trailing: IconButton(
+                                  icon: const Icon(Icons.add_box),
+                                  onPressed: () {
+                                    final bundleItem = InventoryItem(
+                                      id: bundle["id"]["id"]["String"], // Extraer el ID correcto,
+                                      name: bundle["name"],
+                                      price: bundle["totalPrice"],
+                                      barCode: '',
+                                      quantity: 1,
+                                      category: 'Bundle',
+                                    );
+                                    print("Bundle cargado: ${bundle["name"]} - Precio: ${bundle["total_price"]}");
+                                    cartProvider.addToCart(bundleItem);
+                                  },
+                                ),
+                              );
+                            },
+                          );
                         case 'Mensualidades':
-                          return const Center(child: Text('Vista de Mensualidades'));
+                          return ListView.builder(
+                            
+                            itemCount: monthlyService.monthlyList.length,
+                            itemBuilder: (context, index) {
+                              final monthly = monthlyService.monthlyList[index];
+                              return ListTile(
+                                title: Text(monthly["name"]),
+                                subtitle: Text(
+                                  'Precio: \$${monthly["price"]}%',
+                                ),
+                                trailing: IconButton(
+                                  icon: const Icon(Icons.add),
+                                onPressed: () {
+                                  final mensualidadItem = InventoryItem(
+                                    id: monthly["id"], 
+                                    name: monthly["name"],
+                                    price: monthly["price"] ?? 0.0,
+                                    barCode: '',
+                                    quantity: 1,
+                                    category: 'Mensualidad',
+                                  );
 
+                                  print("Mensualidad seleccionada: ${mensualidadItem.name} - Precio: ${mensualidadItem.price}");
+                                  cartProvider.addToCart(mensualidadItem);
+                                },
+                                ),
+                              );
+                            },
+                          );
                         case 'OtraVista':
                           return const Center(child: Text('Vista de OtraVista'));
 

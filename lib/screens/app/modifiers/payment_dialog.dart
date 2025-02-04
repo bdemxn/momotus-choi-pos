@@ -39,8 +39,25 @@ class _PaymentDialogState extends State<PaymentDialog> {
   @override
   void initState() {
     super.initState();
-    monthsStatus = widget.months.map((key, value) => MapEntry(key, value));
+    monthsStatus = {};
+
+    // Ensure widget.months is treated as a List<dynamic> safely
+    List<dynamic> monthsList = (widget.months is List) ? widget.months as List<dynamic> : [];
+
+    // Convert the list of months into a Map<String, dynamic> for quick lookup
+    Map<String, dynamic> monthsMap = {
+      for (var monthData in monthsList) if (monthData is Map<String, dynamic>) monthData["month"]: monthData
+    };
+
+    for (var month in orderedMonths) {
+      if (monthsMap.containsKey(month)) {
+        monthsStatus[month] = monthsMap[month]["paid"] ?? false;
+      } else {
+        monthsStatus[month] = false; // Mark as pending if no payment is recorded
+      }
+    }
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -49,16 +66,23 @@ class _PaymentDialogState extends State<PaymentDialog> {
       content: SingleChildScrollView(
         child: Column(
           children: orderedMonths.map((month) {
-            return CheckboxListTile(
+            var paymentDetails = widget.months.entries.firstWhere(
+              (entry) => entry.value["month"] == month,
+              orElse: () => MapEntry("", {}),
+            ).value;
+
+            bool isPaid = paymentDetails.isNotEmpty && paymentDetails["paid"] == true;
+            return ListTile(
               title: Text(month),
-              value: monthsStatus[month],
-              onChanged: (bool? value) {
-                setState(() {
-                  monthsStatus[month] = value ?? false;
-                });
-              },
+              subtitle: isPaid
+                  ? Text("Pagado el ${paymentDetails["payment_date"]} - ${paymentDetails["method"]} - \$${paymentDetails["how_much"]}")
+                  : const Text("Pendiente"),
+              trailing: Icon(
+                isPaid ? Icons.check_circle : Icons.cancel,
+                color: isPaid ? Colors.green : Colors.red,
+              ),
             );
-          }).toList(),
+        }).toList(),
         ),
       ),
       actions: [

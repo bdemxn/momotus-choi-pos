@@ -25,7 +25,6 @@ class BundleService {
 
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(utf8.decode(response.bodyBytes));
-
         _bundles.clear();
         _bundles.addAll(data.map((item) => item as Map<dynamic, dynamic>));
       } else {
@@ -54,7 +53,7 @@ class Bundle {
     return Bundle(
       id: json['id'],
       name: json['name'],
-      totalPrice: json['total_price']?.toDouble() ?? 0.0,
+      totalPrice: (json['total_price'] is num) ? json['total_price'].toDouble(): 0.0,
       products: (json['products'] as List<dynamic>)
           .map((item) => ProductInBundle.fromJson(item))
           .toList(),
