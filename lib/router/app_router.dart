@@ -1,14 +1,17 @@
 import 'package:choi_pos/screens/admin/categories_screen.dart';
 import 'package:choi_pos/screens/admin/discount_codes_screen.dart';
+import 'package:choi_pos/screens/admin/modifiers/bundles_form.dart';
 import 'package:choi_pos/screens/admin/modifiers/customer_registration_screen.dart';
 import 'package:choi_pos/screens/admin/customers_screen.dart';
 import 'package:choi_pos/screens/admin/bundles_screen.dart';
 import 'package:choi_pos/screens/admin/inventory_screen.dart';
 import 'package:choi_pos/screens/admin/modifiers/category_form.dart';
 import 'package:choi_pos/screens/admin/modifiers/inventory_form.dart';
+import 'package:choi_pos/screens/admin/modifiers/monthly_form.dart';
 import 'package:choi_pos/screens/admin/modifiers/promo_form.dart';
 import 'package:choi_pos/screens/admin/modifiers/tournament_form.dart';
 import 'package:choi_pos/screens/admin/modifiers/user_form.dart';
+import 'package:choi_pos/screens/admin/monthly_screen.dart';
 import 'package:choi_pos/screens/admin/overview_screen.dart';
 import 'package:choi_pos/screens/admin/payments_screens.dart';
 import 'package:choi_pos/screens/admin/reports_screen.dart';
@@ -27,9 +30,6 @@ import 'package:choi_pos/screens/login_screen.dart';
 import 'package:choi_pos/widgets/bundles/bundles_form.dart';
 import 'package:choi_pos/widgets/customers/customer_update_form.dart';
 import 'package:go_router/go_router.dart';
-import 'package:choi_pos/screens/printing/printer_controller.dart';
-
-final PrinterController printerController = PrinterController();
 
 // Router setup
 final GoRouter appRouter = GoRouter(
@@ -53,7 +53,7 @@ final GoRouter appRouter = GoRouter(
           ),
           GoRoute(
             path: 'checkout',
-            builder: (context, state) => CheckoutScreen(printerController: printerController),
+            builder: (context, state) => const CheckoutScreen(),
           ),
           GoRoute(
             path: 'create-inventory',
@@ -77,9 +77,18 @@ final GoRouter appRouter = GoRouter(
       builder: (context, state) => const OverviewScreen(),
       routes: [
         GoRoute(
-          path: 'payments',
-          builder: (context, state) => const PaymentsScreen()
-        ),
+            path: 'monthly',
+            builder: (context, state) => const MonthlyScreen(),
+            routes: [
+              GoRoute(
+                path: 'create-monthly',
+                builder: (context, state) => const MonthlyFormWidget(),
+              )
+            ]
+          ),
+        GoRoute(
+            path: 'payments',
+            builder: (context, state) => const PaymentsScreen()),
         GoRoute(
           path: 'edit-customer',
           builder: (context, state) {
@@ -137,15 +146,16 @@ final GoRouter appRouter = GoRouter(
               )
             ]),
         GoRoute(
-          path: 'bundles',
-          builder: (context, state) => const BundlesScreen(),
-          routes: [
-            GoRoute(
-              path: 'create-bundle',
-              builder: (context, state) => const BundlesForm()
-            )
-          ]
-        ),
+            path: 'bundles',
+            builder: (context, state) => const BundlesScreen(),
+            routes: [
+              GoRoute(
+                  path: 'create-bundle',
+                  builder: (context, state) => const BundlesForm()),
+              GoRoute(
+                  path: 'create-combos',
+                  builder: (context, state) => const BundlesFormWidget())
+            ]),
         GoRoute(
             path: 'tournaments',
             builder: (context, state) => const TournamentsScreen(),

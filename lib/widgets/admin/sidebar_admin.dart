@@ -7,7 +7,8 @@ class SidebarAdmin extends StatelessWidget {
   final AuthService _authService = AuthService();
 
   // Colors constants:
-  final TextStyle _myStyle = const TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold);
+  final TextStyle _myStyle = const TextStyle(
+      color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold);
   final Color _iconColor = Colors.white;
 
   @override
@@ -128,6 +129,17 @@ class SidebarAdmin extends StatelessWidget {
               ],
             ),
           ),
+          
+          TextButton(
+            onPressed: () => context.go('/admin/monthly'),
+            child: Row(
+              children: [
+                Icon(Icons.monetization_on, size: 20, color: _iconColor),
+                const SizedBox(width: 8),
+                Text('Mensualidades', style: _myStyle)
+              ],
+            ),
+          ),
 
           TextButton(
             onPressed: () => context.go('/admin/payments'),
@@ -150,7 +162,7 @@ class SidebarAdmin extends StatelessWidget {
               ],
             ),
           ),
-          
+
           // Go to LoginForm:
           TextButton(
             onPressed: () async {

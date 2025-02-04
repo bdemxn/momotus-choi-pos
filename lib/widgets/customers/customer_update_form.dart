@@ -31,20 +31,18 @@ class _CustomerUpdateFormState extends State<CustomerUpdateForm> {
     'Mensualidad Standard',
     'Mensualidad Niños 2-4',
     'Mensualidad Sabatina Standard',
-    'Mensualidad Sabatina 2-4'
+    'Mensualidad Sabatina Niños 2-4'
   ];
 
   final List<Map<String, dynamic>> schedules = [
     {
       "days": ['Martes', 'Jueves'],
-      "id": "schedules:9yjffzdtsvlh7my13d8m",
-      "name": 'Standard 2',
+      "name": 'MJ',
       "times": ['3:00 PM - 4:30 PM', '4:30 PM - 6:00 PM', '6:00 PM - 7:30 PM']
     },
-    {
+    {'Mensualidad Standard Niños 2-4'
       "days": ['Sabado'],
-      "id": "schedules:e9dfske3l73xifstsbsa",
-      "name": 'Sabatino',
+      "name": 'SAB',
       "times": [
         '9:00 AM - 10:00 AM',
         '10:00 AM - 12:00 PM',
@@ -54,8 +52,7 @@ class _CustomerUpdateFormState extends State<CustomerUpdateForm> {
     },
     {
       "days": ['Lunes', 'Miércoles', 'Viernes'],
-      "id": "schedules:f1iavfymp4w7s4egjp7w",
-      "name": 'Standard 1',
+      "name": 'LMV',
       "times": [
         '3:00 PM - 4:00 PM',
         '4:00 PM - 5:00 PM',

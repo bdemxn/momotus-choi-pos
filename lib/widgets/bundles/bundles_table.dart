@@ -41,15 +41,27 @@ class _BundlesTableState extends State<BundlesTable> {
                 columns: const [
                   DataColumn(label: Text('ID')),
                   DataColumn(label: Text('Nombre')),
-                  DataColumn(label: Text('Descuento')),
+                  DataColumn(label: Text('Precio Total')),
+                  DataColumn(label: Text('Productos')),
                   DataColumn(label: Text('Acciones')),
                 ],
                 rows: bundles
                     .map(
                       (bundle) => DataRow(cells: [
-                        DataCell(Text(bundle.id)),
-                        DataCell(Text(bundle.name)),
-                        DataCell(Text(bundle.discount.toString())),
+                        DataCell(Text((bundle["id"]
+                                    as Map<String, dynamic>?)?["id"]?["String"]
+                                ?.toString() ??
+                            "N/A")),
+                        DataCell(Text(bundle["name"])),
+                        DataCell(
+                            Text(bundle["total_price"].toStringAsFixed(2))),
+                        DataCell(Text(
+                          (bundle["products"] as List<dynamic>?)
+                                  ?.map((product) =>
+                                      '${product["item"]} (${product["quantity"]})')
+                                  .join(', ') ??
+                              "No products available",
+                        )),
                         DataCell(
                           Row(
                             children: [
@@ -71,7 +83,7 @@ class _BundlesTableState extends State<BundlesTable> {
                                         title:
                                             const Text('Confirmar Eliminación'),
                                         content: Text(
-                                            '¿Estás seguro de que quieres eliminar "${bundle.name}"?'),
+                                            '¿Estás seguro de que quieres eliminar "${bundle["name"]}"?'),
                                         actions: [
                                           TextButton(
                                             onPressed: () =>

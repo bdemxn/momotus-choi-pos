@@ -44,14 +44,14 @@ class _TournamentsScreenState extends State<TournamentsScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Text(
-                      'Torneos',
+                      'Examenes',
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                     const Text(
-                      'Todos los torneos que hallas creado apareceran aquí',
+                      'Todos los examenes que hayas creado apareceran aquí',
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.normal,
@@ -75,7 +75,7 @@ class _TournamentsScreenState extends State<TournamentsScreen> {
                                     color: Colors.lightBlue,
                                   ),
                                   Text(
-                                    'Añadir torneo',
+                                    'Añadir examen',
                                     style: TextStyle(color: Colors.lightBlue),
                                   )
                                 ],

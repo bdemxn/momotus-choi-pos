@@ -27,15 +27,6 @@ class CartProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  void updateItemPrice(String itemId, double newPrice) {
-    final index =
-        _cartItems.indexWhere((cartItem) => cartItem.item.id == itemId);
-    if (index != -1) {
-      _cartItems[index].item.price = newPrice;
-      notifyListeners();
-    }
-  }
-
   void addToCart(InventoryItem item) {
     final index =
         _cartItems.indexWhere((cartItem) => cartItem.item.id == item.id);
@@ -70,22 +61,8 @@ class CartProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  void updateCurrency(String newCurrency, double rate) {
-    if (_currency == newCurrency) return;
-    _currency = newCurrency;
-    for (var cartItem in _cartItems) {
-      if (newCurrency == 'Cordobas') {
-        cartItem.item.price = cartItem.item.originalPrice * rate;
-      } else {
-        cartItem.item.price = cartItem.item.originalPrice;
-      }
-    }
-    notifyListeners();
-  }
-
   double get totalPrice =>
-      _cartItems.fold(0, (total, cartItem) => total + cartItem.totalPrice);
-
+    double.parse(_cartItems.fold<double>(0.0, (total, cartItem) => total + cartItem.totalPrice).toStringAsFixed(2));
   int get totalItems =>
       _cartItems.fold(0, (total, cartItem) => total + cartItem.quantity);
 }

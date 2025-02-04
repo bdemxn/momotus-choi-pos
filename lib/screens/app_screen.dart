@@ -7,6 +7,8 @@ import 'package:choi_pos/store/cart_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:choi_pos/services/monthly/monthly_services.dart';
+import 'package:choi_pos/services/bundles/get_bundles.dart';
 // import 'package:choi_pos/screens/printing/printer_controller.dart';
 
 class AppScreen extends StatefulWidget {
@@ -23,6 +25,7 @@ class _AppScreenState extends State<AppScreen> {
   String selectedView = 'Inventario';
 
   late InventoryItem examItem;
+  late InventoryItem monthlyItem;
 
   @override
   void initState() {
@@ -43,11 +46,23 @@ class _AppScreenState extends State<AppScreen> {
     await tournamentService.getTournaments();
   }
 
+  Future<void> fetchBundles() async {
+  final bundleService = Provider.of<BundleService>(context, listen: false);
+  await bundleService.fetchBundles();  // Usar el nombre correcto de la función
+  }
+
+  Future<void> fetchMonthly() async {
+  final bundleService = Provider.of<MonthlyServices>(context, listen: false);
+  await bundleService.fetchMonthly();  // Usar el nombre correcto de la función
+  }
+
   @override
   Widget build(BuildContext context) {
     final inventoryService = Provider.of<InventoryService>(context);
     final cartProvider = Provider.of<CartProvider>(context);
     final tournamentService = Provider.of<TournamentServices>(context);
+    final monthlyService = Provider.of<MonthlyServices>(context); // 🔥 Agregar esto
+    final bundleService = Provider.of<BundleService>(context); // 🔥 Agregar esto
 
     return Scaffold(
       appBar: AppBar(
@@ -126,13 +141,33 @@ class _AppScreenState extends State<AppScreen> {
                             value: 'Examenes',
                             child: Text('Examenes'),
                           ),
+                          DropdownMenuItem(
+                            value: 'Bundles',
+                            child: Text('Bundles'),
+                          ),
+                          DropdownMenuItem(
+                            value: 'Mensualidades',
+                            child: Text('Mensualidades'),
+                          ),
                         ],
                         onChanged: (value) {
                           setState(() {
                             selectedView = value!;
                           });
-                          if (selectedView == 'Examenes') {
-                            fetchTournaments(); // Fetch tournaments when selected.
+
+                          switch (selectedView) {
+                            case 'Examenes':
+                              fetchTournaments(); // Fetch tournaments when selected.
+                              break;
+                            case 'Mensualidades':
+                              fetchMonthly();
+                              break;
+                            case 'Bundles':
+                              fetchBundles();
+                              break;
+                            default:
+                              fetchInventory();
+                              break;
                           }
                         },
                       )
@@ -141,55 +176,124 @@ class _AppScreenState extends State<AppScreen> {
                 ),
 
                 Expanded(
-                  child: selectedView == 'Inventario'
-                      ? ListView.builder(
-                          itemCount: inventoryService
-                              .filteredInventory(
-                                _searchController.text,
-                                cartProvider.selectedCategory,
-                              )
-                              .length,
-                          itemBuilder: (context, index) {
-                            final item = inventoryService.filteredInventory(
-                              _searchController.text,
-                              cartProvider.selectedCategory,
-                            )[index];
-                            return ListTile(
-                              title: Text(item.name),
-                              subtitle: Text(
-                                'Precio: \$${item.price.toStringAsFixed(2)}\nStock: ${item.quantity}',
-                              ),
-                              trailing: IconButton(
+                  child: Builder(
+                    builder: (context) {
+                      switch (selectedView) {
+                        case 'Inventario':
+                          final inventoryItems =
+                              inventoryService.filteredInventory(
+                            _searchController.text,
+                            cartProvider.selectedCategory,
+                          );
+
+                          return ListView.builder(
+                            itemCount: inventoryItems.length,
+                            itemBuilder: (context, index) {
+                              final item = inventoryItems[index];
+                              return ListTile(
+                                title: Text(item.name),
+                                subtitle: Text(
+                                  'Precio: \$${item.price.toStringAsFixed(2)}\nStock: ${item.quantity}',
+                                ),
+                                trailing: IconButton(
                                   icon: const Icon(Icons.add_shopping_cart),
-                                  onPressed: () =>
-                                      cartProvider.addToCart(item)),
-                            );
-                          },
-                        )
-                      : ListView.builder(
-                          itemCount: tournamentService.tournamentList.length,
-                          itemBuilder: (context, index) {
-                            final tournament =
-                                tournamentService.tournamentList[index];
-                            return ListTile(
-                              title: Text(tournament['name']),
-                              subtitle:
-                                  Text('Precio: \$${tournament['price']}'),
-                              trailing: IconButton(
+                                  onPressed: () => cartProvider.addToCart(item),
+                                ),
+                              );
+                            },
+                          );
+
+                        case 'Examenes':
+                          return ListView.builder(
+                            itemCount: tournamentService.tournamentList.length,
+                            itemBuilder: (context, index) {
+                              final tournament =
+                                  tournamentService.tournamentList[index];
+                              return ListTile(
+                                title: Text(tournament['name']),
+                                subtitle:
+                                    Text('Precio: \$${tournament['price']}'),
+                                trailing: IconButton(
                                   icon: const Icon(Icons.play_arrow),
-                                  onPressed: () => {
-                                        examItem = InventoryItem(
-                                            id: tournament['id'],
-                                            name: tournament['name'],
-                                            price: tournament['price'],
-                                            barCode: '',
-                                            quantity: 1,
-                                            category: 'Exámen'),
-                                        cartProvider.addToCart(examItem)
-                                      }),
-                            );
-                          },
-                        ),
+                                  onPressed: () {
+                                    final examItem = InventoryItem(
+                                      id: tournament['id'],
+                                      name: tournament['name'],
+                                      price: tournament['price'],
+                                      barCode: '',
+                                      quantity: 1,
+                                      category: 'Exámen',
+                                    );
+                                    cartProvider.addToCart(examItem);
+                                  },
+                                ),
+                              );
+                            },
+                          );
+                        case 'Bundles':
+                          return ListView.builder(
+                            itemCount: bundleService.bundles.length,
+                            itemBuilder: (context, index) {
+                              final bundle = bundleService.bundles[index];
+                              return ListTile(
+                                title: Text(bundle["name"]),
+                                subtitle: Text('Precio: \$${bundle["totalPrice"]}'),
+                                trailing: IconButton(
+                                  icon: const Icon(Icons.add_box),
+                                  onPressed: () {
+                                    final bundleItem = InventoryItem(
+                                      id: bundle["id"]["id"]["String"], // Extraer el ID correcto,
+                                      name: bundle["name"],
+                                      price: bundle["totalPrice"],
+                                      barCode: '',
+                                      quantity: 1,
+                                      category: 'Bundle',
+                                    );
+                                    print("Bundle cargado: ${bundle["name"]} - Precio: ${bundle["total_price"]}");
+                                    cartProvider.addToCart(bundleItem);
+                                  },
+                                ),
+                              );
+                            },
+                          );
+                        case 'Mensualidades':
+                          return ListView.builder(
+                            
+                            itemCount: monthlyService.monthlyList.length,
+                            itemBuilder: (context, index) {
+                              final monthly = monthlyService.monthlyList[index];
+                              return ListTile(
+                                title: Text(monthly["name"]),
+                                subtitle: Text(
+                                  'Precio: \$${monthly["price"]}%',
+                                ),
+                                trailing: IconButton(
+                                  icon: const Icon(Icons.add),
+                                onPressed: () {
+                                  final mensualidadItem = InventoryItem(
+                                    id: monthly["id"], 
+                                    name: monthly["name"],
+                                    price: monthly["price"] ?? 0.0,
+                                    barCode: '',
+                                    quantity: 1,
+                                    category: 'Mensualidad',
+                                  );
+
+                                  print("Mensualidad seleccionada: ${mensualidadItem.name} - Precio: ${mensualidadItem.price}");
+                                  cartProvider.addToCart(mensualidadItem);
+                                },
+                                ),
+                              );
+                            },
+                          );
+                        case 'OtraVista':
+                          return const Center(child: Text('Vista de OtraVista'));
+
+                        default:
+                          return const Center(child: Text('Selecciona una vista'));
+                      }
+                    },
+                  ),
                 ),
               ],
             ),
@@ -226,17 +330,17 @@ class _AppScreenState extends State<AppScreen> {
                           onPressed: () => context.go('/app/payments'),
                           icon: const Icon(Icons.payments_outlined)),
                     ),
-                    Padding(
-                      padding: const EdgeInsets.only(left: 0),
-                      child: IconButton(
-                          onPressed: () {
-                            // Navigator.push(
-                            //   context,
-                            //   MaterialPageRoute(builder: (context) => PrintingView(controller: _printerController)),
-                            // );
-                          },
-                          icon: const Icon(Icons.print)),
-                    ),
+                    // Padding(
+                    //   padding: const EdgeInsets.only(left: 0),
+                    //   child: IconButton(
+                    //       onPressed: () {
+                    //         Navigator.push(
+                    //           context,
+                    //           MaterialPageRoute(builder: (context) => PrintingView(controller: _printerController)),
+                    //         );
+                    //       },
+                    //       icon: const Icon(Icons.print)),
+                    // ),
                     Padding(
                       padding: const EdgeInsets.only(left: 0),
                       child: IconButton(
@@ -309,7 +413,8 @@ class _AppScreenState extends State<AppScreen> {
                                     listen: false);
 
                                 if (cartProvider.cartItems.isNotEmpty) {
-                                  context.go('/app/checkout', extra: selectedView);
+                                  context.go('/app/checkout',
+                                      extra: selectedView);
                                 } else {
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     const SnackBar(

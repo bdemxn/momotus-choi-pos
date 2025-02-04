@@ -25,18 +25,25 @@ class PaymentServices {
         },
       );
 
-      print(response.statusCode);
-
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(utf8.decode(response.bodyBytes));
 
         _paymentList.clear();
-        _paymentList.addAll(data.map((item) => item as Map<dynamic, dynamic>));
+        _paymentList.addAll(data.map((item) {
+          return {
+            "id": item["id"]["id"]["String"],  // Extraer ID correctamente
+            "client_name": item["client_id"],  // El nombre ya viene directo
+            "year": item["year"],
+            "schedule": item["monthly_id"],    // Ajuste para el nuevo formato
+            "months": item["months"].isNotEmpty ? item["months"] : [],
+          };
+        }));
       }
     } catch (e) {
-      print(e);
+      throw Exception("Error al obtener pagos: $e");
     }
   }
+
 
   Future<void> putPayment(Map<String, bool> paidMonths, String id) async {
 
