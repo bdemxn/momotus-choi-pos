@@ -2,8 +2,10 @@ import 'package:choi_pos/models/inventory_item.dart';
 import 'package:choi_pos/screens/admin/modifiers/add_subscription_popup.dart';
 import 'package:choi_pos/services/exchange/exchange_value.dart';
 import 'package:choi_pos/services/inventory/update_inventory.dart';
-import 'package:choi_pos/services/users/create_cashier_customer.dart';
+import 'package:choi_pos/services/payments/payment_services.dart';
+// import 'package:choi_pos/services/users/create_cashier_customer.dart';
 import 'package:choi_pos/store/cart_provider.dart';
+import 'package:choi_pos/widgets/customers/selected_customers.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -22,13 +24,13 @@ class CheckoutScreen extends StatefulWidget {
 class _CheckoutScreenState extends State<CheckoutScreen> {
   // final PrinterController printerController = PrinterController();
 
-  // ESPAGUETI:
-  final _customerService = CashierCustomerService();
-  final TextEditingController _searchController = TextEditingController();
-  late Future<List<Map<String, dynamic>>> _customers;
-  List<Map<String, dynamic>> _filteredCustomers = [];
-  String? selectedCustomerId = "";
-  // ESPAGUETI
+  // // ESPAGUETI:
+  // final _customerService = CashierCustomerService();
+  // final TextEditingController _searchController = TextEditingController();
+  // late Future<List<Map<String, dynamic>>> _customers;
+  // List<Map<String, dynamic>> _filteredCustomers = [];
+  // String? selectedCustomerId = "";
+  // // ESPAGUETI
 
   late SharedPreferences prefs;
   String selectedPaymentMethod = 'Efectivo';
@@ -45,92 +47,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   List<String> mixReference = [];
   List<dynamic> availablePromoCodes = [];
 
-  // Funciones espagueti:
-  void _fetchCustomers() {
-  _customerService.fetchCustomers().then((data) {
-    if (!mounted) return; // Previene errores si el widget ya no está en la pantalla
-    setState(() {
-      _filteredCustomers = data;
-    });
-  }).catchError((error) {
-    print("Error al obtener clientes: $error");
-  });
-  }
-
-
-  void _filterCustomers(String query) {
-    setState(() {
-      if (query.isEmpty) {
-        _customers.then((data) {
-          _filteredCustomers = data;
-        });
-      } else {
-        _customers.then((data) {
-          _filteredCustomers = data
-              .where((customer) => customer['fullname']
-                  ?.toLowerCase()
-                  .contains(query.toLowerCase()))
-              .toList();
-        });
-      }
-    });
-  }
-
-  Widget showPopup(BuildContext context) {
-    return AlertDialog(
-      title: const Text('Añadir Mensualidad'),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          TextField(
-            controller: _searchController,
-            decoration: const InputDecoration(
-              hintText: 'Buscar estudiante...',
-              prefixIcon: Icon(Icons.search),
-            ),
-            onChanged: _filterCustomers,
-          ),
-          const SizedBox(height: 10),
-          SizedBox(
-            height: 200,
-            child: ListView.builder(
-              itemCount: _filteredCustomers.length,
-              itemBuilder: (context, index) {
-                return ListTile(
-                  title: Text(_filteredCustomers[index]['fullname']),
-                  onTap: () {
-                    Navigator.pop(
-                        context, _filteredCustomers[index]['id'].toString());
-                  },
-                );
-              },
-            ),
-          ),
-        ],
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: const Text('Cancelar'),
-        ),
-      ],
-    );
-  }
-
-  void showAddSubscriptionPopup(BuildContext context) async {
-  if (!mounted) return; // Verifica que el widget siga montado
-  final String? result = await showDialog<String>(
-    context: context,
-    builder: (context) => showPopup(context),
-  );
-
-  if (!mounted) return; // Verifica de nuevo después del diálogo
-
-  setState(() {
-    selectedCustomerId = result;
-  });
-  }
-  // espagueti
+  final PaymentServices _monthlyServices = PaymentServices();
 
   Map<String, dynamic> buildReceiptData(CartProvider cartProvider) {
     final total = (cartProvider.totalPrice - discount);
@@ -150,6 +67,19 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       'currency': currency,
       'change': changeValue?.toStringAsFixed(2) ?? '0.00',
     };
+  }
+
+  Future<void> updateAllMonthlyPayments(CartProvider cartProvider) async {
+    int monthsToPay = cartProvider.getMonthlyItems();
+
+    try {
+      for (var client in cartProvider.customers) {
+        await _monthlyServices.updateMonthly(
+            client.fullname, monthsToPay, selectedPaymentMethod);
+      }
+    } catch (err) {
+      print("Error: $err");
+    }
   }
 
   Future<void> fetchPromoCodes() async {
@@ -321,10 +251,11 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   }
 
   void confirmPurchase(CartProvider cartProvider) async {
-    print("📡 Datos del carrito antes del checkout:");
-    for (var item in cartProvider.cartItems) {
-      print("ID: ${item.item.id}, Nombre: ${item.item.name}, Cantidad: ${item.quantity}, Precio: ${item.item.price}");
-    }
+    // print("📡 Datos del carrito antes del checkout:");
+    // for (var item in cartProvider.cartItems) {
+    //   print(
+    //       "ID: ${item.item.id}, Nombre: ${item.item.name}, Cantidad: ${item.quantity}, Precio: ${item.item.price}, Categoría: ${item.item.category}");
+    // }
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -350,21 +281,27 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     try {
       // Obtener el carrito actual desde el CartProvider
       final cartItems = cartProvider.cartItems;
-      final String kindOfArticle = GoRouterState.of(context).extra! as String;
 
       // Actualizar inventario
-      await UpdateInventory.updateInventory(
-          cartItems
+      List<CartItem> inventoryItems = cartItems
+          .where((cartItem) => !["Mensualidad", "Bundle", "Exámen"]
+              .contains(cartItem.item.category))
+          .toList();
+
+      if (inventoryItems.isNotEmpty) {
+        await UpdateInventory.updateInventory(
+          inventoryItems
               .map((cartItem) => InventoryItem(
                     barCode: "",
-                    category: "",
+                    category: cartItem.item.category,
                     name: cartItem.item.name,
                     price: 0,
                     id: cartItem.item.id,
                     quantity: cartItem.quantity,
                   ))
               .toList(),
-          selectedView: kindOfArticle);
+        );
+      }
 
       final prefs = await SharedPreferences.getInstance();
       final String? currentUser = prefs.getString('fullname');
@@ -373,9 +310,12 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       final List<Map<String, dynamic>> cartData = cartItems.map((cartItem) {
         return {
           'id': cartItem.item.id,
-          'quantity': (cartItem.quantity ?? 1).toInt(),
+          'quantity': (cartItem.quantity).toInt(),
+          'category': cartItem.item.category
         };
       }).toList();
+
+      await updateAllMonthlyPayments(cartProvider);
 
       // Enviar reporte de ventas
       await UpdateInventory.postSalesReport(
@@ -387,8 +327,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         cart: cartData,
         promoCode: promoCode ?? '',
         totalPaid: currency == 'Dolares'
-            ? cartProvider.totalPrice - discount
-            : (cartProvider.totalPrice - discount) * 36.79,
+            ? cartProvider.totalPriceMonthly - discount
+            : (cartProvider.totalPriceMonthly - discount) * 36.79,
         currency: currency == 'Dolares' ? 'USD' : 'NIO',
         type: selectedPaymentMethod,
         change: changeValue ?? 0,
@@ -414,12 +354,11 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     }
   }
 
-
   @override
   void initState() {
     super.initState();
     _loadSharedPreferences();
-    _fetchCustomers();
+    // _fetchCustomers();
 
     // Restaurar conexión de impresora al iniciar
     // printerController.restoreConnectedPrinter().then((_) {
@@ -484,8 +423,9 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                                   style: const TextStyle(
                                       fontSize: 16,
                                       fontWeight: FontWeight.w500)),
+                              Text("Categoria: ${cartItem.item.category}"),
                               Text(
-                                'Precio: ${cartProvider.currency == "Dolares" ? "\$" : "C\$"}${cartItem.item.price.toStringAsFixed(2)} x Cantidad: ${cartItem.quantity}',
+                                'Precio: ${cartProvider.currency == "Dolares" ? "\$" : "C\$"}${cartItem.item.price.toStringAsFixed(2)} x Cantidad: ${cartItem.quantity} ${(cartItem.item.category == "Mensualidad") ? "x Clientes: ${cartProvider.customers.length}" : ""}',
                               ),
                               Text(
                                 'Total: ${cartProvider.currency == "Dolares" ? "\$" : "C\$"}${cartItem.totalPrice.toStringAsFixed(2)}',
@@ -641,20 +581,28 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                           onPressed: () => applyPromoCode(cartProvider),
                           child: const Text('Aplicar código promocional'),
                         ),
-                        Padding(
-                          padding: const EdgeInsets.only(left: 20),
-                          child: ElevatedButton(
-                            onPressed: () => showAddSubscriptionPopup(context),
-                            child: const Text('Mensualidad'),
+                        if (cartProvider.customers.isNotEmpty)
+                          Padding(
+                            padding: const EdgeInsets.only(left: 20),
+                            child: ElevatedButton(
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) =>
+                                          const SelectedCustomersView()),
+                                );
+                              },
+                              child: const Text('Mensualidad'),
+                            ),
                           ),
-                        ),
                       ],
                     ),
                   ),
                   const Spacer(),
 
                   Text(
-                    "Total: ${currency == 'Cordobas' ? "C\$" : "\$"} ${((cartProvider.totalPrice - discount) * (currency == 'Cordobas' ? exchangeRate : 1.0)).toStringAsFixed(2)}",
+                    "Total: ${currency == 'Cordobas' ? "C\$" : "\$"} ${((cartProvider.totalPriceMonthly - discount) * (currency == 'Cordobas' ? exchangeRate : 1.0)).toStringAsFixed(2)}",
                     style: const TextStyle(
                         fontSize: 18, fontWeight: FontWeight.bold),
                   ),

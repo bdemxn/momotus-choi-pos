@@ -6,12 +6,11 @@ class PaymentDialog extends StatefulWidget {
   final Map<String, dynamic> months;
   final String id;
 
-  const PaymentDialog({
-    super.key,
-    required this.clientName,
-    required this.months,
-    required this.id
-  });
+  const PaymentDialog(
+      {super.key,
+      required this.clientName,
+      required this.months,
+      required this.id});
 
   @override
   State<PaymentDialog> createState() => _PaymentDialogState();
@@ -41,23 +40,27 @@ class _PaymentDialogState extends State<PaymentDialog> {
     super.initState();
     monthsStatus = {};
 
-    // Ensure widget.months is treated as a List<dynamic> safely
-    List<dynamic> monthsList = (widget.months is List) ? widget.months as List<dynamic> : [];
+    // Extraer correctamente la lista de meses desde el Map "widget.months"
+    List<Map<String, dynamic>> monthsList = [];
 
-    // Convert the list of months into a Map<String, dynamic> for quick lookup
-    Map<String, dynamic> monthsMap = {
-      for (var monthData in monthsList) if (monthData is Map<String, dynamic>) monthData["month"]: monthData
-    };
-
-    for (var month in orderedMonths) {
-      if (monthsMap.containsKey(month)) {
-        monthsStatus[month] = monthsMap[month]["paid"] ?? false;
-      } else {
-        monthsStatus[month] = false; // Mark as pending if no payment is recorded
+    if (widget.months.containsKey("months")) {
+      var extractedMonths = widget.months["months"];
+      if (extractedMonths is List) {
+        monthsList = List<Map<String, dynamic>>.from(extractedMonths);
       }
     }
-  }
 
+    for (var month in orderedMonths) {
+      var paymentDetails = monthsList.firstWhere(
+        (monthData) => monthData["month"] == month,
+        orElse: () => <String,
+            dynamic>{}, // Si no encuentra el mes, retorna un mapa vacío
+      );
+
+      monthsStatus[month] =
+          paymentDetails.isNotEmpty ? paymentDetails["paid"] ?? false : false;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -66,23 +69,41 @@ class _PaymentDialogState extends State<PaymentDialog> {
       content: SingleChildScrollView(
         child: Column(
           children: orderedMonths.map((month) {
-            var paymentDetails = widget.months.entries.firstWhere(
-              (entry) => entry.value["month"] == month,
-              orElse: () => MapEntry("", {}),
-            ).value;
+            List<Map<String, dynamic>> monthsList = [];
 
-            bool isPaid = paymentDetails.isNotEmpty && paymentDetails["paid"] == true;
+            if (widget.months.containsKey("months")) {
+              var extractedMonths = widget.months["months"];
+              if (extractedMonths is List) {
+                monthsList = List<Map<String, dynamic>>.from(extractedMonths);
+              }
+            }
+
+            var paymentDetails = monthsList.firstWhere(
+              (monthData) => monthData["month"] == month,
+              orElse: () => <String, dynamic>{},
+            );
+
+            bool isPaid =
+                paymentDetails.isNotEmpty && paymentDetails["paid"] == true;
+
             return ListTile(
               title: Text(month),
               subtitle: isPaid
-                  ? Text("Pagado el ${paymentDetails["payment_date"]} - ${paymentDetails["method"]} - \$${paymentDetails["how_much"]}")
+                  ? Text(
+                      "Pagado el ${paymentDetails["payment_date"]} - ${paymentDetails["method"]} - \$${paymentDetails["how_much"]}",
+                    )
                   : const Text("Pendiente"),
               trailing: Icon(
                 isPaid ? Icons.check_circle : Icons.cancel,
                 color: isPaid ? Colors.green : Colors.red,
               ),
+              onTap: () {
+                setState(() {
+                  monthsStatus[month] = !monthsStatus[month]!;
+                });
+              },
             );
-        }).toList(),
+          }).toList(),
         ),
       ),
       actions: [

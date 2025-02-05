@@ -129,41 +129,46 @@ class _ReportCardCashierState extends State<ReportCardCashier> {
                     });
                   },
                 ),
-                SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: DataTable(
-                    columns: const [
-                      DataColumn(label: Text('Cajero')),
-                      DataColumn(label: Text('Cliente')),
-                      DataColumn(label: Text('Fecha')),
-                      DataColumn(label: Text('ID Venta')),
-                      DataColumn(label: Text('Referencia de Pago')),
-                      DataColumn(label: Text('Productos')),
-                      DataColumn(label: Text('Promoción')),
-                      DataColumn(label: Text('Total Pagado')),
-                    ],
-                    rows: filteredReports.map((report) {
-                      final id = report['id']?['id']?['String'] ?? 'N/A';
-                      final productsNames = (report['products_names'] != null &&
-                              report['products_names'] is List<dynamic>)
-                          ? (report['products_names'] as List<dynamic>)
-                              .map((product) => product.toString())
-                              .join(', ')
-                          : 'Sin productos';
-
-                      return DataRow(
-                        cells: [
-                          DataCell(Text(report['cashier'] ?? 'N/A')),
-                          DataCell(Text(report['customer'] ?? 'N/A')),
-                          DataCell(Text(report['date'] ?? 'N/A')),
-                          DataCell(Text(id)),
-                          DataCell(Text(report['payment_ref'] ?? 'N/A')),
-                          DataCell(Text(productsNames)),
-                          DataCell(Text(report['promocode'] ?? 'Ninguno')),
-                          DataCell(Text('\$${report['total_paid']}')),
+                Expanded(
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.vertical,
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: DataTable(
+                        columns: const [
+                          DataColumn(label: Text('Cajero')),
+                          DataColumn(label: Text('Cliente')),
+                          DataColumn(label: Text('Fecha')),
+                          DataColumn(label: Text('ID Venta')),
+                          DataColumn(label: Text('Referencia de Pago')),
+                          DataColumn(label: Text('Productos')),
+                          DataColumn(label: Text('Promoción')),
+                          DataColumn(label: Text('Total Pagado')),
                         ],
-                      );
-                    }).toList(),
+                        rows: filteredReports.map((report) {
+                          final id = report['id']?['id']?['String'] ?? 'N/A';
+                          final productsNames = (report['products_names'] != null &&
+                                  report['products_names'] is List<dynamic>)
+                              ? (report['products_names'] as List<dynamic>)
+                                  .map((product) => product.toString())
+                                  .join(', ')
+                              : 'Sin productos';
+                    
+                          return DataRow(
+                            cells: [
+                              DataCell(Text(report['cashier'] ?? 'N/A')),
+                              DataCell(Text(report['customer'] ?? 'N/A')),
+                              DataCell(Text(report['date'] ?? 'N/A')),
+                              DataCell(Text(id)),
+                              DataCell(Text(report['payment_ref'] ?? 'N/A')),
+                              DataCell(Text(productsNames)),
+                              DataCell(Text(report['promocode'] ?? 'Ninguno')),
+                              DataCell(Text('\$${report['total_paid']}')),
+                            ],
+                          );
+                        }).toList(),
+                      ),
+                    ),
                   ),
                 ),
               ]);

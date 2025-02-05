@@ -47,13 +47,13 @@ class _AppScreenState extends State<AppScreen> {
   }
 
   Future<void> fetchBundles() async {
-  final bundleService = Provider.of<BundleService>(context, listen: false);
-  await bundleService.fetchBundles();  // Usar el nombre correcto de la función
+    final bundleService = Provider.of<BundleService>(context, listen: false);
+    await bundleService.fetchBundles(); // Usar el nombre correcto de la función
   }
 
   Future<void> fetchMonthly() async {
-  final bundleService = Provider.of<MonthlyServices>(context, listen: false);
-  await bundleService.fetchMonthly();  // Usar el nombre correcto de la función
+    final bundleService = Provider.of<MonthlyServices>(context, listen: false);
+    await bundleService.fetchMonthly(); // Usar el nombre correcto de la función
   }
 
   @override
@@ -61,8 +61,10 @@ class _AppScreenState extends State<AppScreen> {
     final inventoryService = Provider.of<InventoryService>(context);
     final cartProvider = Provider.of<CartProvider>(context);
     final tournamentService = Provider.of<TournamentServices>(context);
-    final monthlyService = Provider.of<MonthlyServices>(context); // 🔥 Agregar esto
-    final bundleService = Provider.of<BundleService>(context); // 🔥 Agregar esto
+    final monthlyService =
+        Provider.of<MonthlyServices>(context); // 🔥 Agregar esto
+    final bundleService =
+        Provider.of<BundleService>(context); // 🔥 Agregar esto
 
     return Scaffold(
       appBar: AppBar(
@@ -85,7 +87,10 @@ class _AppScreenState extends State<AppScreen> {
         actions: [
           IconButton(
             icon: const Icon(Icons.delete_forever),
-            onPressed: cartProvider.clearCart,
+            onPressed: () {
+              cartProvider.clearCart();
+              cartProvider.clearCustomers();
+            },
           )
         ],
       ),
@@ -165,7 +170,7 @@ class _AppScreenState extends State<AppScreen> {
                             case 'Bundles':
                               fetchBundles();
                               break;
-                            default:
+                            case 'Inventario':
                               fetchInventory();
                               break;
                           }
@@ -237,19 +242,21 @@ class _AppScreenState extends State<AppScreen> {
                               final bundle = bundleService.bundles[index];
                               return ListTile(
                                 title: Text(bundle["name"]),
-                                subtitle: Text('Precio: \$${bundle["totalPrice"]}'),
+                                subtitle:
+                                    Text('Precio: \$${bundle["total_price"]}'),
                                 trailing: IconButton(
                                   icon: const Icon(Icons.add_box),
                                   onPressed: () {
                                     final bundleItem = InventoryItem(
-                                      id: bundle["id"]["id"]["String"], // Extraer el ID correcto,
+                                      id: "${bundle["id"]["tb"]}:${bundle["id"]["id"]["String"]}",
                                       name: bundle["name"],
-                                      price: bundle["totalPrice"],
+                                      price: bundle["total_price"],
                                       barCode: '',
                                       quantity: 1,
                                       category: 'Bundle',
                                     );
-                                    print("Bundle cargado: ${bundle["name"]} - Precio: ${bundle["total_price"]}");
+                                    print(
+                                        "Bundle cargado: ${bundle["name"]} - Precio: ${bundle["total_price"]}");
                                     cartProvider.addToCart(bundleItem);
                                   },
                                 ),
@@ -258,7 +265,6 @@ class _AppScreenState extends State<AppScreen> {
                           );
                         case 'Mensualidades':
                           return ListView.builder(
-                            
                             itemCount: monthlyService.monthlyList.length,
                             itemBuilder: (context, index) {
                               final monthly = monthlyService.monthlyList[index];
@@ -269,28 +275,31 @@ class _AppScreenState extends State<AppScreen> {
                                 ),
                                 trailing: IconButton(
                                   icon: const Icon(Icons.add),
-                                onPressed: () {
-                                  final mensualidadItem = InventoryItem(
-                                    id: monthly["id"], 
-                                    name: monthly["name"],
-                                    price: monthly["price"] ?? 0.0,
-                                    barCode: '',
-                                    quantity: 1,
-                                    category: 'Mensualidad',
-                                  );
+                                  onPressed: () {
+                                    final mensualidadItem = InventoryItem(
+                                      id: monthly["id"],
+                                      name: monthly["name"],
+                                      price: monthly["price"] ?? 0.0,
+                                      barCode: '',
+                                      quantity: 1,
+                                      category: 'Mensualidad',
+                                    );
 
-                                  print("Mensualidad seleccionada: ${mensualidadItem.name} - Precio: ${mensualidadItem.price}");
-                                  cartProvider.addToCart(mensualidadItem);
-                                },
+                                    print(
+                                        "Mensualidad seleccionada: ${mensualidadItem.name} - Precio: ${mensualidadItem.price}");
+                                    cartProvider.addToCart(mensualidadItem);
+                                  },
                                 ),
                               );
                             },
                           );
                         case 'OtraVista':
-                          return const Center(child: Text('Vista de OtraVista'));
+                          return const Center(
+                              child: Text('Vista de OtraVista'));
 
                         default:
-                          return const Center(child: Text('Selecciona una vista'));
+                          return const Center(
+                              child: Text('Selecciona una vista'));
                       }
                     },
                   ),
