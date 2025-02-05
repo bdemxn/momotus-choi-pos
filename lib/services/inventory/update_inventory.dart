@@ -41,15 +41,13 @@ class UpdateInventory {
   }
 
   // Método para actualizar el inventario
-  static Future<void> updateInventory(List<InventoryItem> cart, {required String selectedView}) async {
+  static Future<void> updateInventory(List<InventoryItem> cart) async {
     final prefs = await SharedPreferences.getInstance();
     final String? token = prefs.getString('authToken');
 
     if (token == null) {
       throw Exception('No se encontró un token de autenticación.');
     }
-
-    if (selectedView == "Examenes") return;
 
     for (var item in cart) {
       // Obtener cantidad actual del inventario
