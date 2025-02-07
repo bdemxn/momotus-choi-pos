@@ -3,7 +3,6 @@ import 'package:choi_pos/screens/admin/modifiers/add_subscription_popup.dart';
 import 'package:choi_pos/services/exchange/exchange_value.dart';
 import 'package:choi_pos/services/inventory/update_inventory.dart';
 import 'package:choi_pos/services/payments/payment_services.dart';
-// import 'package:choi_pos/services/users/create_cashier_customer.dart';
 import 'package:choi_pos/store/cart_provider.dart';
 import 'package:choi_pos/widgets/customers/selected_customers.dart';
 import 'package:flutter/material.dart';

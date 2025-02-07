@@ -339,17 +339,19 @@ class _AppScreenState extends State<AppScreen> {
                           onPressed: () => context.go('/app/payments'),
                           icon: const Icon(Icons.payments_outlined)),
                     ),
-                    // Padding(
-                    //   padding: const EdgeInsets.only(left: 0),
-                    //   child: IconButton(
-                    //       onPressed: () {
-                    //         Navigator.push(
-                    //           context,
-                    //           MaterialPageRoute(builder: (context) => PrintingView(controller: _printerController)),
-                    //         );
-                    //       },
-                    //       icon: const Icon(Icons.print)),
-                    // ),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 0),
+                      child: IconButton(
+                          onPressed: () {
+                            // Navigator.push(
+                            //   context,
+                            //   MaterialPageRoute(
+                            //       builder: (context) => PrintingView(
+                            //           controller: _printerController)),
+                            // );
+                          },
+                          icon: const Icon(Icons.print)),
+                    ),
                     Padding(
                       padding: const EdgeInsets.only(left: 0),
                       child: IconButton(
