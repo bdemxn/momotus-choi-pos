@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'package:choi_pos/models/user_pos_model.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -9,7 +8,7 @@ class AuthService {
   Timer? _tokenRefreshTimer;
 
   void startTokenRefreshTimer(dynamic body) {
-    const refreshInterval = Duration(minutes: 5); // Intervalo de verificación
+    const refreshInterval = Duration(minutes: 5);
     _tokenRefreshTimer = Timer.periodic(refreshInterval, (Timer timer) async {
       await _checkAndRefreshToken(body);
     });
@@ -94,7 +93,7 @@ class AuthService {
       final now = DateTime.now().toUtc();
       final expirationDate = DateTime.parse(expiration).toUtc();
 
-      if (expirationDate.isBefore(now.add(const Duration(minutes: 5)))) {
+      if (expirationDate.isBefore(now.add(const Duration(minutes: 10)))) {
         return await refreshToken(body);
       }
     }
@@ -110,8 +109,7 @@ class AuthService {
       throw Exception("No hay token disponible para refrescar.");
     }
 
-    final url =
-        Uri.parse('$_baseUrl/refresh'); // Endpoint para refrescar el token
+    final url = Uri.parse('$_baseUrl/refresh');
 
     try {
       final response = await http.post(
@@ -128,7 +126,7 @@ class AuthService {
         }
 
         final newToken = data['access_token'];
-        final newExpiration = data['expires_at']; // Nueva fecha de expiración
+        final newExpiration = data['expires_at'];
 
         await prefs.setString('authToken', newToken);
         await prefs.setString('tokenExpiration', newExpiration);
@@ -141,5 +139,28 @@ class AuthService {
     } catch (e) {
       throw Exception('Error al refrescar el token: $e');
     }
+  }
+}
+
+class UserModel {
+  final String token;
+  final String role;
+  final String fullname;
+  final DateTime expiresAt;
+
+  UserModel({
+    required this.token,
+    required this.role,
+    required this.fullname,
+    required this.expiresAt,
+  });
+
+  factory UserModel.fromJson(Map<String, dynamic> json) {
+    return UserModel(
+      token: json['access_token'],
+      role: json['role'] ?? '',
+      fullname: json['fullname'] ?? '',
+      expiresAt: DateTime.parse(json['expires_at']),
+    );
   }
 }
