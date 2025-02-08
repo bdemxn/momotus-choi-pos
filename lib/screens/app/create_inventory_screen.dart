@@ -1,3 +1,4 @@
+import 'package:choi_pos/screens/app/modifiers/cashier_retail.dart';
 import 'package:choi_pos/services/category/get_categories.dart';
 import 'package:choi_pos/services/inventory/create_inventory_item.dart';
 import 'package:flutter/material.dart';
@@ -7,10 +8,12 @@ class CreateInventoryCashierScreen extends StatefulWidget {
   const CreateInventoryCashierScreen({super.key});
 
   @override
-  State<CreateInventoryCashierScreen> createState() => _CreateInventoryCashierScreenState();
+  State<CreateInventoryCashierScreen> createState() =>
+      _CreateInventoryCashierScreenState();
 }
 
-class _CreateInventoryCashierScreenState extends State<CreateInventoryCashierScreen> {
+class _CreateInventoryCashierScreenState
+    extends State<CreateInventoryCashierScreen> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _priceController = TextEditingController();
@@ -94,113 +97,122 @@ class _CreateInventoryCashierScreenState extends State<CreateInventoryCashierScr
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(
-                key: _formKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    TextFormField(
-                      controller: _nameController,
-                      decoration: const InputDecoration(
-                          labelText: 'Nombre del producto'),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'El nombre no puede estar vacío';
-                        }
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: 16),
-                    TextFormField(
-                      controller: _priceController,
-                      decoration: const InputDecoration(labelText: 'Precio'),
-                      keyboardType: TextInputType.number,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'El precio no puede estar vacío';
-                        }
-                        if (double.tryParse(value) == null) {
-                          return 'Debe ser un número válido';
-                        }
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: 16),
-                    TextFormField(
-                      controller: _barcodeController,
-                      decoration:
-                          const InputDecoration(labelText: 'Código de barras'),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'El código de barras no puede estar vacío';
-                        }
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: 16),
-                    // TextFormField(
-                    //   controller: _categoryController,
-                    //   decoration:
-                    //       const InputDecoration(labelText: 'Categoría'),
-                    //   validator: (value) {
-                    //     if (value == null || value.isEmpty) {
-                    //       return 'La categoría no puede estar vacía';
-                    //     }
-                    //     return null;
-                    //   },
-                    // ),
-
-                    _isFetchingCategories
-                        ? const CircularProgressIndicator()
-                        : DropdownButtonFormField<String>(
-                            value: _selectedCategory,
-                            decoration: const InputDecoration(
-                                labelText: '...Categoría'),
-                            items: _categories
-                                .map((category) => DropdownMenuItem(
-                                      value: category,
-                                      child: Text(category),
-                                    ))
-                                .toList(),
-                            onChanged: (value) {
-                              setState(() {
-                                _selectedCategory = value;
-                              });
-                            },
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Debe seleccionar una categoría';
-                              }
-                              return null;
-                            },
-                          ),
-                    const SizedBox(height: 16),
-                    TextFormField(
-                      controller: _quantityController,
-                      decoration: const InputDecoration(labelText: 'Cantidad'),
-                      keyboardType: TextInputType.number,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'La cantidad no puede estar vacía';
-                        }
-                        if (int.tryParse(value) == null) {
-                          return 'Debe ser un número válido';
-                        }
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: 16),
-                    _isLoading
-                        ? const Center(child: CircularProgressIndicator())
-                        : ElevatedButton(
-                            onPressed: _submitForm,
-                            child: const Text(
-                              'Crear Objeto',
-                              style: TextStyle(color: Colors.lightBlue),
-                            ),
-                          ),
-                  ],
-                ),
+          key: _formKey,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              TextFormField(
+                controller: _nameController,
+                decoration:
+                    const InputDecoration(labelText: 'Nombre del producto'),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'El nombre no puede estar vacío';
+                  }
+                  return null;
+                },
               ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: _priceController,
+                decoration: const InputDecoration(labelText: 'Precio'),
+                keyboardType: TextInputType.number,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'El precio no puede estar vacío';
+                  }
+                  if (double.tryParse(value) == null) {
+                    return 'Debe ser un número válido';
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: _barcodeController,
+                decoration:
+                    const InputDecoration(labelText: 'Código de barras'),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'El código de barras no puede estar vacío';
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 16),
+              _isFetchingCategories
+                  ? const CircularProgressIndicator()
+                  : DropdownButtonFormField<String>(
+                      value: _selectedCategory,
+                      decoration:
+                          const InputDecoration(labelText: '...Categoría'),
+                      items: _categories
+                          .map((category) => DropdownMenuItem(
+                                value: category,
+                                child: Text(category),
+                              ))
+                          .toList(),
+                      onChanged: (value) {
+                        setState(() {
+                          _selectedCategory = value;
+                        });
+                      },
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Debe seleccionar una categoría';
+                        }
+                        return null;
+                      },
+                    ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: _quantityController,
+                decoration: const InputDecoration(labelText: 'Cantidad'),
+                keyboardType: TextInputType.number,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'La cantidad no puede estar vacía';
+                  }
+                  if (int.tryParse(value) == null) {
+                    return 'Debe ser un número válido';
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 16),
+              Padding(
+                padding: const EdgeInsets.only(top: 10, bottom: 10),
+                child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const CashierRetail()),
+                      );
+                    },
+                    child: const Row(
+                      children: [
+                        Icon(
+                          Icons.add,
+                          color: Colors.blueAccent,
+                        ),
+                        Text("Añadir stock",
+                            style: TextStyle(color: Colors.lightBlue))
+                      ],
+                    )),
+              ),
+              _isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : ElevatedButton(
+                      onPressed: _submitForm,
+                      child: const Text(
+                        'Crear Objeto',
+                        style: TextStyle(color: Colors.lightBlue),
+                      ),
+                    ),
+            ],
+          ),
+        ),
       ),
     );
   }

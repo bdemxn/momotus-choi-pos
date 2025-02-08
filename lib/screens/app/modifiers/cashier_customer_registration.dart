@@ -89,8 +89,12 @@ class _CashierCustomerRegistrationState
         _formKey.currentState?.reset();
         context.go('/app');
       } catch (e) {
+        String errorMessage = 'Error al registrar cliente';
+        if (e is Exception && e.toString().contains('409')) {
+          errorMessage = 'El cliente ya está registrado en la base de datos.';
+        }
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Error al registrar cliente')),
+          SnackBar(content: Text(errorMessage)),
         );
         print(e);
       }
@@ -116,10 +120,12 @@ class _CashierCustomerRegistrationState
                   ),
                 ),
                 TextFormField(
-                  decoration: const InputDecoration(labelText: 'Nombre completo'),
+                  decoration:
+                      const InputDecoration(labelText: 'Nombre completo'),
                   onSaved: (value) => fullname = value ?? '',
-                  validator: (value) =>
-                      value?.isEmpty == true ? 'El nombre es obligatorio' : null,
+                  validator: (value) => value?.isEmpty == true
+                      ? 'El nombre es obligatorio'
+                      : null,
                 ),
                 TextFormField(
                   decoration: const InputDecoration(labelText: 'Teléfono'),
@@ -134,10 +140,10 @@ class _CashierCustomerRegistrationState
                       const InputDecoration(labelText: 'Correo electrónico'),
                   keyboardType: TextInputType.emailAddress,
                   onSaved: (value) => email = value ?? '',
-                  validator: (value) =>
-                      value?.isEmpty == true ? 'El correo es obligatorio' : null,
+                  validator: (value) => value?.isEmpty == true
+                      ? 'El correo es obligatorio'
+                      : null,
                 ),
-                
                 const SizedBox(height: 20),
                 DropdownButtonFormField<String>(
                   value: selectedPlan,
@@ -174,8 +180,8 @@ class _CashierCustomerRegistrationState
                       selectedSchedule = newValue;
                       // Actualizar los horarios disponibles según el plan seleccionado
                       availableTimes = schedules
-                          .firstWhere(
-                              (plan) => plan["name"] == selectedSchedule)["times"]
+                          .firstWhere((plan) =>
+                              plan["name"] == selectedSchedule)["times"]
                           .cast<String>();
                       selectedTime = null; // Reiniciar el horario seleccionado
                     });
@@ -202,8 +208,9 @@ class _CashierCustomerRegistrationState
                         selectedTime = newValue;
                       });
                     },
-                    validator: (value) =>
-                        value == null ? 'Por favor selecciona un horario' : null,
+                    validator: (value) => value == null
+                        ? 'Por favor selecciona un horario'
+                        : null,
                   ),
                 const SizedBox(height: 20),
                 SwitchListTile(

@@ -1,10 +1,32 @@
+import 'package:choi_pos/services/inventory/get_inventory.dart';
 import 'package:choi_pos/widgets/inventory/inventory_table.dart';
 import 'package:choi_pos/widgets/admin/sidebar_admin.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-class InventoryScreen extends StatelessWidget {
+class InventoryScreen extends StatefulWidget {
   const InventoryScreen({super.key});
+
+  @override
+  State<InventoryScreen> createState() => _InventoryScreenState();
+}
+
+class _InventoryScreenState extends State<InventoryScreen> {
+  final InventoryService _inventoryService = InventoryService();
+  List<dynamic> _inventory = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadInventory();
+  }
+
+  Future<void> _loadInventory() async {
+    await _inventoryService.fetchInventory();
+    setState(() {
+      _inventory = _inventoryService.inventory;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -90,8 +112,8 @@ class InventoryScreen extends StatelessWidget {
                           Padding(
                             padding: const EdgeInsets.only(right: 20),
                             child: ElevatedButton(
-                              onPressed: () => context
-                                  .go('/admin/inventory/categories'),
+                              onPressed: () =>
+                                  context.go('/admin/inventory/categories'),
                               child: const Row(
                                 children: [
                                   Icon(
@@ -146,7 +168,10 @@ class InventoryScreen extends StatelessWidget {
                     ),
 
                     // DataTable:
-                    const InventoryTable()
+                    InventoryTable(
+                      inventory: _inventory,
+                      onInventoryUpdated: _loadInventory,
+                    )
                   ],
                 )),
           )

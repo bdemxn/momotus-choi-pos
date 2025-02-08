@@ -13,22 +13,17 @@ class CashierCustomerService {
       throw Exception('No se encontró un token de autenticación.');
     }
 
-    try {
-      final response = await http.post(
-        Uri.parse(apiUrl),
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token'
-        },
-        body: json.encode(customerData),
-      );
+    final response = await http.post(
+      Uri.parse(apiUrl),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token'
+      },
+      body: json.encode(customerData),
+    );
 
-      if (response.statusCode != 201) {
-        throw Exception('Error al registrar cliente: ${response.body}');
-      }
-    } catch (e) {
-      print('Error al registrar cliente: $e');
-      rethrow;
+    if (response.statusCode != 201) {
+      throw Exception('${response.statusCode}: ${response.body}');
     }
   }
 
@@ -47,7 +42,8 @@ class CashierCustomerService {
       });
 
       if (response.statusCode == 200) {
-        return List<Map<String, dynamic>>.from(json.decode(utf8.decode(response.bodyBytes)));
+        return List<Map<String, dynamic>>.from(
+            json.decode(utf8.decode(response.bodyBytes)));
       } else {
         throw Exception('Error al obtener clientes: ${response.body}');
       }

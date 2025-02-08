@@ -13,11 +13,20 @@ class TournamentsScreen extends StatefulWidget {
 
 class _TournamentsScreenState extends State<TournamentsScreen> {
   final TournamentServices _tournamentServices = TournamentServices();
+  List<dynamic> _tournaments = [];
 
   @override
   void initState() {
     super.initState();
     _tournamentServices.getTournaments();
+    _loadTournaments();
+  }
+
+  Future<void> _loadTournaments() async {
+    await _tournamentServices.getTournaments();
+    setState(() {
+      _tournaments = _tournamentServices.tournamentList;
+    });
   }
 
   @override
@@ -66,8 +75,15 @@ class _TournamentsScreenState extends State<TournamentsScreen> {
                           Padding(
                             padding: const EdgeInsets.only(right: 20),
                             child: ElevatedButton(
-                              onPressed: () => context
-                                  .go('/admin/tournaments/create-tournament'),
+                              onPressed: () async {
+                                // Navega a TournamentForm y espera el resultado
+                                final result = await context.push<bool>(
+                                    '/admin/tournaments/create-tournament');
+                                // Si el resultado es `true`, actualiza la lista de torneos
+                                if (result == true) {
+                                  await _loadTournaments();
+                                }
+                              },
                               child: const Row(
                                 children: [
                                   Icon(
@@ -87,8 +103,11 @@ class _TournamentsScreenState extends State<TournamentsScreen> {
                     ),
 
                     // DataTable:
-                    const Expanded(
-                      child: TournamentTable(),
+                    Expanded(
+                      child: TournamentTable(
+                        tournaments: _tournaments,
+                        onTournamentUpdated: _loadTournaments,
+                      ),
                     )
                   ],
                 )),

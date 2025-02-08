@@ -70,8 +70,11 @@ class _TournamentFormState extends State<TournamentForm> {
               _isLoading
                   ? const Center(child: CircularProgressIndicator())
                   : ElevatedButton(
-                      onPressed: () => _tournamentServices.createTournament(
-                          _nameController.text, _priceController.text),
+                      onPressed: () async => {
+                        await _tournamentServices.createTournament(
+                            _nameController.text, _priceController.text),
+                        Navigator.of(context).pop(true),
+                      },
                       child: const Text(
                         'Crear torneo',
                         style: TextStyle(color: Colors.lightBlue),

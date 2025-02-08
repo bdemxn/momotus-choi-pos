@@ -5,6 +5,7 @@ class InventoryItem {
   final String barCode;
   final int quantity;
   final String category;
+  
 
   InventoryItem({
     required this.id,

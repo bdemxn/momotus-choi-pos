@@ -46,16 +46,14 @@ class _MonthlyTableState extends State<MonthlyTable> {
                   ],
                   rows: monthlyList
                       .map(
-                        (bundle) => DataRow(cells: [
-                          DataCell(Text(bundle["id"])), // ID
-                          DataCell(Text(bundle["name"])), // Nombre
-                          DataCell(Text("\$${bundle["price"]}")), // Precio
-                          DataCell(Text("${bundle["discount_preferred"]}%")), // Descuento Preferencial
+                        (monthly) => DataRow(cells: [
+                          DataCell(Text(monthly["id"])), // ID
+                          DataCell(Text(monthly["name"])), // Nombre
+                          DataCell(Text("\$${monthly["price"]}")), // Precio
+                          DataCell(Text("${monthly["discount_preferred"]}%")), // Descuento Preferencial
                           DataCell(IconButton(
-                            icon: const Icon(Icons.edit),
-                            onPressed: () {
-                              // Acción de edición
-                            },
+                            icon: const Icon(Icons.delete),
+                            onPressed: () => _monthlyService.deleteMonthly(monthly["id"]),
                           )),
                         ]),
                       )

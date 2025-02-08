@@ -2,7 +2,14 @@ import 'package:choi_pos/services/tournaments/tournament_services.dart';
 import 'package:flutter/material.dart';
 
 class TournamentTable extends StatefulWidget {
-  const TournamentTable({super.key});
+  final List<dynamic> tournaments;
+  final VoidCallback onTournamentUpdated;
+
+  const TournamentTable({
+    super.key,
+    required this.tournaments,
+    required this.onTournamentUpdated,
+  });
 
   @override
   State<TournamentTable> createState() => _TournamentTableState();
@@ -70,101 +77,65 @@ class _TournamentTableState extends State<TournamentTable> {
       );
 
       setState(() {});
+      widget.onTournamentUpdated();
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
-      future: _tournamentServices.getTournaments(),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
-        } else if (snapshot.hasError) {
-          return Center(child: Text('Error: ${snapshot.error}'));
-        }
+    return DataTable(
+      columns: const [
+        DataColumn(label: Text('Nombre')),
+        DataColumn(label: Text('Precio')),
+        DataColumn(label: Text('Acciones')),
+      ],
+      rows: widget.tournaments.map((tournament) {
+        return DataRow(cells: [
+          DataCell(Text(tournament["name"])),
+          DataCell(Text(tournament["price"].toString())),
+          DataCell(
+            Row(
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.delete, color: Colors.red),
+                  onPressed: () async {
+                    final confirm = await showDialog<bool>(
+                      context: context,
+                      builder: (context) {
+                        return AlertDialog(
+                          title: const Text('Confirmar Eliminación'),
+                          content: Text(
+                              '¿Estás seguro de que quieres eliminar "${tournament['name']}"?'),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.of(context).pop(false),
+                              child: const Text('Cancelar'),
+                            ),
+                            TextButton(
+                              onPressed: () => Navigator.of(context).pop(true),
+                              child: const Text('Eliminar'),
+                            ),
+                          ],
+                        );
+                      },
+                    );
 
-        final tournamentList = _tournamentServices.tournamentList;
-
-        return Flexible(
-          fit: FlexFit.tight,
-          flex: 5,
-          child: SingleChildScrollView(
-            scrollDirection: Axis.vertical,
-            child: SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: DataTable(
-                columns: const [
-                  DataColumn(label: Text('Imagen')),
-                  DataColumn(label: Text('Nombre Exámen')),
-                  DataColumn(label: Text('Precio')),
-                  DataColumn(label: Text('Acciones')),
-                ],
-                rows: tournamentList
-                    .map(
-                      (tournament) => DataRow(cells: [
-                        const DataCell(Image(
-                          image: AssetImage('assets/choi-user.png'),
-                          height: 40,
-                        )),
-                        DataCell(Text(tournament['name'])),
-                        DataCell(Text(tournament['price'].toString())),
-                        DataCell(
-                          Row(
-                            children: [
-                              IconButton(
-                                icon:
-                                    const Icon(Icons.delete, color: Colors.red),
-                                onPressed: () async {
-                                  final confirm = await showDialog<bool>(
-                                    context: context,
-                                    builder: (context) {
-                                      return AlertDialog(
-                                        title:
-                                            const Text('Confirmar Eliminación'),
-                                        content: Text(
-                                            '¿Estás seguro de que quieres eliminar "${tournament['name']}"?'),
-                                        actions: [
-                                          TextButton(
-                                            onPressed: () =>
-                                                Navigator.of(context)
-                                                    .pop(false),
-                                            child: const Text('Cancelar'),
-                                          ),
-                                          TextButton(
-                                            onPressed: () =>
-                                                Navigator.of(context).pop(true),
-                                            child: const Text('Eliminar'),
-                                          ),
-                                        ],
-                                      );
-                                    },
-                                  );
-
-                                  if (confirm ?? false) {
-                                    await _tournamentServices
-                                        .deleteTournament(tournament['id']);
-                                    setState(() {});
-                                  }
-                                },
-                              ),
-                              IconButton(
-                                icon: const Icon(Icons.update,
-                                    color: Colors.blueAccent),
-                                onPressed: () =>
-                                    _editTournament(context, tournament),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ]),
-                    )
-                    .toList(),
-              ),
+                    if (confirm ?? false) {
+                      await _tournamentServices
+                          .deleteTournament(tournament['id']);
+                      widget.onTournamentUpdated();
+                    }
+                  },
+                ),
+                IconButton(
+                  icon: const Icon(Icons.update, color: Colors.blueAccent),
+                  onPressed: () => _editTournament(context, tournament),
+                ),
+              ],
             ),
           ),
-        );
-      },
+        ]);
+      }).toList(),
     );
   }
 }
