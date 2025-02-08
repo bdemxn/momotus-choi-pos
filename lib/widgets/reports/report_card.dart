@@ -102,7 +102,7 @@ class _ReportCardsState extends State<ReportCards> {
         .toList();
   }
 
-  Future<void> exportToCSV(List<dynamic> reports) async {
+  Future<void> exportToCSV(BuildContext context, List<dynamic> reports) async {
     try {
       List<List<String>> csvData = [
         [
@@ -144,7 +144,25 @@ class _ReportCardsState extends State<ReportCards> {
       final path = '${directory.path}/reportes.csv';
       final file = File(path);
       await file.writeAsString(csv);
+
+      // Mostrar mensaje de éxito con Snackbar
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('CSV generado con éxito en: $path'),
+            duration: const Duration(seconds: 4),
+          ),
+        );
+      }
     } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error al generar CSV: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
       rethrow;
     }
   }
@@ -210,7 +228,7 @@ class _ReportCardsState extends State<ReportCards> {
         ElevatedButton.icon(
           onPressed: () async {
             final snapshotData = await reports;
-            await exportToCSV(snapshotData);
+            await exportToCSV(context, snapshotData);
           },
           icon: const Icon(Icons.download),
           label: const Text('Exportar CSV'),

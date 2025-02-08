@@ -6,6 +6,8 @@ class CustomerService {
   static const String apiUrl = 'http://216.238.86.5:8000/admin/clients';
 
   Future<void> registerCustomer(Map<String, dynamic> customerData) async {
+    print(json.encode(customerData));
+
     try {
       final prefs = await SharedPreferences.getInstance();
       final String? token = prefs.getString('authToken');
@@ -24,7 +26,7 @@ class CustomerService {
       );
 
       if (response.statusCode != 201) {
-        throw Exception('Error al registrar cliente: ${response.body}');
+        throw Exception('${response.statusCode}: ${response.body}');
       }
     } catch (e) {
       print('Error al registrar cliente: $e');
@@ -86,7 +88,8 @@ class CustomerService {
       });
 
       if (response.statusCode == 200) {
-        return List<Map<String, dynamic>>.from(json.decode(utf8.decode(response.bodyBytes)));
+        return List<Map<String, dynamic>>.from(
+            json.decode(utf8.decode(response.bodyBytes)));
       } else {
         throw Exception('Error al obtener clientes: ${response.body}');
       }

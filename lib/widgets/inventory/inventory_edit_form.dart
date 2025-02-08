@@ -72,6 +72,7 @@ class _InventoryEditFormWidgetState extends State<InventoryEditFormWidget> {
         barCode: _barcodeController.text,
         quantity: int.parse(_quantityController.text),
         category: _selectedCategory!,
+        currency: ""
       );
 
       try {

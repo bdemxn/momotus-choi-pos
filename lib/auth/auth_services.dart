@@ -8,10 +8,10 @@ class AuthService {
   final String _baseUrl = 'http://216.238.86.5:9000';
   Timer? _tokenRefreshTimer;
 
-  void startTokenRefreshTimer() {
+  void startTokenRefreshTimer(dynamic body) {
     const refreshInterval = Duration(minutes: 5); // Intervalo de verificación
     _tokenRefreshTimer = Timer.periodic(refreshInterval, (Timer timer) async {
-      await _checkAndRefreshToken();
+      await _checkAndRefreshToken(body);
     });
   }
 
@@ -20,7 +20,7 @@ class AuthService {
     _tokenRefreshTimer = null;
   }
 
-  Future<void> _checkAndRefreshToken() async {
+  Future<void> _checkAndRefreshToken(dynamic body) async {
     final prefs = await SharedPreferences.getInstance();
     final expiration = prefs.getString('tokenExpiration');
 
@@ -29,7 +29,7 @@ class AuthService {
       final expirationDate = DateTime.parse(expiration).toUtc();
 
       if (expirationDate.isBefore(now.add(const Duration(minutes: 5)))) {
-        await refreshToken();
+        await refreshToken(body);
       }
     }
   }
@@ -63,7 +63,7 @@ class AuthService {
         await prefs.setString('fullname', user.fullname);
         await prefs.setString('tokenExpiration', user.expiresAt.toString());
 
-        startTokenRefreshTimer();
+        startTokenRefreshTimer(body);
 
         return user;
       } else {
@@ -85,7 +85,7 @@ class AuthService {
     stopTokenRefreshTimer();
   }
 
-  Future<String?> getToken() async {
+  Future<String?> getToken(dynamic body) async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('authToken');
     final expiration = prefs.getString('tokenExpiration');
@@ -95,14 +95,14 @@ class AuthService {
       final expirationDate = DateTime.parse(expiration).toUtc();
 
       if (expirationDate.isBefore(now.add(const Duration(minutes: 5)))) {
-        return await refreshToken();
+        return await refreshToken(body);
       }
     }
 
     return token;
   }
 
-  Future<String?> refreshToken() async {
+  Future<String?> refreshToken(dynamic body) async {
     final prefs = await SharedPreferences.getInstance();
     final currentToken = prefs.getString('authToken');
 
@@ -110,11 +110,8 @@ class AuthService {
       throw Exception("No hay token disponible para refrescar.");
     }
 
-    final url = Uri.parse(
-        '$_baseUrl/refresh-token'); // Endpoint para refrescar el token
-    final body = {
-      'access_token': currentToken,
-    };
+    final url =
+        Uri.parse('$_baseUrl/refresh'); // Endpoint para refrescar el token
 
     try {
       final response = await http.post(

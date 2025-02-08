@@ -198,7 +198,7 @@ class _AppScreenState extends State<AppScreen> {
                               return ListTile(
                                 title: Text(item.name),
                                 subtitle: Text(
-                                  'Precio: \$${item.price.toStringAsFixed(2)}\nStock: ${item.quantity}',
+                                  'Precio: ${item.currency ?? "\$"}${item.price.toStringAsFixed(2)}\nStock: ${item.quantity}',
                                 ),
                                 trailing: IconButton(
                                   icon: const Icon(Icons.add_shopping_cart),
@@ -228,6 +228,7 @@ class _AppScreenState extends State<AppScreen> {
                                       barCode: '',
                                       quantity: 1,
                                       category: 'Exámen',
+                                      currency: "\$"
                                     );
                                     cartProvider.addToCart(examItem);
                                   },
@@ -254,6 +255,7 @@ class _AppScreenState extends State<AppScreen> {
                                       barCode: '',
                                       quantity: 1,
                                       category: 'Bundle',
+                                      currency: "\$"
                                     );
                                     print(
                                         "Bundle cargado: ${bundle["name"]} - Precio: ${bundle["total_price"]}");
@@ -283,6 +285,7 @@ class _AppScreenState extends State<AppScreen> {
                                       barCode: '',
                                       quantity: 1,
                                       category: 'Mensualidad',
+                                      currency: "\$"
                                     );
 
                                     print(

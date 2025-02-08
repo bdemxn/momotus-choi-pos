@@ -84,10 +84,14 @@ class _CustomerRegistrationScreenState
           const SnackBar(content: Text('Cliente registrado con éxito')),
         );
         _formKey.currentState?.reset();
-        context.go('/admin/customers');
+        context.pop();
       } catch (e) {
+        String errorMessage = 'Error al registrar cliente';
+        if (e is Exception && e.toString().contains('409')) {
+          errorMessage = 'El cliente ya está registrado en la base de datos.';
+        }
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Error al registrar cliente')),
+          SnackBar(content: Text(errorMessage)),
         );
         print(e);
       }
@@ -113,10 +117,12 @@ class _CustomerRegistrationScreenState
                   ),
                 ),
                 TextFormField(
-                  decoration: const InputDecoration(labelText: 'Nombre completo'),
+                  decoration:
+                      const InputDecoration(labelText: 'Nombre completo'),
                   onSaved: (value) => fullname = value ?? '',
-                  validator: (value) =>
-                      value?.isEmpty == true ? 'El nombre es obligatorio' : null,
+                  validator: (value) => value?.isEmpty == true
+                      ? 'El nombre es obligatorio'
+                      : null,
                 ),
                 TextFormField(
                   decoration: const InputDecoration(labelText: 'Teléfono'),
@@ -131,8 +137,9 @@ class _CustomerRegistrationScreenState
                       const InputDecoration(labelText: 'Correo electrónico'),
                   keyboardType: TextInputType.emailAddress,
                   onSaved: (value) => email = value ?? '',
-                  validator: (value) =>
-                      value?.isEmpty == true ? 'El correo es obligatorio' : null,
+                  validator: (value) => value?.isEmpty == true
+                      ? 'El correo es obligatorio'
+                      : null,
                 ),
                 DropdownButtonFormField<String>(
                   value: selectedPlan,
@@ -169,8 +176,8 @@ class _CustomerRegistrationScreenState
                       selectedSchedule = newValue;
                       // Actualizar los horarios disponibles según el plan seleccionado
                       availableTimes = schedules
-                          .firstWhere(
-                              (plan) => plan["name"] == selectedSchedule)["times"]
+                          .firstWhere((plan) =>
+                              plan["name"] == selectedSchedule)["times"]
                           .cast<String>();
                       selectedTime = null; // Reiniciar el horario seleccionado
                     });
@@ -197,8 +204,9 @@ class _CustomerRegistrationScreenState
                         selectedTime = newValue;
                       });
                     },
-                    validator: (value) =>
-                        value == null ? 'Por favor selecciona un horario' : null,
+                    validator: (value) => value == null
+                        ? 'Por favor selecciona un horario'
+                        : null,
                   ),
                 SwitchListTile(
                   title: const Text('¿Es menor de edad?'),

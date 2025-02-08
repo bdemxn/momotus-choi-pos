@@ -8,7 +8,10 @@ class CartItem {
 
   CartItem({required this.item, this.quantity = 1, this.category});
 
-  double get totalPrice => item.price * quantity;
+  double get adjustedPrice =>
+      item.currency == "C\$" ? item.price / 36.7 : item.price;
+
+  double get totalPrice => adjustedPrice * quantity;
 }
 
 class Customer {
@@ -132,12 +135,10 @@ class CartProvider with ChangeNotifier {
     return double.parse(
       _cartItems.fold<double>(0.0, (total, cartItem) {
         if (cartItem.item.category == 'Mensualidad') {
-          // Para las mensualidades, multiplicamos por la cantidad de clientes
           return total +
-              (cartItem.quantity * cartItem.item.price * _customers.length);
+              (cartItem.quantity * cartItem.adjustedPrice * _customers.length);
         } else {
-          // Para el resto de los items, calculamos normalmente
-          return total + (cartItem.quantity * cartItem.item.price);
+          return total + (cartItem.quantity * cartItem.adjustedPrice);
         }
       }).toStringAsFixed(2),
     );

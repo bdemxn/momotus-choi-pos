@@ -70,10 +70,32 @@ class _TournamentFormState extends State<TournamentForm> {
               _isLoading
                   ? const Center(child: CircularProgressIndicator())
                   : ElevatedButton(
-                      onPressed: () async => {
-                        await _tournamentServices.createTournament(
-                            _nameController.text, _priceController.text),
-                        Navigator.of(context).pop(true),
+                      onPressed: () async {
+                        try {
+                          await _tournamentServices.createTournament(
+                            _nameController.text,
+                            _priceController.text,
+                          );
+                          Navigator.of(context).pop(
+                              true); // Cierra el diálogo o la pantalla actual
+
+                          // Muestra un SnackBar de éxito
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Torneo creado con éxito'),
+                              duration:
+                                  Duration(seconds: 2), // Duración del SnackBar
+                            ),
+                          );
+                        } catch (e) {
+                          // Muestra un SnackBar de error si algo sale mal
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text('Error al crear el torneo: $e'),
+                              duration: const Duration(seconds: 2),
+                            ),
+                          );
+                        }
                       },
                       child: const Text(
                         'Crear torneo',

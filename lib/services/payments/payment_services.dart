@@ -25,7 +25,7 @@ class PaymentServices {
         },
       );
 
-      print(response.body);
+      print(response.body); // Depuración
 
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(utf8.decode(response.bodyBytes));
@@ -33,16 +33,20 @@ class PaymentServices {
         _paymentList.clear();
         _paymentList.addAll(data.map((item) {
           return {
-            "id": item["id"]["id"]["String"], // Extraer ID correctamente
-            "client_name": item["client_id"], // El nombre ya viene directo
+            "id": item["id"],
+            "client_id": item["client_id"],
+            "client_name": item["client_name"],
             "year": item["year"],
-            "schedule": item["monthly_id"], // Ajuste para el nuevo formato
-            "months": item["months"].isNotEmpty ? item["months"] : [],
+            "schedule": item["schedule"],
+            "months": item["months"] ?? [],
           };
-        }));
+        }).toList());
+      } else {
+        throw Exception(
+            'Error en la respuesta de la API: ${response.statusCode}');
       }
     } catch (e) {
-      throw Exception("Error al obtener pagos: $e");
+      print(e);
     }
   }
 
@@ -90,7 +94,7 @@ class PaymentServices {
         throw Exception('No se encontró un token de autenticación.');
       }
 
-      final response = await http.put(Uri.parse("$apiUrl/$id"),
+      final response = await http.put(Uri.parse(apiUrl),
           headers: {
             'Content-Type': 'application/json',
             'Authorization': 'Bearer $token'

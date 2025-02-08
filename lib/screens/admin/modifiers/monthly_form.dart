@@ -13,6 +13,7 @@ class _MonthlyFormWidgetState extends State<MonthlyFormWidget> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _priceController = TextEditingController();
+  final TextEditingController _discountController = TextEditingController();
 
   final MonthlyServices _monthlyServices = MonthlyServices();
 
@@ -26,6 +27,7 @@ class _MonthlyFormWidgetState extends State<MonthlyFormWidget> {
       final Map<String, dynamic> monthlyData = {
         'name': _nameController.text,
         'price': double.parse(_priceController.text),
+        "discount_preferred": double.parse(_discountController.text)
       };
 
       try {
@@ -79,6 +81,21 @@ class _MonthlyFormWidgetState extends State<MonthlyFormWidget> {
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'El precio no puede estar vacío';
+                  }
+                  if (double.tryParse(value) == null) {
+                    return 'Debe ser un número válido';
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: _discountController,
+                decoration: const InputDecoration(labelText: 'Descuento preferencial'),
+                keyboardType: TextInputType.number,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'El descuento no puede estar vacío';
                   }
                   if (double.tryParse(value) == null) {
                     return 'Debe ser un número válido';

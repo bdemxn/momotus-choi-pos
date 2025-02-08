@@ -49,7 +49,7 @@ class _InventoryTableState extends State<InventoryTable> {
                     DataCell(Text(item.barCode)),
                     DataCell(Text(item.category)),
                     DataCell(Text(item.name)),
-                    DataCell(Text(item.price.toString())),
+                    DataCell(Text('${item.currency ?? "\$"}${item.price}')),
                     DataCell(Text(item.quantity.toString())),
                     DataCell(
                       Row(

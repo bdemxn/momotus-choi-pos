@@ -5,7 +5,8 @@ class InventoryItem {
   final String barCode;
   final int quantity;
   final String category;
-  
+  final String currency;
+
 
   InventoryItem({
     required this.id,
@@ -14,6 +15,7 @@ class InventoryItem {
     required this.barCode,
     required this.quantity,
     required this.category,
+    required this.currency
   });
 
   factory InventoryItem.fromJson(Map<String, dynamic> json) {
@@ -24,6 +26,7 @@ class InventoryItem {
       barCode: json['bar_code'],
       quantity: json['quantity'],
       category: json['category'],
+      currency: json['currency']
     );
   }
 

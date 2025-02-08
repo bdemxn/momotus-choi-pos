@@ -14,7 +14,7 @@ class PaymentTable extends StatefulWidget {
 class _PaymentTableState extends State<PaymentTable> {
   final PaymentServices _paymentServices = PaymentServices();
   final TextEditingController _searchController = TextEditingController();
-  // String _selectedSchedule = 'Todos';
+  String _selectedSchedule = 'Todos';
 
   List<dynamic> filteredPayments = [];
 
@@ -37,9 +37,9 @@ class _PaymentTableState extends State<PaymentTable> {
       filteredPayments = _paymentServices.paymentList.where((payment) {
         final clientNameMatches =
             payment['client_name'].toLowerCase().contains(searchQuery);
-        // final scheduleMatches = _selectedSchedule == 'Todos' ||
-        //     payment['schedule'] == _selectedSchedule;
-        return clientNameMatches; // && scheduleMatches;
+        final scheduleMatches = _selectedSchedule == 'Todos' ||
+            payment['schedule'] == _selectedSchedule;
+        return clientNameMatches && scheduleMatches;
       }).toList();
     });
   }
@@ -64,28 +64,24 @@ class _PaymentTableState extends State<PaymentTable> {
                 ),
               ),
               const SizedBox(width: 16),
-              // DropdownButton<String>(
-              //   value: _selectedSchedule,
-              //   onChanged: (value) {
-              //     if (value != null) {
-              //       setState(() {
-              //         _selectedSchedule = value;
-              //         _filterPayments();
-              //       });
-              //     }
-              //   },
-              //   items: const [
-              //     'Todos',
-              //     'Standard 1',
-              //     'Standard 2',
-              //     'Sabatino'
-              //   ].map((schedule) {
-              //     return DropdownMenuItem<String>(
-              //       value: schedule,
-              //       child: Text(schedule),
-              //     );
-              //   }).toList(),
-              // ),
+              DropdownButton<String>(
+                value: _selectedSchedule,
+                onChanged: (value) {
+                  if (value != null) {
+                    setState(() {
+                      _selectedSchedule = value;
+                      _filterPayments();
+                    });
+                  }
+                },
+                items: const ['Todos', 'LMV', 'MJ', 'SAB']
+                    .map((schedule) {
+                  return DropdownMenuItem<String>(
+                    value: schedule,
+                    child: Text(schedule),
+                  );
+                }).toList(),
+              ),
             ],
           ),
         ),
@@ -137,9 +133,12 @@ class _PaymentTableState extends State<PaymentTable> {
                                   listen: false);
                               cartProvider.addCustomer(
                                 Customer(
-                                    id: payment['id'] ?? "ID no válido",
-                                    fullname: payment['client_name'] ?? "Nombre no válido"),
+                                    id: payment['client_id'] ?? "ID no válido",
+                                    fullname: payment['client_name'] ??
+                                        "Nombre no válido"),
                               );
+
+                              print(payment["client_id"]);
 
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(

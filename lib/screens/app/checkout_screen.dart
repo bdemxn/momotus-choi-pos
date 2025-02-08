@@ -74,7 +74,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     try {
       for (var client in cartProvider.customers) {
         await _monthlyServices.updateMonthly(
-            client.fullname, monthsToPay, selectedPaymentMethod);
+            client.id, monthsToPay, selectedPaymentMethod);
       }
     } catch (err) {
       print("Error: $err");
@@ -297,6 +297,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                     price: 0,
                     id: cartItem.item.id,
                     quantity: cartItem.quantity,
+                    currency: cartItem.item.currency
                   ))
               .toList(),
         );
@@ -424,7 +425,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                                       fontWeight: FontWeight.w500)),
                               Text("Categoria: ${cartItem.item.category}"),
                               Text(
-                                'Precio: ${cartProvider.currency == "Dolares" ? "\$" : "C\$"}${cartItem.item.price.toStringAsFixed(2)} x Cantidad: ${cartItem.quantity} ${(cartItem.item.category == "Mensualidad") ? "x Clientes: ${cartProvider.customers.length}" : ""}',
+                                'Precio: ${cartItem.item.currency == "\$" ? "\$" : "C\$"}${cartItem.item.price.toStringAsFixed(2)} x Cantidad: ${cartItem.quantity} ${(cartItem.item.category == "Mensualidad") ? "x Clientes: ${cartProvider.customers.length}" : ""}',
                               ),
                               Text(
                                 'Total: ${cartProvider.currency == "Dolares" ? "\$" : "C\$"}${cartItem.totalPrice.toStringAsFixed(2)}',

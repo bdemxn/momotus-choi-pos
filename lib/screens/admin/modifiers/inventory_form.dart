@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:choi_pos/services/category/get_categories.dart';
 import 'package:choi_pos/services/inventory/create_inventory_item.dart';
 import 'package:flutter/material.dart';
@@ -21,6 +23,9 @@ class _InventoryFormWidgetState extends State<InventoryFormWidget> {
 
   String? _selectedCategory;
   bool _isLoading = false;
+
+  String? _selectedCurrency; // Se debe definir aquí
+  final List<String> _currencies = ["C\$", "\$"]; // Lista de monedas
 
   bool _isFetchingCategories = false;
   List<String> _categories = [];
@@ -61,7 +66,10 @@ class _InventoryFormWidgetState extends State<InventoryFormWidget> {
         'category': _selectedCategory,
         'bar_code': _barcodeController.text,
         'quantity': int.parse(_quantityController.text),
+        'currency': _selectedCurrency
       };
+
+      print(jsonEncode(inventoryData));
 
       try {
         setState(() => _isLoading = true);
@@ -139,18 +147,23 @@ class _InventoryFormWidgetState extends State<InventoryFormWidget> {
                 },
               ),
               const SizedBox(height: 16),
-              // TextFormField(
-              //   controller: _categoryController,
-              //   decoration:
-              //       const InputDecoration(labelText: 'Categoría'),
-              //   validator: (value) {
-              //     if (value == null || value.isEmpty) {
-              //       return 'La categoría no puede estar vacía';
-              //     }
-              //     return null;
-              //   },
-              // ),
-
+              DropdownButton<String>(
+                hint: const Text('Seleccione una opción de moneda'),
+                value: _selectedCurrency, // Debe estar definida correctamente
+                items: _currencies.map((String currency) {
+                  return DropdownMenuItem<String>(
+                    value: currency,
+                    child: Text(currency),
+                  );
+                }).toList(),
+                onChanged: (String? newValue) {
+                  setState(() {
+                    _selectedCurrency = newValue;
+                    print("Moneda seleccionada: $_selectedCurrency");
+                  });
+                },
+              ),
+              const SizedBox(height: 16),
               _isFetchingCategories
                   ? const CircularProgressIndicator()
                   : DropdownButtonFormField<String>(
