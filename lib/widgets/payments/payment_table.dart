@@ -14,9 +14,42 @@ class PaymentTable extends StatefulWidget {
 class _PaymentTableState extends State<PaymentTable> {
   final PaymentServices _paymentServices = PaymentServices();
   final TextEditingController _searchController = TextEditingController();
+
   String _selectedSchedule = 'Todos';
+  String? _selectedTime;
 
   List<dynamic> filteredPayments = [];
+
+  final List<Map<String, dynamic>> schedules = [
+    {
+      "days": ['Martes', 'Jueves'],
+      "id": "schedules:9yjffzdtsvlh7my13d8m",
+      "name": 'MJ',
+      "times": ['3:00 PM - 4:30 PM', '4:30 PM - 6:00 PM', '6:00 PM - 7:30 PM']
+    },
+    {
+      "days": ['Sabado'],
+      "id": "schedules:e9dfske3l73xifstsbsa",
+      "name": 'SAB',
+      "times": [
+        '9:00 AM - 10:00 AM',
+        '10:00 AM - 12:00 PM',
+        '2:00 PM - 3:00 PM',
+        '3:00 PM - 5:00 PM'
+      ]
+    },
+    {
+      "days": ['Lunes', 'Miércoles', 'Viernes'],
+      "id": "schedules:f1iavfymp4w7s4egjp7w",
+      "name": 'LMV',
+      "times": [
+        '3:00 PM - 4:00 PM',
+        '4:00 PM - 5:00 PM',
+        '5:00 PM - 6:00 PM',
+        '6:00 PM - 7:00 PM'
+      ]
+    }
+  ];
 
   @override
   void initState() {
@@ -39,13 +72,27 @@ class _PaymentTableState extends State<PaymentTable> {
             payment['client_name'].toLowerCase().contains(searchQuery);
         final scheduleMatches = _selectedSchedule == 'Todos' ||
             payment['schedule'] == _selectedSchedule;
-        return clientNameMatches && scheduleMatches;
+        final timeMatches = _selectedTime == null ||
+            (payment['times'] != null &&
+                payment['times'].contains(_selectedTime));
+
+        return clientNameMatches && scheduleMatches && timeMatches;
       }).toList();
     });
   }
 
+  List<String> _getTimesForSelectedSchedule() {
+    final schedule = schedules.firstWhere(
+      (s) => s['name'] == _selectedSchedule,
+      orElse: () => {},
+    );
+    return schedule.isNotEmpty ? List<String>.from(schedule['times']) : [];
+  }
+
   @override
   Widget build(BuildContext context) {
+    List<String> availableTimes = _getTimesForSelectedSchedule();
+
     return Column(
       children: [
         Padding(
@@ -64,24 +111,46 @@ class _PaymentTableState extends State<PaymentTable> {
                 ),
               ),
               const SizedBox(width: 16),
+
+              // Dropdown para Schedules
               DropdownButton<String>(
                 value: _selectedSchedule,
                 onChanged: (value) {
                   if (value != null) {
                     setState(() {
                       _selectedSchedule = value;
+                      _selectedTime = null; // Reiniciar selección de horario
                       _filterPayments();
                     });
                   }
                 },
-                items: const ['Todos', 'LMV', 'MJ', 'SAB']
-                    .map((schedule) {
+                items: ['Todos', 'LMV', 'MJ', 'SAB'].map((schedule) {
                   return DropdownMenuItem<String>(
                     value: schedule,
                     child: Text(schedule),
                   );
                 }).toList(),
               ),
+
+              const SizedBox(width: 16),
+
+              if (_selectedSchedule != 'Todos')
+                DropdownButton<String>(
+                  value: _selectedTime,
+                  hint: const Text("Selecciona un horario"),
+                  onChanged: (value) {
+                    setState(() {
+                      _selectedTime = value;
+                      _filterPayments(); // Aplica el filtro al cambiar de horario
+                    });
+                  },
+                  items: availableTimes.map((time) {
+                    return DropdownMenuItem<String>(
+                      value: time,
+                      child: Text(time),
+                    );
+                  }).toList(),
+                ),
             ],
           ),
         ),
@@ -94,51 +163,53 @@ class _PaymentTableState extends State<PaymentTable> {
                 columns: const [
                   DataColumn(label: Text('Cliente')),
                   DataColumn(label: Text('Año')),
-                  DataColumn(label: Text('Mensualidad')),
+                  DataColumn(label: Text('Días')),
+                  DataColumn(label: Text('Horario')),
                   DataColumn(label: Text('Acciones')),
                 ],
                 rows: filteredPayments.map((payment) {
                   return DataRow(cells: [
                     DataCell(Text(payment['client_name'] ?? "Sin nombre")),
                     DataCell(Text(payment['year'].toString())),
-                    DataCell(Text(payment['schedule']
-                        .toString())), // Usando el nuevo campo de "monthly_id"
+                    DataCell(Text(payment['schedule'].toString())),
+                    DataCell(Text(payment['times'].toString())),
                     DataCell(
-                      Row(children: [
-                        ElevatedButton(
-                          onPressed: () {
-                            setState(() {
-                              _paymentServices.getPayments();
-                            });
+                      Row(
+                        children: [
+                          ElevatedButton(
+                            onPressed: () {
+                              setState(() {
+                                _paymentServices.getPayments();
+                              });
 
-                            showDialog(
-                              context: context,
-                              builder: (BuildContext context) {
-                                return PaymentDialog(
-                                  id: payment['id'],
-                                  clientName: payment['client_name'],
-                                  months: payment['months'].isNotEmpty
-                                      ? payment['months'][0]
-                                      : {},
-                                );
-                              },
-                            );
-                          },
-                          child: const Text('Ver Pagos'),
-                        ),
-                        ElevatedButton(
+                              showDialog(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return PaymentDialog(
+                                    id: payment['id'],
+                                    clientName: payment['client_name'],
+                                    months: payment['months'].isNotEmpty
+                                        ? payment['months'][0]
+                                        : {},
+                                  );
+                                },
+                              );
+                            },
+                            child: const Text('Ver Pagos'),
+                          ),
+                          ElevatedButton(
                             onPressed: () {
                               final cartProvider = Provider.of<CartProvider>(
                                   context,
                                   listen: false);
                               cartProvider.addCustomer(
                                 Customer(
-                                    id: payment['client_id'] ?? "ID no válido",
-                                    fullname: payment['client_name'] ??
-                                        "Nombre no válido"),
+                                  monthly: payment["monthly_id"].toString(),
+                                  id: payment['client_id'] ?? "ID no válido",
+                                  fullname: payment['client_name'] ??
+                                      "Nombre no válido",
+                                ),
                               );
-
-                              print(payment["client_id"]);
 
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
@@ -148,8 +219,10 @@ class _PaymentTableState extends State<PaymentTable> {
                                 ),
                               );
                             },
-                            child: const Text("Añadir para pago"))
-                      ]),
+                            child: const Text("Añadir para pago"),
+                          ),
+                        ],
+                      ),
                     ),
                   ]);
                 }).toList(),

@@ -25,8 +25,6 @@ class PaymentServices {
         },
       );
 
-      print(response.body); // Depuración
-
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(utf8.decode(response.bodyBytes));
 
@@ -39,6 +37,7 @@ class PaymentServices {
             "year": item["year"],
             "schedule": item["schedule"],
             "months": item["months"] ?? [],
+            "times": item["times"] ?? ""
           };
         }).toList());
       } else {

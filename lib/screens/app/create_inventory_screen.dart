@@ -25,6 +25,9 @@ class _CreateInventoryCashierScreenState
   String? _selectedCategory;
   bool _isLoading = false;
 
+  String? _selectedCurrency; // Se debe definir aquí
+  final List<String> _currencies = ["C\$", "\$"]; // Lista de monedas
+
   bool _isFetchingCategories = false;
   List<String> _categories = [];
 
@@ -64,6 +67,7 @@ class _CreateInventoryCashierScreenState
         'category': _selectedCategory,
         'bar_code': _barcodeController.text,
         'quantity': int.parse(_quantityController.text),
+        'currency': _selectedCurrency
       };
 
       try {
@@ -140,6 +144,22 @@ class _CreateInventoryCashierScreenState
                 },
               ),
               const SizedBox(height: 16),
+              DropdownButton<String>(
+                hint: const Text('Seleccione una opción de moneda'),
+                value: _selectedCurrency, // Debe estar definida correctamente
+                items: _currencies.map((String currency) {
+                  return DropdownMenuItem<String>(
+                    value: currency,
+                    child: Text(currency),
+                  );
+                }).toList(),
+                onChanged: (String? newValue) {
+                  setState(() {
+                    _selectedCurrency = newValue;
+                    print("Moneda seleccionada: $_selectedCurrency");
+                  });
+                },
+              ),
               _isFetchingCategories
                   ? const CircularProgressIndicator()
                   : DropdownButtonFormField<String>(

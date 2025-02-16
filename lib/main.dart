@@ -5,7 +5,7 @@ import 'package:choi_pos/services/monthly/monthly_services.dart';
 import 'package:choi_pos/services/tournaments/tournament_services.dart';
 import 'package:choi_pos/store/cart_provider.dart';
 import 'package:choi_pos/store/user_provider.dart';
-import 'package:choi_pos/theme/dark_theme.dart';// Importa CartProvider
+import 'package:choi_pos/theme/dark_theme.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 

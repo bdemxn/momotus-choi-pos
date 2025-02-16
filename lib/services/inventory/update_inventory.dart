@@ -92,18 +92,19 @@ class UpdateInventory {
   }
 
   // Método para enviar reporte de ventas
-  static Future<void> postSalesReport(
-      {required String cashier,
-      required String? customer,
-      required String? type,
-      required String? currency,
-      required String paymentRef,
-      required List<Map<String, dynamic>> cart,
-      required String promoCode,
-      required double totalPaid,
-      required num change,
-      // required PrinterController printerController,
-      required BuildContext context,}) async {
+  static Future<void> postSalesReport({
+    required String cashier,
+    required String? customer,
+    required String? type,
+    required String? currency,
+    required String paymentRef,
+    required List<Map<String, dynamic>> cart,
+    required String promoCode,
+    required double totalPaid,
+    required num change,
+    // required PrinterController printerController,
+    required BuildContext context,
+  }) async {
     final prefs = await SharedPreferences.getInstance();
     final String? token = prefs.getString('authToken');
 

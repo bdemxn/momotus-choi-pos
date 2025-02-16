@@ -78,7 +78,7 @@ class _InventoryFormWidgetState extends State<InventoryFormWidget> {
           const SnackBar(content: Text('Objeto creado exitosamente')),
         );
         _formKey.currentState!.reset();
-        context.go('/admin/inventory');
+        context.pushReplacement('/admin/inventory');
         widget.onInventoryUpdated();
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(

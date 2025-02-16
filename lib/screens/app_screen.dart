@@ -1,6 +1,6 @@
 import 'package:choi_pos/auth/auth_services.dart';
 import 'package:choi_pos/models/inventory_item.dart';
-// import 'package:choi_pos/screens/printing/printing_view.dart';
+import 'package:choi_pos/screens/printing/printing_view.dart';
 import 'package:choi_pos/services/inventory/get_inventory.dart';
 import 'package:choi_pos/services/tournaments/tournament_services.dart';
 import 'package:choi_pos/store/cart_provider.dart';
@@ -62,9 +62,9 @@ class _AppScreenState extends State<AppScreen> {
     final cartProvider = Provider.of<CartProvider>(context);
     final tournamentService = Provider.of<TournamentServices>(context);
     final monthlyService =
-        Provider.of<MonthlyServices>(context); // 🔥 Agregar esto
+        Provider.of<MonthlyServices>(context);
     final bundleService =
-        Provider.of<BundleService>(context); // 🔥 Agregar esto
+        Provider.of<BundleService>(context); 
 
     return Scaffold(
       appBar: AppBar(

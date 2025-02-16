@@ -291,14 +291,13 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         await UpdateInventory.updateInventory(
           inventoryItems
               .map((cartItem) => InventoryItem(
-                    barCode: "",
-                    category: cartItem.item.category,
-                    name: cartItem.item.name,
-                    price: 0,
-                    id: cartItem.item.id,
-                    quantity: cartItem.quantity,
-                    currency: cartItem.item.currency
-                  ))
+                  barCode: "",
+                  category: cartItem.item.category,
+                  name: cartItem.item.name,
+                  price: 0,
+                  id: cartItem.item.id,
+                  quantity: cartItem.quantity,
+                  currency: cartItem.item.currency))
               .toList(),
         );
       }
@@ -350,7 +349,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         SnackBar(content: Text('Error: ${e.toString()}')),
       );
     } finally {
-      Navigator.of(context, rootNavigator: true).pop(); // Cierra el indicador
+      Navigator.of(context, rootNavigator: true).pop();
     }
   }
 

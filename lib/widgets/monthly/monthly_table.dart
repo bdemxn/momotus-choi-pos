@@ -41,8 +41,8 @@ class _MonthlyTableState extends State<MonthlyTable> {
                     DataColumn(label: Text('ID')),
                     DataColumn(label: Text('Nombre')),
                     DataColumn(label: Text('Precio')),
-                    DataColumn(label: Text('Descuento Preferencial')), // Nueva columna
-                    DataColumn(label: Text('Acciones')),
+                    DataColumn(
+                        label: Text('Descuento Preferencial')), // Nueva columna
                   ],
                   rows: monthlyList
                       .map(
@@ -50,11 +50,8 @@ class _MonthlyTableState extends State<MonthlyTable> {
                           DataCell(Text(monthly["id"])), // ID
                           DataCell(Text(monthly["name"])), // Nombre
                           DataCell(Text("\$${monthly["price"]}")), // Precio
-                          DataCell(Text("${monthly["discount_preferred"]}%")), // Descuento Preferencial
-                          DataCell(IconButton(
-                            icon: const Icon(Icons.delete),
-                            onPressed: () => _monthlyService.deleteMonthly(monthly["id"]),
-                          )),
+                          DataCell(Text(
+                              "${monthly["discount_preferred"]}%")), // Descuento Preferencial
                         ]),
                       )
                       .toList(),
