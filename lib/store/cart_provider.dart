@@ -126,33 +126,33 @@ class CartProvider with ChangeNotifier {
     return getMonthlyItems() * getClientCount();
   }
 
-  // Funciones de filtrado:
-  List<Customer> getCustomersByMonthly(String monthlyType) {
-    return _customers
-        .where((customer) => customer.monthly == monthlyType)
-        .toList();
-  }
+  // // Funciones de filtrado:
+  // List<Customer> getCustomersByMonthly(String monthlyType) {
+  //   return _customers
+  //       .where((customer) => customer.monthly == monthlyType)
+  //       .toList();
+  // }
 
-  double get totalPriceMonthly {
-    double total = 0.0;
+  // double get totalPriceMonthly {
+  //   double total = 0.0;
 
-    for (var cartItem in _cartItems) {
-      if (cartItem.item.category == 'Mensualidad') {
-        // Filtrar los clientes que tienen la mensualidad correspondiente
-        List<Customer> applicableCustomers = getCustomersByMonthly(cartItem.item
-            .name); // Asegúrate de que el nombre del item sea el tipo de mensualidad
+  //   for (var cartItem in _cartItems) {
+  //     if (cartItem.item.category == 'Mensualidad') {
+  //       // Filtrar los clientes que tienen la mensualidad correspondiente
+  //       List<Customer> applicableCustomers = getCustomersByMonthly(cartItem.item
+  //           .name); // Asegúrate de que el nombre del item sea el tipo de mensualidad
 
-        // Calcular el total solo para los clientes que tienen esa mensualidad
-        total += (cartItem.quantity *
-            cartItem.adjustedPrice *
-            applicableCustomers.length);
-      } else {
-        total += (cartItem.quantity * cartItem.adjustedPrice);
-      }
-    }
+  //       // Calcular el total solo para los clientes que tienen esa mensualidad
+  //       total += (cartItem.quantity *
+  //           cartItem.adjustedPrice *
+  //           applicableCustomers.length);
+  //     } else {
+  //       total += (cartItem.quantity * cartItem.adjustedPrice);
+  //     }
+  //   }
 
-    return double.parse(total.toStringAsFixed(2));
-  }
+  //   return double.parse(total.toStringAsFixed(2));
+  // }
 
   double get totalPrice => double.parse(_cartItems
       .fold<double>(0.0, (total, cartItem) => total + cartItem.totalPrice)
@@ -160,16 +160,16 @@ class CartProvider with ChangeNotifier {
   int get totalItems =>
       _cartItems.fold(0, (total, cartItem) => total + cartItem.quantity);
 
-  // double get totalPriceMonthly {
-  //   return double.parse(
-  //     _cartItems.fold<double>(0.0, (total, cartItem) {
-  //       if (cartItem.item.category == 'Mensualidad') {
-  //         return total +
-  //             (cartItem.quantity * cartItem.adjustedPrice * _customers.length);
-  //       } else {
-  //         return total + (cartItem.quantity * cartItem.adjustedPrice);
-  //       }
-  //     }).toStringAsFixed(2),
-  //   );
-  // }
+  double get totalPriceMonthly {
+    return double.parse(
+      _cartItems.fold<double>(0.0, (total, cartItem) {
+        if (cartItem.item.category == 'Mensualidad') {
+          return total +
+              (cartItem.quantity * cartItem.adjustedPrice * _customers.length);
+        } else {
+          return total + (cartItem.quantity * cartItem.adjustedPrice);
+        }
+      }).toStringAsFixed(2),
+    );
+  }
 }

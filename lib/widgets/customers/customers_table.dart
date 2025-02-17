@@ -83,6 +83,10 @@ class _CustomerTableState extends State<CustomerTable> {
     return Column(
       children: [
         Padding(
+          padding: const EdgeInsets.all(10),
+          child: Text("Clientes filtrados: ${_filteredCustomers.length}"),
+        ),
+        Padding(
           padding: const EdgeInsets.all(8.0),
           child: TextField(
             controller: _searchController,
@@ -139,8 +143,8 @@ class _CustomerTableState extends State<CustomerTable> {
                           DataCell(Text(customer['is_minor'] ? 'Sí' : 'No')),
                           DataCell(
                               Text(customer['is_preferred'] ? 'Sí' : 'No')),
-                          DataCell(Text((customer['is_active'] ?? false) ? 'Sí' : 'No')),
-
+                          DataCell(Text(
+                              (customer['is_active'] ?? false) ? 'Sí' : 'No')),
                           DataCell(Row(
                             children: [
                               IconButton(

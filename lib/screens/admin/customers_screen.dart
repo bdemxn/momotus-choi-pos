@@ -43,7 +43,6 @@ class CustomersScreen extends StatelessWidget {
                         fontWeight: FontWeight.normal,
                       ),
                     ),
-
                     Padding(
                       padding: const EdgeInsets.only(top: 10, bottom: 10),
                       child: Row(
