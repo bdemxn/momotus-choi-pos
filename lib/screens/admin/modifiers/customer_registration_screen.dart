@@ -1,6 +1,7 @@
 import 'package:choi_pos/services/users/customer_service.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 
 class CustomerRegistrationScreen extends StatefulWidget {
   const CustomerRegistrationScreen({super.key});
@@ -10,12 +11,15 @@ class CustomerRegistrationScreen extends StatefulWidget {
       _CustomerRegistrationScreenState();
 }
 
-class _CustomerRegistrationScreenState
-    extends State<CustomerRegistrationScreen> {
+class _CustomerRegistrationScreenState extends State<CustomerRegistrationScreen> {
   final _formKey = GlobalKey<FormState>();
   final _customerService = CustomerService();
 
+  final DateFormat dateFormat = DateFormat('dd/MM/yyyy');
+
   String fullname = '';
+  String tutorName = '';
+  DateTime? created;
   String phone = '';
   String email = '';
   bool isMinor = false;
@@ -62,6 +66,20 @@ class _CustomerRegistrationScreenState
     }
   ];
 
+  Future<void> _selectDate(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2101),
+    );
+    if (picked != null && picked != created) {
+      setState(() {
+        created = picked;
+      });
+    }
+  }
+
   Future<void> _submitForm() async {
     if (_formKey.currentState?.validate() ?? false) {
       _formKey.currentState?.save();
@@ -75,7 +93,9 @@ class _CustomerRegistrationScreenState
         "monthly_pay_ref": selectedPlan,
         "schedule": selectedSchedule,
         "times": selectedTime,
-        "is_active": isActive
+        "is_active": isActive,
+        "tutor_name": tutorName,
+        "created": created?.toString()
       };
 
       try {
@@ -134,12 +154,34 @@ class _CustomerRegistrationScreenState
                 ),
                 TextFormField(
                   decoration:
+                      const InputDecoration(labelText: 'Nombre del tutor'),
+                  keyboardType: TextInputType.text,
+                  onSaved: (value) => tutorName = value ?? '',
+                  validator: (value) => value?.isEmpty == true
+                      ? 'El nombre del tutor es obligatorio'
+                      : null,
+                ),
+                TextFormField(
+                  decoration:
                       const InputDecoration(labelText: 'Correo electrónico'),
                   keyboardType: TextInputType.emailAddress,
                   onSaved: (value) => email = value ?? '',
                   validator: (value) => value?.isEmpty == true
                       ? 'El correo es obligatorio'
                       : null,
+                ),
+                TextFormField(
+                  readOnly: true,
+                  decoration: InputDecoration(
+                    labelText: 'Fecha de creación',
+                    suffixIcon: IconButton(
+                      icon: const Icon(Icons.calendar_today),
+                      onPressed: () => _selectDate(context),
+                    ),
+                  ),
+                  controller: TextEditingController(
+                    text: created != null ? dateFormat.format(created!) : '',
+                  ),
                 ),
                 DropdownButtonFormField<String>(
                   value: selectedPlan,

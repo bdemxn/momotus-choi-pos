@@ -1,6 +1,7 @@
 import 'package:choi_pos/services/users/create_cashier_customer.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 
 class CashierCustomerRegistration extends StatefulWidget {
   const CashierCustomerRegistration({super.key});
@@ -15,7 +16,11 @@ class _CashierCustomerRegistrationState
   final _formKey = GlobalKey<FormState>();
   final _customerService = CashierCustomerService();
 
+  final DateFormat dateFormat = DateFormat('dd/MM/yyyy');
+
   String fullname = '';
+  String tutorName = '';
+  DateTime? created;
   String phone = '';
   String email = '';
   bool isMinor = false;
@@ -65,6 +70,20 @@ class _CashierCustomerRegistrationState
     }
   ];
 
+  Future<void> _selectDate(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2101),
+    );
+    if (picked != null && picked != created) {
+      setState(() {
+        created = picked;
+      });
+    }
+  }
+
   Future<void> _submitForm() async {
     if (_formKey.currentState?.validate() ?? false) {
       _formKey.currentState?.save();
@@ -77,8 +96,10 @@ class _CashierCustomerRegistrationState
         "is_preferred": isPreferred,
         "monthly_pay_ref": selectedPlan,
         "schedule": selectedSchedule,
+        "times": selectedTime,
         "is_active": isActive,
-        "times": selectedTime
+        "tutor_name": tutorName,
+        "created": created?.toString()
       };
 
       try {
@@ -143,6 +164,19 @@ class _CashierCustomerRegistrationState
                   validator: (value) => value?.isEmpty == true
                       ? 'El correo es obligatorio'
                       : null,
+                ),
+                TextFormField(
+                  readOnly: true,
+                  decoration: InputDecoration(
+                    labelText: 'Fecha de creación',
+                    suffixIcon: IconButton(
+                      icon: const Icon(Icons.calendar_today),
+                      onPressed: () => _selectDate(context),
+                    ),
+                  ),
+                  controller: TextEditingController(
+                    text: created != null ? dateFormat.format(created!) : '',
+                  ),
                 ),
                 const SizedBox(height: 20),
                 DropdownButtonFormField<String>(
