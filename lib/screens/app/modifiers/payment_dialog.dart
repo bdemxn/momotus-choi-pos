@@ -65,7 +65,7 @@ class _PaymentDialogState extends State<PaymentDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: Text('Agregar Pago - ${widget.clientName}'),
+      title: Text('Pago - ${widget.clientName}'),
       content: SingleChildScrollView(
         child: Column(
           children: orderedMonths.map((month) {

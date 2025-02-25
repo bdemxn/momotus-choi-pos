@@ -11,7 +11,7 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-// import 'package:choi_pos/screens/printing/printer_controller.dart';
+import 'package:choi_pos/screens/printing/printer_controller.dart';
 
 class CheckoutScreen extends StatefulWidget {
   const CheckoutScreen({super.key});
@@ -21,7 +21,7 @@ class CheckoutScreen extends StatefulWidget {
 }
 
 class _CheckoutScreenState extends State<CheckoutScreen> {
-  // final PrinterController printerController = PrinterController();
+  final PrinterController printerController = PrinterController();
 
   // // ESPAGUETI:
   // final _customerService = CashierCustomerService();
@@ -260,13 +260,13 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       barrierDismissible: false,
       builder: (_) => const Center(child: CircularProgressIndicator()),
     );
-    // if (printerController.connectedPrinter == null) {
-    //   ScaffoldMessenger.of(context).showSnackBar(
-    //     const SnackBar(content: Text('No hay ninguna impresora conectada.')),
-    //   );
-    //   printerController.debugPrinterState(); // Para depurar
-    //   return;
-    // }
+    if (printerController.connectedPrinter == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('No hay ninguna impresora conectada.')),
+      );
+      printerController.debugPrinterState(); // Para depurar
+      return;
+    }
     if ((selectedPaymentMethod == 'Tarjeta' ||
             selectedPaymentMethod == 'Transferencia') &&
         (referenceCode == null || referenceCode!.isEmpty)) {
@@ -331,7 +331,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         currency: currency == 'Dolares' ? 'USD' : 'NIO',
         type: selectedPaymentMethod,
         change: changeValue ?? 0,
-        // printerController: printerController,
+        printerController: printerController,
         context: context,
       );
 
@@ -360,11 +360,11 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     // _fetchCustomers();
 
     // Restaurar conexión de impresora al iniciar
-    // printerController.restoreConnectedPrinter().then((_) {
-    //   if (printerController.connectedPrinter != null) {
-    //     print("Conexión restaurada: ${printerController.connectedPrinter}");
-    //   }
-    // });
+    printerController.restoreConnectedPrinter().then((_) {
+      if (printerController.connectedPrinter != null) {
+        print("Conexión restaurada: ${printerController.connectedPrinter}");
+      }
+    });
   }
 
   Future<void> _loadSharedPreferences() async {

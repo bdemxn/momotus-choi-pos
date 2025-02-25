@@ -9,7 +9,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:choi_pos/services/monthly/monthly_services.dart';
 import 'package:choi_pos/services/bundles/get_bundles.dart';
-// import 'package:choi_pos/screens/printing/printer_controller.dart';
+import 'package:choi_pos/screens/printing/printer_controller.dart';
 
 class AppScreen extends StatefulWidget {
   const AppScreen({super.key});
@@ -19,7 +19,7 @@ class AppScreen extends StatefulWidget {
 }
 
 class _AppScreenState extends State<AppScreen> {
-  // final PrinterController _printerController = PrinterController();
+  final PrinterController _printerController = PrinterController();
   late TextEditingController _searchController;
   final AuthService _authService = AuthService();
   String selectedView = 'Inventario';
@@ -346,12 +346,12 @@ class _AppScreenState extends State<AppScreen> {
                       padding: const EdgeInsets.only(left: 0),
                       child: IconButton(
                           onPressed: () {
-                            // Navigator.push(
-                            //   context,
-                            //   MaterialPageRoute(
-                            //       builder: (context) => PrintingView(
-                            //           controller: _printerController)),
-                            // );
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => PrintingView(
+                                      controller: _printerController)),
+                            );
                           },
                           icon: const Icon(Icons.print)),
                     ),
