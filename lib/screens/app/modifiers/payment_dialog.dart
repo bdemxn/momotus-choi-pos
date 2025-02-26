@@ -1,124 +1,77 @@
-import 'package:choi_pos/services/payments/payment_services.dart';
 import 'package:flutter/material.dart';
 
-class PaymentDialog extends StatefulWidget {
-  final String clientName;
-  final Map<String, dynamic> months;
+class PaymentDialog extends StatelessWidget {
   final String id;
+  final String clientName;
+  final List<dynamic> months; // Se cambia a List<dynamic> para evitar el error
 
-  const PaymentDialog(
-      {super.key,
-      required this.clientName,
-      required this.months,
-      required this.id});
+  const PaymentDialog({
+    super.key,
+    required this.id,
+    required this.clientName,
+    required this.months,
+  });
 
-  @override
-  State<PaymentDialog> createState() => _PaymentDialogState();
-}
-
-class _PaymentDialogState extends State<PaymentDialog> {
-  late Map<String, bool> monthsStatus;
-  final PaymentServices _paymentServices = PaymentServices();
-
-  final List<String> orderedMonths = [
-    'Enero',
-    'Febrero',
-    'Marzo',
-    'Abril',
-    'Mayo',
-    'Junio',
-    'Julio',
-    'Agosto',
-    'Septiembre',
-    'Octubre',
-    'Noviembre',
-    'Diciembre',
-  ];
-
-  @override
-  void initState() {
-    super.initState();
-    monthsStatus = {};
-
-    // Extraer correctamente la lista de meses desde el Map "widget.months"
-    List<Map<String, dynamic>> monthsList = [];
-
-    if (widget.months.containsKey("months")) {
-      var extractedMonths = widget.months["months"];
-      if (extractedMonths is List) {
-        monthsList = List<Map<String, dynamic>>.from(extractedMonths);
-      }
-    }
-
-    for (var month in orderedMonths) {
-      var paymentDetails = monthsList.firstWhere(
-        (monthData) => monthData["month"] == month,
-        orElse: () => <String,
-            dynamic>{}, // Si no encuentra el mes, retorna un mapa vacío
-      );
-
-      monthsStatus[month] =
-          paymentDetails.isNotEmpty ? paymentDetails["paid"] ?? false : false;
-    }
-  }
+  static const Map<String, int> monthOrder = {
+    "Enero": 1,
+    "Febrero": 2,
+    "Marzo": 3,
+    "Abril": 4,
+    "Mayo": 5,
+    "Junio": 6,
+    "Julio": 7,
+    "Agosto": 8,
+    "Septiembre": 9,
+    "Octubre": 10,
+    "Noviembre": 11,
+    "Diciembre": 12,
+  };
 
   @override
   Widget build(BuildContext context) {
+    // Convertimos `months` en una lista de mapas correctamente tipada
+    List<Map<String, dynamic>> sortedMonths = months
+        .map((e) =>
+            e as Map<String, dynamic>) // Asegurar que cada elemento sea un Map
+        .toList()
+      ..sort(
+          (a, b) => monthOrder[a['month']]!.compareTo(monthOrder[b['month']]!));
+
     return AlertDialog(
-      title: Text('Pago - ${widget.clientName}'),
-      content: SingleChildScrollView(
-        child: Column(
-          children: orderedMonths.map((month) {
-            List<Map<String, dynamic>> monthsList = [];
-
-            if (widget.months.containsKey("months")) {
-              var extractedMonths = widget.months["months"];
-              if (extractedMonths is List) {
-                monthsList = List<Map<String, dynamic>>.from(extractedMonths);
-              }
-            }
-
-            var paymentDetails = monthsList.firstWhere(
-              (monthData) => monthData["month"] == month,
-              orElse: () => <String, dynamic>{},
-            );
-
-            bool isPaid =
-                paymentDetails.isNotEmpty && paymentDetails["paid"] == true;
-
+      title: Text("Pagos de $clientName"),
+      content: SizedBox(
+        width: double.maxFinite,
+        child: ListView.builder(
+          shrinkWrap: true,
+          itemCount: sortedMonths.length,
+          itemBuilder: (context, index) {
+            final month = sortedMonths[index];
             return ListTile(
-              title: Text(month),
-              subtitle: isPaid
-                  ? Text(
-                      "Pagado el ${paymentDetails["payment_date"]} - ${paymentDetails["method"]} - \$${paymentDetails["how_much"]}",
-                    )
-                  : const Text("Pendiente"),
-              trailing: Icon(
-                isPaid ? Icons.check_circle : Icons.cancel,
-                color: isPaid ? Colors.green : Colors.red,
+              title: Text(
+                month['month'],
+                style: const TextStyle(fontWeight: FontWeight.bold),
               ),
-              onTap: () {
-                setState(() {
-                  monthsStatus[month] = !monthsStatus[month]!;
-                });
-              },
+              subtitle: Text(
+                month['paid']
+                    ? "Pagado el ${month['payment_date']} (${month['method']})"
+                    : "Pendiente de pago",
+                style: TextStyle(
+                  color: month['paid'] ? Colors.green : Colors.red,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              trailing: Icon(
+                month['paid'] ? Icons.check_circle : Icons.cancel,
+                color: month['paid'] ? Colors.green : Colors.red,
+              ),
             );
-          }).toList(),
+          },
         ),
       ),
       actions: [
         TextButton(
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
-          child: const Text('Cancelar'),
-        ),
-        ElevatedButton(
-          onPressed: () {
-            _paymentServices.putPayment(monthsStatus, widget.id);
-            Navigator.of(context).pop();
-          },
-          child: const Text('Guardar'),
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text("Cerrar"),
         ),
       ],
     );

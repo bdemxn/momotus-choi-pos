@@ -188,9 +188,9 @@ class _PaymentTableState extends State<PaymentTable> {
                                   return PaymentDialog(
                                     id: payment['id'],
                                     clientName: payment['client_name'],
-                                    months: payment['months'].isNotEmpty
-                                        ? payment['months'][0]
-                                        : {},
+                                    months: (payment['months'] is List)
+                                        ? payment['months']
+                                        : [],
                                   );
                                 },
                               );
