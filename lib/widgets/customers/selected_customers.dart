@@ -29,7 +29,7 @@ class SelectedCustomersView extends StatelessWidget {
                       var client = clients[index];
                       return ListTile(
                         title: Text(client.fullname),
-                        subtitle: Text("ID: ${client.id}"),
+                        subtitle: Text("ID: ${client.id} | Mensualidad: ${client.monthly}"),
                       );
                     },
                   ),

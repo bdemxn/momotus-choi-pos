@@ -357,14 +357,15 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   void initState() {
     super.initState();
     _loadSharedPreferences();
+    fetchPromoCodes();
     // _fetchCustomers();
 
     // Restaurar conexión de impresora al iniciar
-    printerController.restoreConnectedPrinter().then((_) {
-      if (printerController.connectedPrinter != null) {
-        print("Conexión restaurada: ${printerController.connectedPrinter}");
-      }
-    });
+    // printerController.restoreConnectedPrinter().then((_) {
+    //   if (printerController.connectedPrinter != null) {
+    //     print("Conexión restaurada: ${printerController.connectedPrinter}");
+    //   }
+    // });
   }
 
   Future<void> _loadSharedPreferences() async {

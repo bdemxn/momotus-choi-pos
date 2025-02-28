@@ -37,7 +37,8 @@ class PaymentServices {
             "year": item["year"],
             "schedule": item["schedule"],
             "months": item["months"] ?? [],
-            "times": item["times"] ?? ""
+            "times": item["times"] ?? "",
+            "monthly_id": item["monthly_id"]
           };
         }).toList());
       } else {
