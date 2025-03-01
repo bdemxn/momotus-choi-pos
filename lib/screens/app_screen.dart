@@ -32,6 +32,9 @@ class _AppScreenState extends State<AppScreen> {
     super.initState();
     _searchController = TextEditingController();
     fetchInventory();
+    fetchMonthly();
+    fetchBundles();
+    fetchTournaments();
   }
 
   Future<void> fetchInventory() async {
@@ -150,10 +153,10 @@ class _AppScreenState extends State<AppScreen> {
                             value: 'Bundles',
                             child: Text('Bundles'),
                           ),
-                          DropdownMenuItem(
-                            value: 'Mensualidades',
-                            child: Text('Mensualidades'),
-                          ),
+                          // DropdownMenuItem(
+                          //   value: 'Mensualidades',
+                          //   child: Text('Mensualidades'),
+                          // ),
                         ],
                         onChanged: (value) {
                           setState(() {
@@ -162,7 +165,7 @@ class _AppScreenState extends State<AppScreen> {
 
                           switch (selectedView) {
                             case 'Examenes':
-                              fetchTournaments(); // Fetch tournaments when selected.
+                              fetchTournaments();
                               break;
                             case 'Mensualidades':
                               fetchMonthly();

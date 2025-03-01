@@ -23,14 +23,6 @@ class CheckoutScreen extends StatefulWidget {
 class _CheckoutScreenState extends State<CheckoutScreen> {
   final PrinterController printerController = PrinterController();
 
-  // // ESPAGUETI:
-  // final _customerService = CashierCustomerService();
-  // final TextEditingController _searchController = TextEditingController();
-  // late Future<List<Map<String, dynamic>>> _customers;
-  // List<Map<String, dynamic>> _filteredCustomers = [];
-  // String? selectedCustomerId = "";
-  // // ESPAGUETI
-
   late SharedPreferences prefs;
   String selectedPaymentMethod = 'Efectivo';
   String currency = 'Dolares';
@@ -69,15 +61,23 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   }
 
   Future<void> updateAllMonthlyPayments(CartProvider cartProvider) async {
-    int monthsToPay = cartProvider.getMonthlyItems();
+    List<CartItem> monthlyItems = cartProvider.cartItems
+        .where((item) => item.category?.startsWith("Mensualidad") ?? false)
+        .toList();
 
-    try {
-      for (var client in cartProvider.customers) {
+    for (var item in monthlyItems) {
+      try {
         await _monthlyServices.updateMonthly(
-            client.id, monthsToPay, selectedPaymentMethod);
+            item.item.barCode, item.item.quantity, selectedPaymentMethod);
+        // print({item.item.barCode, item.item.quantity, item.item.category, selectedPaymentMethod});
+      } catch (err) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error al pagar las mensualidades: $err')),
+        );
       }
-    } catch (err) {
-      print("Error: $err");
+
+      print(
+          "🛒 ${item.item.name} - Categoría: ${item.category} - Cantidad: ${item.quantity} - Precio total: \$${item.totalPrice.toStringAsFixed(2)}");
     }
   }
 
@@ -361,11 +361,11 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     // _fetchCustomers();
 
     // Restaurar conexión de impresora al iniciar
-    // printerController.restoreConnectedPrinter().then((_) {
-    //   if (printerController.connectedPrinter != null) {
-    //     print("Conexión restaurada: ${printerController.connectedPrinter}");
-    //   }
-    // });
+    printerController.restoreConnectedPrinter().then((_) {
+      if (printerController.connectedPrinter != null) {
+        print("Conexión restaurada: ${printerController.connectedPrinter}");
+      }
+    });
   }
 
   Future<void> _loadSharedPreferences() async {

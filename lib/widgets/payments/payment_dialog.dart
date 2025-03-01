@@ -1,16 +1,54 @@
+import 'package:choi_pos/models/inventory_item.dart';
+import 'package:choi_pos/store/cart_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 
 class AddPaymentDialog extends StatelessWidget {
   final String clientName;
   final String monthlyId;
-  final Function() onAddToCart;
+  final String clientId;
 
   const AddPaymentDialog({
     super.key,
     required this.clientName,
     required this.monthlyId,
-    required this.onAddToCart,
+    required this.clientId
   });
+
+  void onAddToCart(String client, String monthlyId, int totalMonthsToPay,
+      BuildContext context) {
+    double price;
+    switch (monthlyId) {
+      case 'Mensualidad Standard':
+        price = 45;
+        break;
+      case 'Mensualidad Sabatina Standard':
+        price = 40;
+        break;
+      case 'Mensualidad Sabatina Standard Niños 2-4':
+        price = 25;
+        break;
+      case 'Mensualidad Standard Niños 2-4':
+        price = 55;
+        break;
+      default:
+        price = 45;
+    }
+    final cartProvider = Provider.of<CartProvider>(context, listen: false);
+
+    final InventoryItem monthlyItem = InventoryItem(
+        id: monthlyId,
+        name: "Mensualidad para $client",
+        price: price,
+        barCode: clientId,
+        quantity: totalMonthsToPay,
+        category: monthlyId,
+        currency: "\$");
+
+    cartProvider.cartItems.add(CartItem(
+        item: monthlyItem, category: monthlyId, quantity: totalMonthsToPay));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -59,8 +97,8 @@ class AddPaymentDialog extends StatelessWidget {
             ),
             ElevatedButton(
               onPressed: () {
-                onAddToCart();
-                Navigator.of(context).pop();
+                onAddToCart(clientName, monthlyId, selectedMonths, context);
+                context.pushReplacement("/app");
               },
               child: const Text("Añadir al carrito"),
             ),

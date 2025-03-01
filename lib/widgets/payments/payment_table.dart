@@ -204,9 +204,9 @@ class _PaymentTableState extends State<PaymentTable> {
                                     context: context,
                                     builder: (BuildContext context) {
                                       return AddPaymentDialog(
+                                        clientId: payment["client_id"],
                                           clientName: payment["client_name"],
-                                          monthlyId: payment["monthly_id"],
-                                          onAddToCart: () => {});
+                                          monthlyId: payment["monthly_id"]);
                                     });
                               },
                               child: const Text("Pagar mensualidad"),
