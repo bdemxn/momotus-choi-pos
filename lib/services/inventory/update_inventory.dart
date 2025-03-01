@@ -50,6 +50,8 @@ class UpdateInventory {
     }
 
     for (var item in cart) {
+      if (item.category.startsWith("Mensualidad")) return;
+
       // Obtener cantidad actual del inventario
       final response = await http.get(
         Uri.parse('$baseUrl/cashier/inventory/${item.id}'),
@@ -133,6 +135,8 @@ class UpdateInventory {
       'change': change
     };
 
+    print(saleReport);
+
     final printingSales = {
       'cashier': cashier,
       'customer': customer,
@@ -153,6 +157,8 @@ class UpdateInventory {
         'Authorization': 'Bearer $token'
       },
     );
+
+    print({response.body, response.statusCode});
 
     if (response.statusCode != 201) {
       throw Exception('Error enviando el reporte de ventas.');

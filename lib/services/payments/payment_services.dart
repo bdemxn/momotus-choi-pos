@@ -38,7 +38,8 @@ class PaymentServices {
             "schedule": item["schedule"],
             "months": item["months"] ?? [],
             "times": item["times"] ?? "",
-            "monthly_id": item["monthly_id"]
+            "monthly_id": item["monthly_id"],
+            "monthly_name": item["monthly_name"]
           };
         }).toList());
       } else {
@@ -75,7 +76,8 @@ class PaymentServices {
           },
           body: json.encode([monthlyDataToUpdate]));
 
-      if (response.statusCode != 201) {
+      print(response.body);
+      if (response.statusCode != 200) {
         throw Exception('Error: ${response.body}');
       }
     } catch (error) {

@@ -69,7 +69,6 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       try {
         await _monthlyServices.updateMonthly(
             item.item.barCode, item.item.quantity, selectedPaymentMethod);
-        // print({item.item.barCode, item.item.quantity, item.item.category, selectedPaymentMethod});
       } catch (err) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Error al pagar las mensualidades: $err')),

@@ -8,18 +8,20 @@ class AddPaymentDialog extends StatelessWidget {
   final String clientName;
   final String monthlyId;
   final String clientId;
+  final String monthlyName;
 
   const AddPaymentDialog({
     super.key,
     required this.clientName,
     required this.monthlyId,
-    required this.clientId
+    required this.clientId,
+    required this.monthlyName
   });
 
-  void onAddToCart(String client, String monthlyId, int totalMonthsToPay,
+  void onAddToCart(String client, String monthlyId, int totalMonthsToPay, String monthlyName,
       BuildContext context) {
     double price;
-    switch (monthlyId) {
+    switch (monthlyName) {
       case 'Mensualidad Standard':
         price = 45;
         break;
@@ -43,11 +45,11 @@ class AddPaymentDialog extends StatelessWidget {
         price: price,
         barCode: clientId,
         quantity: totalMonthsToPay,
-        category: monthlyId,
+        category: monthlyName,
         currency: "\$");
 
     cartProvider.cartItems.add(CartItem(
-        item: monthlyItem, category: monthlyId, quantity: totalMonthsToPay));
+        item: monthlyItem, category: monthlyName, quantity: totalMonthsToPay));
   }
 
   @override
@@ -97,7 +99,7 @@ class AddPaymentDialog extends StatelessWidget {
             ),
             ElevatedButton(
               onPressed: () {
-                onAddToCart(clientName, monthlyId, selectedMonths, context);
+                onAddToCart(clientName, monthlyId, selectedMonths, monthlyName, context);
                 context.pushReplacement("/app");
               },
               child: const Text("Añadir al carrito"),
